@@ -1,4 +1,17 @@
-install_yolo <- function(nvidia = FALSE) {
+.yolo_path <- function() {
+  if (reticulate::condaenv_exists("trackRai")) {
+    yolo_path <- paste0(dirname(reticulate::conda_python("trackRai")), "/yolo")
+    if (file.exists(yolo_path)) {
+      yolo_path
+    } else {
+      NA
+    }
+  } else {
+    NA
+  }
+}
+
+install_yolo <- function() {
   conda_installed <- !is.na(tryCatch(reticulate::conda_version(), error = function(e) NA))
 
   if (!conda_installed) {
@@ -25,16 +38,25 @@ install_yolo <- function(nvidia = FALSE) {
       )
     )
 
+    nvidia <- as.numeric(system("nvidia-smi --list-gpus | wc -l", intern = TRUE)) > 0
+    print(nvidia)
+
     if (!is.na(answer)) {
       if (answer) {
         if (nvidia) {
-          conda_create(
+          res <- system("nvidia-smi --version", intern = TRUE)
+          v <- strsplit(res[grepl("CUDA Version", res)], " ")[[1]]
+
+          reticulate::conda_create(
             envname = "trackRai",
             channel = c("pytorch", "nvidia", "conda-forge"),
-            packages = c("pytorch-cuda=11.8", "torchvision", "torchaudio", "ultralytics")
+            packages = c(
+              "pytorch", "torchvision", "torchaudio",
+              paste0("pytorch-cuda=", v[length(v)]), "ultralytics"
+            )
           )
         } else {
-          conda_create(
+          reticulate::conda_create(
             envname = "trackRai",
             channel = c("pytorch", "conda-forge"),
             packages = c("pytorch::pytorch", "torchvision", "torchaudio", "ultralytics")
@@ -44,7 +66,6 @@ install_yolo <- function(nvidia = FALSE) {
     } else {
       stop("YOLO was not installed on this system.")
     }
-
   } else {
     answer <- utils::askYesNo(
       paste0(
@@ -65,46 +86,4 @@ install_yolo <- function(nvidia = FALSE) {
     install_path = .yolo_path(),
     version = system(paste0(.yolo_path(), " version"), intern = TRUE)
   )
-}
-
-.yolo_path <- function() {
-  if (reticulate::condaenv_exists("trackRai")) {
-    yolo_path <- paste0(dirname(conda_python("trackRai")), "/yolo")
-    if (file.exists(yolo_path)) {
-      yolo_path
-    } else {
-      NA
-    }
-  } else {
-    NA
-  }
-}
-
-yolo_train <- function(dataset, epochs = 100) {
-  mem_folder <- getwd()
-  setwd(dataset)
-
-  background <- Rvision::image("background.png")
-  n_gpus <- as.numeric(system("nvidia-smi --list-gpus | wc -l", intern = TRUE))
-
-  if (n_gpus > 1) {
-    dump <- system(
-      paste0(
-        .yolo_path(), " obb train data=dataset.yaml", 
-        " model=yolo11m-obb.pt epochs=", epochs, 
-        " imgsz=", ncol(background), " batch=8 single_cls=True",
-        paste0(" device=", paste0((1:n_gpus) - 1, collapse = ","))
-      )
-    )
-  } else {
-    dump <- system(
-      paste0(
-        .yolo_path(), " obb train data=dataset.yaml", 
-        " model=yolo11m-obb.pt epochs=", epochs, 
-        " imgsz=", ncol(background), " batch=-1 single_cls=True"
-      )
-    )
-  }
-
-  setwd(mem_folder)
 }
