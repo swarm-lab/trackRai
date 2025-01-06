@@ -56,6 +56,55 @@ output$console <- renderUI({
   }
 })
 
+output$display <- renderUI({
+  if (input$main == "1") {
+    tagList(
+      div(
+        style = "padding-left: 20px; padding-right: 20px; padding-top: 20px;",
+        plotlyOutput("plotly", width = "100%", height = "420px"),
+        hr()
+      ),
+      div(
+        htmlOutput("console"),
+        style = "padding-left: 20px; padding-right: 20px; padding-bottom: 20px;"
+      ),
+      tags$head(
+        tags$style(
+          "#console{
+            font-size: 10px;
+            font-family: monospace;
+            overflow-y:auto;
+            height: 200px;
+            display: flex;
+            flex-direction: column-reverse;
+            border-style: solid;
+            border-width: 1px;
+            border-color: black;
+            border-radius: 5px;
+            background-color: #e5e5e5;
+            width: 100%;
+            margin: auto;
+            padding: 10px;
+            text-align: start;
+          }"
+        )
+      )
+    )
+  } else if (input$main == "2") {
+    imageOutput("displayImg",
+      height = "auto"
+    )
+  }
+})
+
+observeEvent(theModel(), {
+  if (is.null(theModel())) {
+    toggleTabs(2, "OFF")
+  } else {
+    toggleTabs(2, "ON")
+  }
+})
+
 
 # Events
 shinyDirChoose(input, "dataset_x",
@@ -65,7 +114,12 @@ shinyDirChoose(input, "dataset_x",
 observeEvent(input$dataset_x, {
   path <- parseDirPath(volumes, input$dataset_x)
   if (length(path) > 0) {
-    if (file.exists(paste0(path, "/dataset.yaml"))) {
+    check <- file.exists(paste0(path, "/dataset.yaml")) &
+      file.exists(paste0(path, "/video.mp4")) &
+      dir.exists(paste0(path, "/images")) &
+      dir.exists(paste0(path, "/labels"))
+
+    if (check) {
       theYOLOPath(path)
     } else {
       showNotification(
@@ -86,36 +140,46 @@ observeEvent(theYOLOPath(), {
 
 observeEvent(input$startTrain_x, {
   if (!is.null(theYOLOPath())) {
-    mem_folder <- getwd()
-    setwd(theYOLOPath())
-    background <- Rvision::image("background.png")
+    background <- Rvision::image(paste0(theYOLOPath(), "/background.png"))
     theTempFile <<- tempfile(fileext = ".txt")
-    print(theTempFile)
 
     if (n_gpus > 1) {
-      dump <- system(
-        paste0(
-          .yolo_path(), " obb train data=dataset.yaml",
-          " model=yolo11m-obb.pt epochs=", input$epochs_x,
-          " imgsz=", ncol(background), " batch=8 single_cls=True",
-          paste0(" device=", paste0((1:n_gpus) - 1, collapse = ",")),
-          " > ", theTempFile, " 2>&1"
+      yolo_proc <<- process$new(
+        .yolo_path(),
+        c(
+          "obb",
+          "train",
+          "data=dataset.yaml",
+          "model=yolo11m-obb.pt",
+          paste0("epochs=", input$epochs_x),
+          paste0("imgsz=", ncol(background)),
+          "batch=8",
+          "single_cls=True",
+          paste0("device=", paste0((1:n_gpus) - 1, collapse = ","))
         ),
-        wait = FALSE
+        stdout = theTempFile,
+        stderr = "2>&1",
+        wd = theYOLOPath()
       )
     } else {
-      dump <- system(
-        paste0(
-          .yolo_path(), " obb train data=dataset.yaml",
-          " model=yolo11m-obb.pt epochs=", input$epochs_x,
-          " imgsz=", ncol(background), " batch=-1 single_cls=True",
-          " > ", theTempFile, " 2>&1"
+      yolo_proc <<- process$new(
+        .yolo_path(),
+        c(
+          "obb",
+          "train",
+          "data=dataset.yaml",
+          "model=yolo11m-obb.pt",
+          paste0("epochs=", input$epochs_x),
+          paste0("imgsz=", ncol(background)),
+          "batch=-1",
+          "single_cls=True"
         ),
-        wait = FALSE
+        stdout = theTempFile,
+        stderr = "2>&1",
+        wd = theYOLOPath()
       )
     }
 
-    setwd(mem_folder)
     monitorProgress(TRUE)
     disable("epochs_x")
     disable("dataset_x")
@@ -126,12 +190,13 @@ observeEvent(input$stopTrain_x, {
   monitorProgress(FALSE)
   enable("epochs_x")
   enable("dataset_x")
-  system("killall pt_main_thread")
+  yolo_proc$kill_tree()
 })
 
 observeEvent(theRawProgress(), {
   if (monitorProgress()) {
     start <- grep("Starting training for", theRawProgress())
+    stop <- grep("Results saved to", theRawProgress())
 
     if (length(start) > 0) {
       progress_tab <- data.table(string = theRawProgress())[
@@ -149,9 +214,21 @@ observeEvent(theRawProgress(), {
         )
         names(progress_tab) <- c("epoch", "box_loss", "cls_loss", "dfl_loss")
         progress_tab[, epoch := as.numeric(gsub("(\\d+)/(\\d+)", "\\1", epoch))]
+        progress_tab[, box_loss := as.numeric(box_loss)]
+        progress_tab[, cls_loss := as.numeric(cls_loss)]
+        progress_tab[, dfl_loss := as.numeric(dfl_loss)]
         theProgress(progress_tab)
 
-        if (nrow(progress_tab) >= input$epochs_x) {
+        if (length(stop) > 0) {
+          model_folder <- paste0(
+            theYOLOPath(), "/",
+            gsub("Results saved to ", "", ansi_strip(theRawProgress()[stop]))
+          )
+          theModel(model_folder)
+          showNotification(
+            paste0("Results saved to ", model_folder),
+            id = "done", duration = NULL, type = "message"
+          )
           monitorProgress(FALSE)
           enable("epochs_x")
           enable("dataset_x")
@@ -161,15 +238,16 @@ observeEvent(theRawProgress(), {
   }
 })
 
-# Display
-output$display <- renderPlotly({
+
+# Plotting
+output$plotly <- renderPlotly({
   if (!is.null(theProgress())) {
     plot_ly(theProgress(),
       x = ~epoch, y = ~box_loss, name = "Box loss",
-      type = "scatter", mode = "lines"
+      type = "scatter", mode = "lines+markers"
     ) %>%
-      add_trace(y = ~cls_loss, name = "Class loss", mode = "lines") %>%
-      add_trace(y = ~dfl_loss, name = "DFL loss", mode = "lines") %>%
+      add_trace(y = ~cls_loss, name = "Class loss", mode = "lines+markers") %>%
+      add_trace(y = ~dfl_loss, name = "DFL loss", mode = "lines+markers") %>%
       layout(
         margin = list(l = 20, r = 20, t = 20, b = 20, pad = 0),
         xaxis = list(title = "Epochs", range = c(0, input$epochs_x)),
@@ -177,7 +255,7 @@ output$display <- renderPlotly({
       ) %>%
       config(displayModeBar = FALSE)
   } else {
-    plot_ly(type = "scatter", mode = "lines") %>%
+    plot_ly(type = "scatter", mode = "lines+markers") %>%
       layout(
         margin = list(l = 20, r = 20, t = 20, b = 20, pad = 0),
         xaxis = list(title = "Epochs", range = c(0, input$epochs_x)),

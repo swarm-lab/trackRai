@@ -10,6 +10,8 @@ library(htmlwidgets)
 library(Rvision)
 library(data.table)
 library(plotly)
+library(processx)
+library(cli)
 
 
 #--------------------------------------------------------------
@@ -38,36 +40,7 @@ ui <- function(request) {
             margin-left: calc((calc(100% - 410px) -
               min(100vh, calc(100% - 410px))) / 2);",
         class = "vrtc-tab-panel-container",
-        div(
-          style = "padding-left: 20px; padding-right: 20px; padding-top: 20px;",
-          plotlyOutput("display", width = "100%", height = "420px"),
-          hr()
-        ),
-        div(
-          htmlOutput("console"),
-          style = "padding-left: 20px; padding-right: 20px; padding-bottom: 20px;"
-        ),
-        tags$head(
-          tags$style(
-            "#console{
-              font-size: 10px;
-              font-family: monospace;
-              overflow-y:auto;
-              height: 200px;
-              display: flex;
-              flex-direction: column-reverse;
-              border-style: solid;
-              border-width: 1px;
-              border-color: black;
-              border-radius: 5px;
-              background-color: #e5e5e5;
-              width: 100%;
-              margin: auto;
-              padding: 10px;
-              text-align: start;
-            }"
-          )
-        )
+        uiOutput("display")
       ),
       div(
         style = "width: 400px; margin-left: calc(100% - 400px);",
@@ -76,7 +49,8 @@ ui <- function(request) {
           contentWidth = 11,
           menuSide = "right",
           selected = "1",
-          source("UI/train.R", local = TRUE)$value
+          source("UI/train.R", local = TRUE)$value,
+          source("UI/check.R", local = TRUE)$value
         )
       )
     )
@@ -90,7 +64,8 @@ ui <- function(request) {
 server <- function(input, output, session) {
   source("SERVER/global.R", local = TRUE)
   source("SERVER/train.R", local = TRUE)
-  session$onSessionEnded(function() { })
+  source("SERVER/check.R", local = TRUE)
+  session$onSessionEnded(function() { yolo_proc$kill_tree() })
 }
 
 shinyApp(ui = ui, server = server, enableBookmarking = "url")
