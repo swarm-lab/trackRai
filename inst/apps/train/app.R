@@ -65,7 +65,11 @@ server <- function(input, output, session) {
   source("SERVER/global.R", local = TRUE)
   source("SERVER/train.R", local = TRUE)
   source("SERVER/check.R", local = TRUE)
-  session$onSessionEnded(function() { yolo_proc$kill_tree() })
+  session$onSessionEnded(function() {
+    if (!is.null(yolo_proc)) {
+      yolo_proc$kill_tree()
+    }
+  })
 }
 
 shinyApp(ui = ui, server = server, enableBookmarking = "url")
