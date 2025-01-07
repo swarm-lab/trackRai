@@ -161,6 +161,24 @@ observeEvent(input$startTrain_x, {
         stderr = "2>&1",
         wd = theYOLOPath()
       )
+    } else if (mps) {
+      yolo_proc <<- process$new(
+        .yolo_path(),
+        c(
+          "obb",
+          "train",
+          "data=dataset.yaml",
+          paste0("model=yolo11", input$yolo_x, "-obb.pt"),
+          paste0("epochs=", input$epochs_x),
+          paste0("imgsz=", ncol(background)),
+          "batch=-1",
+          "single_cls=True",
+          "device=mps"
+        ),
+        stdout = theTempFile,
+        stderr = "2>&1",
+        wd = theYOLOPath()
+      )
     } else {
       yolo_proc <<- process$new(
         .yolo_path(),

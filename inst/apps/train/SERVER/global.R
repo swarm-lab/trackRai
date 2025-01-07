@@ -3,6 +3,7 @@ reticulate::use_condaenv("trackRai")
 yolo_installed <- !is.na(.yolo_path())
 torch <- reticulate::import("torch")
 n_gpus <- torch$cuda$device_count()
+mps <- torch$backends$mps$is_available()
 yolo_proc <- NULL
 theModel <- reactiveVal()
 
