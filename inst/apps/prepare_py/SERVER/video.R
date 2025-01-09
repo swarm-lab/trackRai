@@ -138,7 +138,8 @@ output$display <- shiny::renderUI({
           base64$b64encode(cv2$imencode(".jpg", toDisplay)[1])$decode("utf-8")
         )),
         width = "100%",
-        id = "displayImg"
+        id = "displayImg",
+        draggable = "false"
       )
     } else {
       shiny::tags$img(
@@ -146,7 +147,8 @@ output$display <- shiny::renderUI({
           base64$b64encode(cv2$imencode(".jpg", black_screen)[1])$decode("utf-8")
         )),
         width = "100%",
-        id = "displayImg"
+        id = "displayImg",
+        draggable = "false"
       )
     }
   }

@@ -20,7 +20,6 @@ library(data.table)
 # Custom functions
 #--------------------------------------------------------------
 source("FUNCTIONS/toggler.R", local = FALSE)
-source("FUNCTIONS/ellipse.R", local = FALSE)
 
 
 #--------------------------------------------------------------

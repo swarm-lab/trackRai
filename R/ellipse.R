@@ -29,7 +29,7 @@
 #'
 #' @export
 optimEllipse <- function(x, y) {
-  d <- Rfast::Dist(cbind(x, y), square = TRUE)
+  d <- Rfast::Dist(cbind(x, y), square = FALSE)
   start <- c(mean(x), mean(y), max(d), max(d), 0)
 
   opt <- stats::optim(start, function(par) {

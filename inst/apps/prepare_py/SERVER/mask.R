@@ -84,39 +84,58 @@ shiny::observeEvent(refreshDisplay(), {
 
       sc <- max(c(trackRai::n_row(toDisplay), trackRai::n_col(toDisplay)) / 720)
       r <- 0.01 * min(trackRai::n_row(toDisplay), trackRai::n_col(toDisplay))
-
-      k <- cv2$getStructuringElement(cv2$MORPH_CROSS, c(5L, 5L))
-      m1 <- cv2$dilate(green, k)
-      m2 <- cv2$dilate(red, k)
-
-      k <- cv2$getStructuringElement(
-        cv2$MORPH_CROSS,
-        c(as.integer(2 + max(1, 0.5 * sc)), as.integer(2 + max(1, 0.5 * sc)))
-      )
-      m <- cv2$dilate(cv2$bitwise_and(m1, m2), k)
-      toDisplay <<- cv2$add(toDisplay, cv2$cvtColor(m, cv2$COLOR_GRAY2BGR))
-
-      cc <- cv2$connectedComponents(gray)[1]
-      n <- reticulate::py_to_r(cc$max())
       font_scale <- as.integer(sc)
       font_thickness <- as.integer(max(1, 1.5 * sc))
 
-      for (i in seq_len(n)) {
-        indices <- np$where(cc == i)
-        val <- reticulate::py_to_r(gray[indices[0][0], indices[1][0]])
-        lab <- as.character(val)
-        lab_size <- reticulate::py_to_r(
-          cv2$getTextSize(
-            lab, cv2$FONT_HERSHEY_SIMPLEX, font_scale, font_thickness
-          )[0]
-        )
-        x <- reticulate::py_to_r(indices[1]$mean()) - lab_size[[1]] / 2 # (floor(log10(val)) + 1) * 5
-        y <- reticulate::py_to_r(indices[0]$mean()) - lab_size[[2]] / 2 # - 5 * sc
+      k1 <- cv2$getStructuringElement(cv2$MORPH_CROSS, c(5L, 5L))
+      k2 <- cv2$getStructuringElement(
+        cv2$MORPH_CROSS,
+        c(as.integer(2 + max(1, 0.5 * sc)), as.integer(2 + max(1, 0.5 * sc)))
+      )
 
-        toDisplay <<- cv2$putText(
-          toDisplay, lab, as.integer(c(x, y)), cv2$FONT_HERSHEY_SIMPLEX,
-          font_scale, c(255L, 255L, 255L), font_thickness, cv2$LINE_AA
-        )
+      # k <- cv2$getStructuringElement(cv2$MORPH_CROSS, c(5L, 5L))
+      # m1 <- cv2$dilate(green, k)
+      # m2 <- cv2$dilate(red, k)
+
+      # k <- cv2$getStructuringElement(
+      #   cv2$MORPH_CROSS,
+      #   c(as.integer(2 + max(1, 0.5 * sc)), as.integer(2 + max(1, 0.5 * sc)))
+      # )
+      # m <- cv2$dilate(cv2$bitwise_and(m1, m2), k)
+      # toDisplay <<- cv2$add(toDisplay, cv2$cvtColor(m, cv2$COLOR_GRAY2BGR))
+
+      h <- np$bincount(gray$ravel(), minlength = 256L)
+      h[0] <- 0L
+      vals <- reticulate::py_to_r(np$where(h))[[1]]
+
+      for (i in seq_along(vals)) {
+        bw <- (gray == vals[i])$astype("uint8")
+        green <- bw * 255L
+        red <- cv2$bitwise_not(green)
+        m1 <- cv2$dilate(green, k1)
+        m2 <- cv2$dilate(red, k1)
+        m <- cv2$dilate(cv2$bitwise_and(m1, m2), k2)
+        toDisplay <<- cv2$add(toDisplay, cv2$cvtColor(m, cv2$COLOR_GRAY2BGR))
+
+        cc <- cv2$connectedComponents(bw)[1]
+        n <- reticulate::py_to_r(cc$max())
+
+        for (j in seq_len(n)) {
+          indices <- np$where(cc == j)
+          lab <- as.character(vals[i])
+          lab_size <- reticulate::py_to_r(
+            cv2$getTextSize(
+              lab, cv2$FONT_HERSHEY_SIMPLEX, font_scale, font_thickness
+            )[0]
+          )
+          x <- reticulate::py_to_r(indices[1]$mean()) - lab_size[[1]] / 2 
+          y <- reticulate::py_to_r(indices[0]$mean()) + lab_size[[2]] / 2
+  
+          toDisplay <<- cv2$putText(
+            toDisplay, lab, as.integer(c(x, y)), cv2$FONT_HERSHEY_SIMPLEX,
+            font_scale, c(255L, 255L, 255L), font_thickness, cv2$LINE_AA
+          )
+        }
       }
 
       if (collectMask() == 1) {
@@ -203,43 +222,54 @@ shiny::observeEvent(input$escKey, {
   }
 })
 
-# shiny::observeEvent(stopMaskCollection(), {
-#   if (collectMask() > 0) {
-#     if (collectMask() == 1) {
-#       if (nrow(maskCoords) > 2) {
-#         polyMask <- zeros(nrow(theMask), ncol(theMask), 1)
-#         fillPoly(polyMask, maskCoords, color = "white")
+shiny::observeEvent(stopMaskCollection(), {
+  if (collectMask() > 0) {
+    if (!is.null(maskCoords)) {
+      if (collectMask() == 1) {
+        if (nrow(maskCoords) > 2) {
+          polyMask <- reticulate::np_array(
+            array(0L, c(trackRai::n_row(theMask), trackRai::n_col(theMask), 3)),
+            dtype = "uint8"
+          )
+          cv2$fillPoly(
+            polyMask,
+            pts = array(as.integer(maskCoords), c(1, dim(maskCoords))),
+            color = c(255, 255, 255)
+          )
+          if (input$incButton_x == "Including") {
+            theMask[polyMask > 0] <<- as.integer(input$roi_x)
+          } else if (input$incButton_x == "Excluding") {
+            theMask[polyMask > 0] <<- 0L
+          }
+        }
+      } else if (collectMask() == 2) {
+        if (nrow(maskCoords) == 5) {
+          ellMask <- reticulate::np_array(
+            array(0L, c(trackRai::n_row(theMask), trackRai::n_col(theMask), 3)),
+            dtype = "uint8"
+          )
+          ell <- trackRai::optimEllipse(maskCoords[, 1], maskCoords[, 2])
+          ellMask <- cv2$ellipse(
+            ellMask, as.integer(c(ell[1], ell[2])), as.integer(c(ell[3], ell[4]) / 2),
+            ell[5], 0, 360, c(255L, 255L, 255L), -1L
+          )
+          if (input$incButton_x == "Including") {
+            theMask[ellMask > 0] <<- as.integer(input$roi_x)
+          } else if (input$incButton_x == "Excluding") {
+            theMask[ellMask > 0] <<- 0L
+          }
+        }
+      }
+    }
 
-#         if (input$incButton_x == "Including") {
-#           setTo(theMask, polyMask, gray(input$roi_x / 255), target = "self")
-#         } else if (input$incButton_x == "Excluding") {
-#           setTo(theMask, polyMask, "black", target = "self")
-#         }
-#       }
-#     } else if (collectMask() == 2) {
-#       if (nrow(maskCoords) == 5) {
-#         ellMask <- zeros(nrow(theMask), ncol(theMask), 1)
-#         ell <- optimEllipse(maskCoords[, 1], maskCoords[, 2])
-#         drawEllipse(ellMask, ell[1], ell[2], ell[3] / 2, ell[4] / 2, ell[5],
-#           color = "white", thickness = -1
-#         )
-
-#         if (input$incButton_x == "Including") {
-#           setTo(theMask, ellMask, gray(input$roi_x / 255), target = "self")
-#         } else if (input$incButton_x == "Excluding") {
-#           setTo(theMask, ellMask, "black", target = "self")
-#         }
-#       }
-#     }
-
-#     removeNotification(id = "mask_notif")
-#     toggleInputs(input, "ON")
-#     toggleTabs(1:2, "ON")
-#     collectMask(0)
-#     maskCoords <<- NULL
-#     refreshDisplay(refreshDisplay() + 1)
-#   }
-# })
+    removeNotification(id = "mask_notif")
+    toggleInputs(input, "ON")
+    toggleTabs(1:2, "ON")
+    collectMask(0)
+    maskCoords <<- NULL
+    refreshDisplay(refreshDisplay() + 1)
+  }
+})
 
 shiny::observeEvent(input$incButton_x, {
   if (input$incButton_x == "Including") {
@@ -250,7 +280,7 @@ shiny::observeEvent(input$incButton_x, {
 })
 
 shiny::observeEvent(input$includeAll_x, {
-  if (isImage(theMask)) {
+  if (trackRai::is_image(theMask)) {
     theMask <<- reticulate::np_array(
       array(1L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
       dtype = "uint8"
@@ -260,7 +290,7 @@ shiny::observeEvent(input$includeAll_x, {
 })
 
 shiny::observeEvent(input$excludeAll_x, {
-  if (isImage(theMask)) {
+  if (trackRai::is_image(theMask)) {
     theMask <<- reticulate::np_array(
       array(0L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
       dtype = "uint8"
