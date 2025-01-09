@@ -57,8 +57,6 @@ output$displayImg <- renderImage(
         )
       )
 
-      theTempPredict <- "/tmp/RtmpK1OnyN"
-
       pred <- fread(
         list.files(paste0(theTempPredict, "/predict/labels"), full.names = TRUE),
         col.names = c("class", "x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4")
