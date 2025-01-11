@@ -1,5 +1,5 @@
 # UI
-observe({
+shiny::observe({
   if (is.null(input$videoPos2_x)) {
     toggleTabs(5:6, "OFF")
     toggledTabs$toggled[5:6] <<- FALSE
@@ -7,12 +7,12 @@ observe({
     if (toggledTabs$toggled[5] == FALSE) {
       toggleTabs(5, "ON")
       toggledTabs$toggled[5] <<- TRUE
-      updateCheckboxInput(session, "autoSelect_x", value = TRUE)
+      shiny::updateCheckboxInput(session, "autoSelect_x", value = TRUE)
     }
   }
 })
 
-output$videoSlider2 <- renderUI({
+output$videoSlider2 <- shiny::renderUI({
   if (!is.null(input$rangePos_x)) {
     sliderInput("videoPos2_x", "Frame",
       width = "100%", step = 1,
@@ -24,14 +24,14 @@ output$videoSlider2 <- renderUI({
 })
 
 
-# Events 
-observeEvent(input$videoPos2_x, {
+# Events
+shiny::observeEvent(input$videoPos2_x, {
   if (input$main == "4") {
     if (!is.null(input$videoPos2_x)) {
-      updateSliderInput(session, "videoPos_x", value = input$videoPos2_x)
+      shiny::updateSliderInput(session, "videoPos_x", value = input$videoPos2_x)
 
       if (!is.null(input$videoPos3_x)) {
-        updateSliderInput(session, "videoPos3_x", value = input$videoPos2_x)
+        shiny::updateSliderInput(session, "videoPos3_x", value = input$videoPos2_x)
       }
     }
 
@@ -39,153 +39,130 @@ observeEvent(input$videoPos2_x, {
   }
 })
 
-observeEvent(input$optimizeThresholds_x, {
-  if (isVideoStack(theVideo) & isImage(theBackground) &
-    nrow(theImage) == nrow(theBackground) &
-    ncol(theImage) == ncol(theBackground)) {
-    showElement("curtain")
-    showNotification("Loading images in memory.", id = "load", duration = NULL)
+shiny::observeEvent(input$optimizeThresholds_x, {
+  if (trackRai::is_video_capture(theVideo) & trackRai::is_image(theBackground) &
+    trackRai::n_row(theImage) == trackRai::n_row(theBackground) &
+    trackRai::n_col(theImage) == trackRai::n_col(theBackground)) {
+    shinyjs::showElement("curtain")
+    shiny::showNotification("Loading images in memory.", id = "load", duration = NULL)
 
     frame_pos <- round(seq.int(input$rangePos_x[1], input$rangePos_x[2],
       length.out = 20
     ))
 
-    background <- cloneImage(theBackground)
+    background <- theBackground$copy()
     if (input$darkButton_x == "Darker") {
-      not(background, "self")
+      background <- cv2$bitwise_not(background)
     }
 
-    if (!isImage(theMask) | nrow(theImage) != nrow(theMask) |
-      ncol(theImage) != ncol(theMask)) {
-      mask <- ones(nrow(theBackground), ncol(theBackground), 3)
+    if (!trackRai::is_image(theMask) | trackRai::n_row(theImage) != trackRai::n_row(theMask) |
+      trackRai::n_col(theImage) != trackRai::n_col(theMask)) {
+      mask <- reticulate::np_array(
+        array(1L, c(trackRai::n_row(theBackground), trackRai::n_col(theBackground), 3)),
+        dtype = "uint8"
+      )
     } else {
-      mask <- cloneImage(theMask)
-      compare(mask, 0, ">", mask)
-      divide(mask, 255, mask)
+      mask <- cv2$compare(theMask, 0, 1L)
+      mask <- cv2$divide(mask, 255)    
     }
 
     frames <- lapply(frame_pos, function(i) {
-      frame <- readFrame(theVideo, i)
+      theVideo$set(cv2$CAP_PROP_POS_FRAMES, i - 1)
+      frame <- theVideo$read()[1]
 
       if (input$darkButton_x == "Darker") {
-        not(frame, target = "self")
+        frame <- cv2$bitwise_not(frame)
       }
 
       if (input$darkButton_x == "A bit of both") {
-        absdiff(frame, background, "self")
+        frame <- cv2$absdiff(frame, background)
       } else {
-        subtract(frame, background, frame)
+        frame <- cv2$subtract(frame, background)
       }
 
-      multiply(frame, mask, frame)
-      changeColorSpace(frame, "GRAY", "self")
-      frame
+      frame <- cv2$multiply(frame, mask)
+      cv2$cvtColor(frame, cv2$COLOR_BGR2GRAY)
     })
 
-    removeNotification(id = "load")
-    showNotification("Optimizing threshold. Please wait.",
+    shiny::removeNotification(id = "load")
+    shiny::showNotification("Optimizing threshold. Please wait.",
       id = "optim", duration = NULL
     )
 
     th <- as.integer(
       mean(
         sapply(frames, function(f) {
-          autothreshold(f, method = input$thresholdMethod_x)
+          as.integer(
+            autothresholdr::auto_thresh(
+              reticulate::py_to_r(f),
+              method = input$thresholdMethod_x
+            )
+          )
         })
       )
     )
 
-    removeNotification(id = "optim")
-    hideElement("curtain")
+    shiny::removeNotification(id = "optim")
+    shinyjs::hideElement("curtain")
 
-    updateSliderInput(session, "threshold_x", value = th[1])
+    shiny::updateSliderInput(session, "threshold_x", value = th[1])
   }
 })
 
-observeEvent(input$threshold_x, {
+shiny::observeEvent(input$threshold_x, {
   refreshDisplay(refreshDisplay() + 1)
 })
 
-observeEvent(refreshDisplay(), {
+shiny::observeEvent(input$darkButton_x, {
+  refreshDisplay(refreshDisplay() + 1)
+})
+
+shiny::observeEvent(refreshDisplay(), {
   if (input$main == "4") {
-    if (!isImage(theImage) & !isImage(theBackground)) {
-      suppressMessages(
-        write.Image(
-          zeros(1080, 1920, 3),
-          paste0(tmpDir, "/display.bmp"), TRUE
-        )
-      )
-    } else if (!isImage(theImage)) {
-      suppressMessages(
-        write.Image(
-          zeros(nrow(theBackground), ncol(theBackground), 3),
-          paste0(tmpDir, "/display.bmp"), TRUE
-        )
-      )
-    } else if (!isImage(theBackground)) {
-      suppressMessages(
-        write.Image(
-          zeros(nrow(theImage), ncol(theImage), 3),
-          paste0(tmpDir, "/display.bmp"), TRUE
-        )
-      )
-    } else if (nrow(theImage) != nrow(theBackground) |
-      ncol(theImage) != ncol(theBackground)) {
-      suppressMessages(
-        write.Image(
-          zeros(nrow(theImage), ncol(theImage), 3),
-          paste0(tmpDir, "/display.bmp"), TRUE
-        )
-      )
+    if (trackRai::n_row(theImage) != trackRai::n_row(theBackground) |
+      trackRai::n_col(theImage) != trackRai::n_col(theBackground)) {
+      toDisplay <<- black_screen$copy()
     } else {
-      background <- changeColorSpace(theBackground, "GRAY")
+      background <- theBackground$copy()
       if (input$darkButton_x == "Darker") {
-        not(background, target = "self")
+        background <- cv2$bitwise_not(background)
       }
 
-      if (!isImage(theMask) | nrow(theImage) != nrow(theMask) |
-        ncol(theImage) != ncol(theMask)) {
-        mask <- ones(nrow(theBackground), ncol(theBackground), 1)
+      if (!trackRai::is_image(theMask) | trackRai::n_row(theImage) != trackRai::n_row(theMask) |
+        trackRai::n_col(theImage) != trackRai::n_col(theMask)) {
+        mask <- reticulate::np_array(
+          array(1L, c(trackRai::n_row(theBackground), trackRai::n_col(theBackground), 3)),
+          dtype = "uint8"
+        )
       } else {
-        mask <- changeColorSpace(theMask, "GRAY")
+        mask <- cv2$compare(theMask, 0, 1L)
+        mask <- cv2$divide(mask, 255)          
       }
 
-      image <- changeColorSpace(theImage, "GRAY")
+      frame <- theImage$copy()
       if (input$darkButton_x == "Darker") {
-        not(image, target = "self")
+        frame <- cv2$bitwise_not(frame)
       }
 
       if (input$darkButton_x == "A bit of both") {
-        absdiff(image, background, "self")
+        frame <- cv2$absdiff(frame, background)
       } else {
-        image %i-% background
+        frame <- cv2$subtract(frame, background)
       }
 
-      compare(mask, 0, ">", mask)
-      divide(mask, 255, mask)
-      multiply(image, mask, image)
+      frame <- cv2$multiply(frame, mask)
+      gray <- cv2$cvtColor(frame, cv2$COLOR_BGR2GRAY)
 
-      to_display <- image * (255 / max(max(image)))
-      changeColorSpace(to_display, "BGR", "self")
-      bw <- image >= input$threshold_x
-      boxFilter(bw, 1, 1, target = "self")
-      bw %i>% 63
-      ct <- findContours(bw, method = "none")
+      toDisplay <<- cv2$multiply(gray, 255L / gray$max())
+      toDisplay <<- cv2$cvtColor(toDisplay, cv2$COLOR_GRAY2BGR)
 
-      sc <- max(dim(image) / 720)
-      drawCircle(
-        to_display, ct$contours[, 2], ct$contours[, 3],
-        max(0.5, sc), "#00e000", -1
-      )
-      suppressMessages(
-        write.Image(to_display, paste0(tmpDir, "/display.bmp"), TRUE)
-      )
+      bw <- cv2$compare(gray, input$threshold_x, 2L)
+      ct <- cv2$findContours(bw, cv2$RETR_EXTERNAL, cv2$CHAIN_APPROX_NONE)[0]
+
+      sc <- max(c(trackRai::n_row(frame), trackRai::n_col(frame)) / 720)
+      cv2$drawContours(toDisplay, ct, -1L, c(0L, 224L, 0L), as.integer(max(1, 1.5 * sc)))
     }
 
     printDisplay(printDisplay() + 1)
   }
 })
-
-
-# Bookmark
-setBookmarkExclude(c(session$getBookmarkExclude(), "optimizeThresholds_x"))

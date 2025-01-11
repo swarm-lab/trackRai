@@ -1,5 +1,5 @@
 # UI
-observe({
+shiny::observe({
   if (is.null(theStats())) {
     toggleTabs(6, "OFF")
     toggledTabs$toggled[6] <<- FALSE
@@ -11,7 +11,7 @@ observe({
   }
 })
 
-output$videoSlider3 <- renderUI({
+output$videoSlider3 <- shiny::renderUI({
   if (!is.null(input$rangePos_x)) {
     sliderInput("videoPos3_x", "Frame",
       width = "100%", step = 1,
@@ -24,13 +24,13 @@ output$videoSlider3 <- renderUI({
 
 
 # Events
-observeEvent(input$videoPos3_x, {
+shiny::observeEvent(input$videoPos3_x, {
   if (input$main == "5") {
     if (!is.null(input$videoPos3_x)) {
-      updateSliderInput(session, "videoPos_x", value = input$videoPos3_x)
+      shiny::updateSliderInput(session, "videoPos_x", value = input$videoPos3_x)
 
       if (!is.null(input$videoPos2_x)) {
-        updateSliderInput(session, "videoPos2_x", value = input$videoPos3_x)
+        shiny::updateSliderInput(session, "videoPos2_x", value = input$videoPos3_x)
       }
     }
 
@@ -38,10 +38,10 @@ observeEvent(input$videoPos3_x, {
   }
 })
 
-observeEvent(input$computeStats_x, {
-  if (isVideoStack(theVideo) & isImage(theBackground) & isImage(theMask)) {
-    showElement("curtain")
-    showNotification("Computing object statistics.",
+shiny::observeEvent(input$computeStats_x, {
+  if (trackRai::is_video_capture(theVideo) & trackRai::is_image(theBackground) & trackRai::is_image(theMask)) {
+    shinyjs::showElement("curtain")
+    shiny::showNotification("Computing object statistics.",
       id = "stats",
       duration = NULL
     )
@@ -50,56 +50,82 @@ observeEvent(input$computeStats_x, {
       length.out = input$nIDFrames_x
     ))
 
-    pb <- Progress$new()
+    pb <- shiny::Progress$new()
     pb$set(message = "Computing: ", value = 0, detail = "0%")
     n <- length(frame_pos)
     old_check <- 0
     old_frame <- 1
     old_time <- Sys.time()
 
-    background <- cloneImage(theBackground)
+    background <- theBackground$copy()
     if (input$darkButton_x == "Darker") {
-      not(background, "self")
+      background <- cv2$bitwise_not(background)
     }
 
-    mask <- cloneImage(theMask)
-    compare(mask, 0, ">", mask)
-    divide(mask, 255, mask)
-
-    frame <- zeros(nrow(theVideo), ncol(theVideo))
-    dif <- zeros(nrow(theVideo), ncol(theVideo), 3)
-    dif_gray <- zeros(nrow(theVideo), ncol(theVideo), 1)
-    morphed <- zeros(nrow(theVideo), ncol(theVideo), 1)
-    bw <- zeros(nrow(theVideo), ncol(theVideo), 1)
-    cc_dump <- zeros(nrow(theVideo), ncol(theVideo), 1, "16U")
+    mask <- cv2$compare(theMask, 0, 1L)
+    mask <- cv2$divide(mask, 255)
 
     res <- list()
+    subs <<- list()
+    submasks <<- list()
 
     for (i in 1:n) {
-      readFrame(theVideo, frame_pos[i], frame)
+      theVideo$set(cv2$CAP_PROP_POS_FRAMES, frame_pos[i] - 1)
+      frame <- theVideo$read()[1]
+
       if (input$darkButton_x == "Darker") {
-        not(frame, target = "self")
+        frame <- cv2$bitwise_not(frame)
       }
-      subtract(frame, background, dif)
-      multiply(dif, mask, dif)
-      changeColorSpace(dif, "GRAY", dif_gray)
-      morph(dif_gray, "dilate",
-        k_height = input$shapeBuffer_x,
-        k_width = input$shapeBuffer_x, 
-        target = morphed
+
+      if (input$darkButton_x == "A bit of both") {
+        dif <- cv2$absdiff(frame, background)
+      } else {
+        dif <- cv2$subtract(frame, background)
+      }
+
+      dif <- cv2$multiply(dif, mask)
+      dif_gray <- cv2$cvtColor(dif, cv2$COLOR_BGR2GRAY)
+
+      k <- cv2$getStructuringElement(
+        cv2$MORPH_RECT,
+        as.integer(c(
+          input$shapeBuffer_x * 2,
+          input$shapeBuffer_x * 2
+        )) + 1L
       )
-      threshold(morphed, input$threshold_x, target = bw)
-      cc <- connectedComponents(bw, target = cc_dump)
 
-      dt <- as.data.table(cc$table)
-      res[[i]] <- dt[, fitEllipse(x, y)[1:3], by = label]
+      bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
+      bw <- cv2$dilate(bw, k)
 
-      for (j in 2:nrow(cc$stats)) {
-        r <- cc$stats[j, ]
-        submasks <<- c(submasks, subImage(cc_dump, r[4], r[5] - r[7] + 1, r[6], r[7]) == r[1])
-        subs <<- c(subs, subImage(dif, r[4], r[5] - r[7] + 1, r[6], r[7]) *
-          changeColorSpace(submasks[[length(submasks)]] / 255, "BGR"))
+      cc <- cv2$connectedComponentsWithStats(bw)
+      nz <- cv2$findNonZero(cc[1])
+      labs <- cc[1][cc[1]$nonzero()]
+      ulabs <- np$unique(labs)
+      ell <- list()
+
+      for (j in seq_along(ulabs)) {
+        bb <- reticulate::py_to_r(cc[2][j])
+        valid <- bb[5] > 4
+
+        if (valid) {
+          ell_py <- cv2$fitEllipse(nz[labs == ulabs[j - 1]])
+
+          ell <- data.table::rbindlist(list(
+            ell, data.table::as.data.table(
+              t(unlist(reticulate::py_to_r(ell_py)))
+            )
+          ))
+
+          sub <- dif[bb[2]:(bb[2] + bb[4]), bb[1]:(bb[1] + bb[3])]
+          submask <- cv2$cvtColor(
+            cv2$compare(cc[1][bb[2]:(bb[2] + bb[4]), bb[1]:(bb[1] + bb[3])], 0, 1L), cv2$COLOR_GRAY2BGR
+          )
+          submasks <<- c(submasks, submask)
+          subs <<- c(subs, cv2$multiply(sub, cv2$divide(submask, 255)))
+        }
       }
+
+      res[[i]] <- ell
 
       new_check <- floor(100 * i / n)
       if (new_check > (old_check + 5)) {
@@ -121,17 +147,18 @@ observeEvent(input$computeStats_x, {
     }
 
     dt <- data.table::rbindlist(res)
+    names(dt) <- c("x", "y", "width", "height", "angle")
     theStats(dt)
     refreshStats(refreshStats() + 1)
 
     pb$close()
 
-    removeNotification(id = "stats")
-    hideElement("curtain")
+    shiny::removeNotification(id = "stats")
+    shinyjs::hideElement("curtain")
   }
 })
 
-observeEvent(refreshStats(), {
+shiny::observeEvent(refreshStats(), {
   if (!is.null(theStats())) {
     if (input$autoSelect_x == TRUE) {
       dt <- theStats()
@@ -139,147 +166,137 @@ observeEvent(refreshStats(), {
         (dt$width - median(dt$width))^2)
       k <- kmeans(log(d + 1), 2)
       ix <- which.min(k$centers)
-      updateNumericRangeInput(session, "rangeWidth_x",
+      shinyWidgets::updateNumericRangeInput(session, "rangeWidth_x",
         value = round(range(dt$width[k$cluster == ix], na.rm = TRUE))
       )
-      updateNumericRangeInput(session, "rangeHeight_x",
+      shinyWidgets::updateNumericRangeInput(session, "rangeHeight_x",
         value = round(range(dt$height[k$cluster == ix], na.rm = TRUE))
       )
     }
   }
 })
 
-observeEvent(input$autoSelect_x, {
+shiny::observeEvent(input$autoSelect_x, {
   if (input$autoSelect_x) {
-    disable("rangeWidth_x")
-    disable("rangeHeight_x")
+    shinyjs::disable("rangeWidth_x")
+    shinyjs::disable("rangeHeight_x")
     refreshStats(refreshStats() + 1)
   } else {
-    enable("rangeWidth_x")
-    enable("rangeHeight_x")
+    shinyjs::enable("rangeWidth_x")
+    shinyjs::enable("rangeHeight_x")
   }
 })
 
-output$stats <- renderPlotly(
+output$stats <- plotly::renderPlotly(
   if (!is.null(theStats())) {
     dt <- theStats()
     rw <- input$rangeWidth_x
     rh <- input$rangeHeight_x
     dt[, select := (width >= rw[1]) & (width <= rw[2]) &
       (height >= rh[1]) & (height <= rh[2])]
-    plot_ly(dt,
+    plotly::plot_ly(dt,
       x = ~height, y = ~width, color = ~select,
       type = "scatter", mode = "markers",
       colors = c("#FF5005", "#00e000")
     ) %>%
-      layout(
+      plotly::layout(
         margin = list(l = 0, r = 0, t = 0, b = 0, pad = 5),
         xaxis = list(title = "Height"),
         yaxis = list(title = "Width"),
         showlegend = FALSE
       ) %>%
-      config(displayModeBar = FALSE)
+      plotly::config(displayModeBar = FALSE)
   } else {
-    plot_ly(type = "scatter", mode = "markers") %>%
-      layout(
+    plotly::plot_ly(type = "scatter", mode = "markers") %>%
+      plotly::layout(
         margin = list(l = 0, r = 0, t = 0, b = 0, pad = 5),
         xaxis = list(title = "Height", range = c(0, 1), dtick = 0.25),
         yaxis = list(title = "Width", range = c(0, 1), dtick = 0.25)
       ) %>%
-      config(displayModeBar = FALSE)
+      plotly::config(displayModeBar = FALSE)
   }
 )
 
-observeEvent(input$rangeWidth_x, {
+shiny::observeEvent(input$rangeWidth_x, {
   refreshDisplay(refreshDisplay() + 1)
 })
 
-observeEvent(input$rangeHeight_x, {
+shiny::observeEvent(input$rangeHeight_x, {
   refreshDisplay(refreshDisplay() + 1)
 })
 
-observeEvent(input$shapeBuffer_x, {
+shiny::observeEvent(input$shapeBuffer_x, {
   refreshDisplay(refreshDisplay() + 1)
 })
 
-observeEvent(refreshDisplay(), {
+shiny::observeEvent(refreshDisplay(), {
   if (input$main == "5") {
-    if (!isImage(theImage) & !isImage(theBackground)) {
-      suppressMessages(
-        write.Image(
-          zeros(1080, 1920, 3),
-          paste0(tmpDir, "/display.bmp"), TRUE
-        )
-      )
-    } else if (!isImage(theImage)) {
-      suppressMessages(
-        write.Image(
-          zeros(nrow(theBackground), ncol(theBackground), 3),
-          paste0(tmpDir, "/display.bmp"), TRUE
-        )
-      )
-    } else if (!isImage(theBackground)) {
-      suppressMessages(
-        write.Image(
-          zeros(nrow(theImage), ncol(theImage), 3),
-          paste0(tmpDir, "/display.bmp"), TRUE
-        )
-      )
+    background <- theBackground$copy()
+    if (input$darkButton_x == "Darker") {
+      background <- cv2$bitwise_not(background)
+    }
+
+    mask <- cv2$compare(theMask, 0, 1L)
+    mask <- cv2$divide(mask, 255)
+
+    frame <- theImage$copy()
+
+    if (input$darkButton_x == "Darker") {
+      frame <- cv2$bitwise_not(frame)
+    }
+
+    if (input$darkButton_x == "A bit of both") {
+      dif <- cv2$absdiff(frame, background)
     } else {
-      background <- cloneImage(theBackground)
-      changeColorSpace(background, "GRAY", "self")
-      if (input$darkButton_x == "Darker") {
-        not(background, "self")
-      }
+      dif <- cv2$subtract(frame, background)
+    }
 
-      mask <- cloneImage(theMask)
-      changeColorSpace(mask, "GRAY", "self")
-      compare(mask, 0, ">", mask)
-      divide(mask, 255, mask)
+    dif <- cv2$multiply(dif, mask)
+    dif_gray <- cv2$cvtColor(dif, cv2$COLOR_BGR2GRAY)
 
-      gray <- changeColorSpace(theImage, "GRAY")
-      if (input$darkButton_x == "Darker") {
-        not(gray, target = "self")
-      }
-      dif <- subtract(gray, background)
-      multiply(dif, mask, dif)
-      morphed <- morph(dif, "dilate",
-        k_height = input$shapeBuffer_x,
-        k_width = input$shapeBuffer_x
-      )
-      bw <- threshold(morphed, input$threshold_x)
-      cc <- connectedComponents(bw)
+    k <- cv2$getStructuringElement(
+      cv2$MORPH_RECT,
+      as.integer(c(
+        input$shapeBuffer_x * 2,
+        input$shapeBuffer_x * 2
+      )) + 1L
+    )
 
-      toDisplay <- cloneImage(theImage)
-      sc <- max(dim(toDisplay) / 720)
+    bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
+    bw <- cv2$dilate(bw, k)
 
-      for (i in cc$stats[-1, 1]) {
-        ix <- cc$table[, 3] == i
-        ell <- fitEllipse(cc$table[ix, 1], cc$table[ix, 2])
-        good <- (ell$width >= input$rangeWidth_x[1]) &
-          (ell$width <= input$rangeWidth_x[2]) &
-          (ell$height >= input$rangeHeight_x[1]) &
-          (ell$height <= input$rangeHeight_x[2])
-        drawRotatedRectangle(toDisplay, ell$center[1], ell$center[2],
-          ell$width, ell$height, ell$angle,
-          color = "white", thickness = max(0.5, 4 * sc)
+    cc <- cv2$connectedComponentsWithStats(bw)
+    nz <- cv2$findNonZero(cc[1])
+    labs <- cc[1][cc[1]$nonzero()]
+    ulabs <- np$unique(labs)
+
+    toDisplay <<- theImage$copy()
+    sc <- max(c(trackRai::n_row(toDisplay), trackRai::n_col(toDisplay)) / 720)
+
+    for (j in seq_along(ulabs)) {
+      bb <- reticulate::py_to_r(cc[2][j])
+      valid <- bb[5] > 4
+
+      if (valid) {
+        ell_py <- cv2$fitEllipse(nz[labs == ulabs[j - 1]])
+        good <- (ell_py[1][0] >= input$rangeWidth_x[1]) &
+          (ell_py[1][0] <= input$rangeWidth_x[2]) &
+          (ell_py[1][1] >= input$rangeHeight_x[1]) &
+          (ell_py[1][1] <= input$rangeHeight_x[2])
+        box <- cv2$boxPoints(ell_py)
+        box <- np$int0(box)
+        cv2$drawContours(
+          toDisplay, list(box), 0L, c(255L, 255L, 255),
+          as.integer(max(0.5, 4 * sc))
         )
-        drawRotatedRectangle(toDisplay, ell$center[1], ell$center[2],
-          ell$width, ell$height, ell$angle,
-          color = if (good) "#00e000" else "#FF5005",
-          thickness = max(0.5, 2 * sc)
+        cv2$drawContours(
+          toDisplay, list(box), 0L,
+          if (reticulate::py_to_r(good)) c(0L, 224L, 0L) else c(5L, 80L, 255L),
+          as.integer(max(0.5, 2 * sc))
         )
       }
-
-      suppressMessages(
-        write.Image(toDisplay, paste0(tmpDir, "/display.bmp"), TRUE)
-      )
     }
 
     printDisplay(printDisplay() + 1)
   }
 })
-
-
-# Bookmark
-setBookmarkExclude(c(session$getBookmarkExclude(), "optimizeBlobs_x"))

@@ -1,10 +1,3 @@
-# Python
-reticulate::use_condaenv("trackRai")
-cv2 <- import("cv2", convert = FALSE)
-np <- import("numpy", convert = FALSE)
-base64 <- import("base64", convert = FALSE)
-
-
 # File manager 
 volumes <- c(Home = fs::path_home(), getVolumes()())
 defaultRoot <- reactiveVal()
@@ -37,6 +30,9 @@ refreshVideo <- reactiveVal(0)
 rangeMem <- c(NA, NA)
 frameMem <- NA
 
+# Image
+theImage <- NULL
+
 # Background
 theBackground <- NULL
 refreshBackground <- reactiveVal(0)
@@ -57,12 +53,3 @@ refreshStats <- reactiveVal(0)
 subs <- list()
 submasks <- list()
 theComposite <- NULL
-
-# Image processing
-theImage <- NULL
-bgr1 <- NULL
-gray1 <- NULL
-gray2 <- NULL
-zero <- NULL
-one <- NULL
-ccDump <- NULL

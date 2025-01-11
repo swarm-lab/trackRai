@@ -1,6 +1,6 @@
 # Status
 output$backgroundStatus <- shiny::renderUI({
-  if ((refreshBackground() > -1 | input$computeBackground_x > -1) &
+  if ((refreshDisplay() > -1 | input$computeBackground_x > -1) &
     !trackRai::is_image(theBackground)) {
     toggleTabs(3:6, "OFF")
     toggledTabs$toggled[3:6] <<- FALSE

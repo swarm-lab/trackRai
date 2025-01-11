@@ -1,13 +1,24 @@
 #--------------------------------------------------------------
 # Packages
 #--------------------------------------------------------------
+if (Sys.info()["sysname"] == "Darwin") {
+  Sys.setenv(KMP_DUPLICATE_LIB_OK=TRUE)
+}
+
+library(reticulate)
+reticulate::use_condaenv("trackRai")
+torch <- reticulate::import("torch", convert = FALSE)
+cv2 <- import("cv2", convert = FALSE)
+np <- import("numpy", convert = FALSE)
+base64 <- import("base64", convert = FALSE)
+
 library(shiny)
 library(shinyWidgets)
 library(shinyFiles)
 library(shinyjs)
 library(shinyalert)
 library(htmlwidgets)
-library(Rvision)
+library(trackRai)
 library(data.table)
 library(plotly)
 library(processx)
@@ -24,27 +35,28 @@ source("FUNCTIONS/toggler.R", local = FALSE)
 # User Interface
 #--------------------------------------------------------------
 ui <- function(request) {
-  fluidPage(
-    tags$head(includeCSS("www/custom.css")),
-    useShinyjs(),
-    extendShinyjs(text = "shinyjs.replace = function(url) {
-                            location.replace(url);
-                          }", functions = "replace"),
-    div(id = "curtain", class = "curtain"),
-    div(
+  shiny::fluidPage(
+    shiny::tags$head(includeCSS("www/custom.css")),
+    shinyjs::useShinyjs(),
+    shinyjs::extendShinyjs(
+      script = "custom.js",
+      functions = c("uishape")
+    ),
+    shiny::div(id = "curtain", class = "curtain"),
+    shiny::div(
       style = "width: 100%;",
-      div(
+      shiny::div(
         style = "width: min(100vh, calc(100% - 410px));
             float: left;
             margin-top: 20px;
             margin-left: calc((calc(100% - 410px) -
               min(100vh, calc(100% - 410px))) / 2);",
         class = "vrtc-tab-panel-container",
-        uiOutput("display")
+        shiny::uiOutput("display")
       ),
-      div(
+      shiny::div(
         style = "width: 400px; margin-left: calc(100% - 400px);",
-        verticalTabsetPanel(
+        shinyWidgets::verticalTabsetPanel(
           id = "main",
           contentWidth = 11,
           menuSide = "right",
@@ -72,4 +84,4 @@ server <- function(input, output, session) {
   })
 }
 
-shinyApp(ui = ui, server = server, enableBookmarking = "url")
+shiny::shinyApp(ui = ui, server = server, enableBookmarking = "url")

@@ -93,17 +93,6 @@ shiny::observeEvent(refreshDisplay(), {
         c(as.integer(2 + max(1, 0.5 * sc)), as.integer(2 + max(1, 0.5 * sc)))
       )
 
-      # k <- cv2$getStructuringElement(cv2$MORPH_CROSS, c(5L, 5L))
-      # m1 <- cv2$dilate(green, k)
-      # m2 <- cv2$dilate(red, k)
-
-      # k <- cv2$getStructuringElement(
-      #   cv2$MORPH_CROSS,
-      #   c(as.integer(2 + max(1, 0.5 * sc)), as.integer(2 + max(1, 0.5 * sc)))
-      # )
-      # m <- cv2$dilate(cv2$bitwise_and(m1, m2), k)
-      # toDisplay <<- cv2$add(toDisplay, cv2$cvtColor(m, cv2$COLOR_GRAY2BGR))
-
       h <- np$bincount(gray$ravel(), minlength = 256L)
       h[0] <- 0L
       vals <- reticulate::py_to_r(np$where(h))[[1]]

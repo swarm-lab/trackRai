@@ -1,6 +1,16 @@
 #--------------------------------------------------------------
 # Packages
 #--------------------------------------------------------------
+if (Sys.info()["sysname"] == "Darwin") {
+  Sys.setenv(KMP_DUPLICATE_LIB_OK=TRUE)
+}
+
+library(reticulate)
+reticulate::use_condaenv("trackRai")
+cv2 <- import("cv2", convert = FALSE)
+np <- import("numpy", convert = FALSE)
+base64 <- import("base64", convert = FALSE)
+
 library(shiny)
 library(shinyWidgets)
 library(shinyFiles)
@@ -8,11 +18,9 @@ library(shinyjs)
 library(shinyalert)
 library(htmlwidgets)
 library(trackRai)
-library(reticulate)
+library(autothresholdr)
 library(stringr)
-library(wand)
 library(plotly)
-library(sortable)
 library(data.table)
 
 
@@ -54,10 +62,10 @@ ui <- function(request) {
           selected = "1",
           source("UI/video.R", local = TRUE)$value,
           source("UI/background.R", local = TRUE)$value,
-          source("UI/mask.R", local = TRUE)$value #,
-          # source("UI/segmentation.R", local = TRUE)$value,
-          # source("UI/identification.R", local = TRUE)$value,
-          # source("UI/composite.R", local = TRUE)$value
+          source("UI/mask.R", local = TRUE)$value,
+          source("UI/segmentation.R", local = TRUE)$value,
+          source("UI/identification.R", local = TRUE)$value,
+          source("UI/composite.R", local = TRUE)$value
         )
       )
     )
@@ -73,10 +81,9 @@ server <- function(input, output, session) {
   source("SERVER/video.R", local = TRUE)
   source("SERVER/background.R", local = TRUE)
   source("SERVER/mask.R", local = TRUE)
-  # source("SERVER/segmentation.R", local = TRUE)
-  # source("SERVER/identification.R", local = TRUE)
-  # source("SERVER/composite.R", local = TRUE)
-  # source("SERVER/controls.R", local = TRUE)
+  source("SERVER/segmentation.R", local = TRUE)
+  source("SERVER/identification.R", local = TRUE)
+  source("SERVER/composite.R", local = TRUE)
   session$onSessionEnded(function() { })
 }
 

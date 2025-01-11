@@ -29,8 +29,8 @@
 #'
 #' @export
 optimEllipse <- function(x, y) {
-  d <- Rfast::Dist(cbind(x, y), square = FALSE)
-  start <- c(mean(x), mean(y), max(d), max(d), 0)
+  md <- sqrt((max(x) - min(x))^2 + (max(y) - min(y))^2)
+  start <- c(mean(x), mean(y), md, md, 0)
 
   opt <- stats::optim(start, function(par) {
     sum((.dist2ellipse(x, y, par[1], par[2], par[3], par[4], par[5]) - 1)^2)

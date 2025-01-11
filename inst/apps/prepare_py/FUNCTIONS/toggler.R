@@ -1,6 +1,6 @@
 # Toggle UI on and off during long operations
 toggleInputs <- function(input, state = "OFF") {
-  input_list <- reactiveValuesToList(input)
+  input_list <- shiny::reactiveValuesToList(input)
   to_toggle <- grepl("_x", names(input_list))
   input_list <- input_list[to_toggle]
 
