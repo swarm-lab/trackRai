@@ -98,8 +98,8 @@ output$display <- shiny::renderUI({
   }
 })
 
-shiny::observeEvent(theModel(), {
-  if (is.null(theModel())) {
+shiny::observeEvent(theModelFolder(), {
+  if (is.null(theModelFolder())) {
     toggleTabs(2, "OFF")
   } else {
     toggleTabs(2, "ON")
@@ -141,13 +141,13 @@ shiny::observeEvent(theYOLOPath(), {
 
 shiny::observeEvent(input$startTrain_x, {
   if (!is.null(theYOLOPath())) {
-    background <- cv2$imread(normalizePath(paste0(theYOLOPath(), "/background.png")))
+    background <- cv2$imread(normalizePath(paste0(theYOLOPath(), "/background.png"), mustWork = FALSE))
     imgsz <- trackRai::n_col(background)
     theTempFile <<- tempfile(fileext = ".txt")
 
     if (n_gpus > 1) {
       yolo_proc <<- processx::process$new(
-        .yolo_path(),
+        trackRai:::.yolo_path(),
         c(
           "obb",
           "train",
@@ -165,7 +165,7 @@ shiny::observeEvent(input$startTrain_x, {
       )
     } else if (mps) {
       yolo_proc <<- processx::process$new(
-        .yolo_path(),
+        trackRai:::.yolo_path(),
         c(
           "obb",
           "train",
@@ -183,7 +183,7 @@ shiny::observeEvent(input$startTrain_x, {
       )
     } else {
       yolo_proc <<- processx::process$new(
-        .yolo_path(),
+        trackRai:::.yolo_path(),
         c(
           "obb",
           "train",
@@ -244,7 +244,7 @@ shiny::observeEvent(theRawProgress(), {
             theYOLOPath(), "/",
             gsub("Results saved to ", "", ansi_strip(theRawProgress()[stop]))
           )
-          theModel(model_folder)
+          theModelFolder(model_folder)
           shiny::showNotification(
             paste0("Results saved to ", model_folder),
             id = "done", duration = NULL, type = "message"

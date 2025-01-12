@@ -3,7 +3,9 @@ yolo_installed <- !is.na(trackRai:::.yolo_path())
 n_gpus <- reticulate::py_to_r(torch$cuda$device_count())
 mps <- reticulate::py_to_r(torch$backends$mps$is_available())
 yolo_proc <- NULL
+theModelFolder <- shiny::reactiveVal()
 theModel <- shiny::reactiveVal()
+
 
 # File manager
 volumes <- c(Home = fs::path_home(), getVolumes()())

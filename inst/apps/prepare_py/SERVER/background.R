@@ -23,7 +23,7 @@ shinyFiles::shinyFileChoose(input, "backgroundFile_x",
 shiny::observeEvent(input$backgroundFile_x, {
   path <- shinyFiles::parseFilePaths(volumes, input$backgroundFile_x)
   if (nrow(path) > 0) {
-    theBackgroundPath(normalizePath(path$datapath))
+    theBackgroundPath(normalizePath(path$datapath, mustWork = FALSE))
     refreshBackground(refreshBackground() + 1)
   }
 })
@@ -187,7 +187,7 @@ shiny::observeEvent(input$saveBackground_x, {
   path <- shinyFiles::parseSavePath(volumes, input$saveBackground_x)
 
   if (trackRai::is_image(theBackground) & nrow(path) > 0) {
-    path <- normalizePath(path$datapath)
+    path <- normalizePath(path$datapath, mustWork = FALSE)
     cv2$imwrite(path, theBackground)
     theBackgroundPath(path)
   }

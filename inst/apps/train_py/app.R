@@ -11,6 +11,7 @@ torch <- reticulate::import("torch", convert = FALSE)
 cv2 <- import("cv2", convert = FALSE)
 np <- import("numpy", convert = FALSE)
 base64 <- import("base64", convert = FALSE)
+ul <- import("ultralytics", convert = FALSE)
 
 library(shiny)
 library(shinyWidgets)

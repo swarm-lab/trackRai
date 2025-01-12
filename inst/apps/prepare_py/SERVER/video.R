@@ -70,7 +70,7 @@ shinyFiles::shinyFileChoose(input, "videoFile_x",
 shiny::observeEvent(input$videoFile_x, {
   path <- shinyFiles::parseFilePaths(volumes, input$videoFile_x)
   if (nrow(path) > 0) {
-    theVideoPath(normalizePath(path$datapath))
+    theVideoPath(normalizePath(path$datapath, mustWork = FALSE))
   }
 })
 

@@ -13,7 +13,6 @@ shiny::observeEvent(input$testComposite_x, {
     dt[, select := (width >= rw[1]) & (width <= rw[2]) &
       (height >= rh[1]) & (height <= rh[2])]
 
-    theMask <- cv2$compare(cv2$imread(normalizePath("~/Desktop/termites/mask.png")), 0, 1L)
     mask <- cv2$cvtColor(theMask, cv2$COLOR_BGR2GRAY)
     tmp <- cv2$copyMakeBorder(mask, 1L, 1L, 1L, 1L, cv2$BORDER_CONSTANT, NULL, 0L)
     k <- cv2$getStructuringElement(
@@ -206,7 +205,7 @@ shiny::observeEvent(theYOLOPath(), {
       theVideo$set(cv2$CAP_PROP_POS_FRAMES, input$rangePos_x[1] - 1)
       vw <- cv2$VideoWriter(
         normalizePath(paste0(theYOLOPath(), "/YOLO/video.mp4"), mustWork = FALSE),
-        cv2$VideoWriter_fourcc("A", "V", "C", "1"),
+        cv2$VideoWriter_fourcc("a", "v", "c", "1"),
         theVideo$get(cv2$CAP_PROP_FPS),
         as.integer(c(trackRai::n_col(prepped), trackRai::n_row(prepped)))
       )
@@ -354,14 +353,14 @@ shiny::observeEvent(theYOLOPath(), {
 
             annotations[iii, ] <- c(
               0,
-              box[1, 1] / ncol(stamp),
-              1 - box[1, 2] / nrow(stamp),
-              box[2, 1] / ncol(stamp),
-              1 - box[2, 2] / nrow(stamp),
-              box[3, 1] / ncol(stamp),
-              1 - box[3, 2] / nrow(stamp),
-              box[4, 1] / ncol(stamp),
-              1 - box[4, 2] / nrow(stamp)
+              box[1, 1] / trackRai::n_col(stamp),
+              1 - box[1, 2] / trackRai::n_row(stamp),
+              box[2, 1] / trackRai::n_col(stamp),
+              1 - box[2, 2] / trackRai::n_row(stamp),
+              box[3, 1] / trackRai::n_col(stamp),
+              1 - box[3, 2] / trackRai::n_row(stamp),
+              box[4, 1] / trackRai::n_col(stamp),
+              1 - box[4, 2] / trackRai::n_row(stamp)
             )
           }
 

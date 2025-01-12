@@ -21,7 +21,7 @@ shinyFiles::shinyFileChoose(input, "maskFile_x",
 shiny::observeEvent(input$maskFile_x, {
   path <- shinyFiles::parseFilePaths(volumes, input$maskFile_x)
   if (nrow(path) > 0) {
-    theMaskPath(normalizePath(path$datapath))
+    theMaskPath(normalizePath(path$datapath, mustWork = FALSE))
     refreshMask(refreshMask() + 1)
   }
 })
@@ -297,7 +297,7 @@ shiny::observeEvent(input$saveMask_x, {
   path <- shinyFiles::parseSavePath(volumes, input$saveMask_x)
 
   if (trackRai::is_image(theMask) & nrow(path) > 0) {
-    path <- normalizePath(path$datapath)
+    path <- normalizePath(path$datapath, mustWork = FALSE)
     cv2$imwrite(path, theMask)
     theMaskPath(path)
   }

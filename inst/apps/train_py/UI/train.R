@@ -11,7 +11,7 @@ shinyWidgets::verticalTabPanel(
   shiny::hr(),
   shiny::selectInput("yolo_x", "Select YOLO model size:",
     c("nano" = "n", "small" = "s", "medium" = "m", "large" = "l"),
-    "m", 
+    "n", 
     width = "100%"
   ),
   shiny::hr(),
