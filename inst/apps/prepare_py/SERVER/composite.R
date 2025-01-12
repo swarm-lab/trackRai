@@ -84,6 +84,22 @@ shiny::observeEvent(input$testComposite_x, {
       )
       theComposite <<- cv2$subtract(theComposite, stamp)
 
+      nz <- cv2$findNonZero(cv2$cvtColor(submask, cv2$COLOR_BGR2GRAY))
+      ell <- cv2$fitEllipse(nz)
+      box <- cv2$boxPoints(ell)
+      box[, 0] <- box[, 0] + left
+      box[, 1] <- box[, 1] + top
+      box <- np$int0(box)
+      sc <- max(c(trackRai::n_row(theComposite), trackRai::n_col(theComposite)) / 720)
+      cv2$drawContours(
+        theComposite, list(box), 0L, c(255L, 255L, 255),
+        as.integer(max(0.5, 4 * sc))
+      )
+      cv2$drawContours(
+        theComposite, list(box), 0L, c(0L, 224L, 0L),
+        as.integer(max(0.5, 2 * sc))
+      )
+
       new_check <- floor(100 * i / n)
       if (new_check > (old_check + 5)) {
         new_time <- Sys.time()
@@ -347,21 +363,11 @@ shiny::observeEvent(theYOLOPath(), {
 
             nz <- cv2$findNonZero(cv2$cvtColor(submask, cv2$COLOR_BGR2GRAY))
             ell <- cv2$fitEllipse(nz)
-            box <- reticulate::py_to_r(cv2$boxPoints(ell))
-            box[, 1] <- box[, 1] + left
-            box[, 2] <- box[, 2] + bottom
+            box <- cv2$boxPoints(ell)
+            box[, 0] <- (box[, 0] + left) / trackRai::n_col(stamp)
+            box[, 1] <- (box[, 1] + top) / trackRai::n_row(stamp)
 
-            annotations[iii, ] <- c(
-              0,
-              box[1, 1] / trackRai::n_col(stamp),
-              1 - box[1, 2] / trackRai::n_row(stamp),
-              box[2, 1] / trackRai::n_col(stamp),
-              1 - box[2, 2] / trackRai::n_row(stamp),
-              box[3, 1] / trackRai::n_col(stamp),
-              1 - box[3, 2] / trackRai::n_row(stamp),
-              box[4, 1] / trackRai::n_col(stamp),
-              1 - box[4, 2] / trackRai::n_row(stamp)
-            )
+            annotations[iii, ] <- c(0, c(t(reticulate::py_to_r(box))))
           }
 
           composite <- cv2$multiply(composite, runif(1, 1 / (1 + input$gain_x), 1 + input$gain_x))
@@ -380,7 +386,7 @@ shiny::observeEvent(theYOLOPath(), {
           }
 
           cv2$imwrite(
-            normalizePath(paste0(theYOLOPath(), "/YOLO/images/", composite_folders[i], ii, ".png"), mustWork = FALSE), 
+            normalizePath(paste0(theYOLOPath(), "/YOLO/images/", composite_folders[i], ii, ".png"), mustWork = FALSE),
             composite
           )
 

@@ -65,7 +65,7 @@ shiny::observeEvent(input$computeStats_x, {
     mask <- cv2$compare(theMask, 0, 1L)
     mask <- cv2$divide(mask, 255)
 
-    res <- list()
+    obb <- list()
     subs <<- list()
     submasks <<- list()
 
@@ -101,20 +101,16 @@ shiny::observeEvent(input$computeStats_x, {
       nz <- cv2$findNonZero(cc[1])
       labs <- cc[1][cc[1]$nonzero()]
       ulabs <- np$unique(labs)
-      ell <- list()
 
       for (j in seq_along(ulabs)) {
         bb <- reticulate::py_to_r(cc[2][j])
         valid <- bb[5] > 4
 
         if (valid) {
-          ell_py <- cv2$fitEllipse(nz[labs == ulabs[j - 1]])
-
-          ell <- data.table::rbindlist(list(
-            ell, data.table::as.data.table(
-              t(unlist(reticulate::py_to_r(ell_py)))
-            )
-          ))
+          ell <- cv2$fitEllipse(nz[labs == ulabs[j - 1]])
+          # box <- cv2$boxPoints(ell)
+          tmp <- reticulate::py_to_r(ell[1])
+          obb[[length(obb) + 1]] <- data.table::as.data.table(tmp)
 
           sub <- dif[bb[2]:(bb[2] + bb[4]), bb[1]:(bb[1] + bb[3])]
           submask <- cv2$cvtColor(
@@ -124,8 +120,6 @@ shiny::observeEvent(input$computeStats_x, {
           subs <<- c(subs, cv2$multiply(sub, cv2$divide(submask, 255)))
         }
       }
-
-      res[[i]] <- ell
 
       new_check <- floor(100 * i / n)
       if (new_check > (old_check + 5)) {
@@ -146,8 +140,8 @@ shiny::observeEvent(input$computeStats_x, {
       }
     }
 
-    dt <- data.table::rbindlist(res)
-    names(dt) <- c("x", "y", "width", "height", "angle")
+    dt <- data.table::rbindlist(obb)
+    names(dt) <- c("width", "height")
     theStats(dt)
     refreshStats(refreshStats() + 1)
 
