@@ -22,8 +22,6 @@ library(htmlwidgets)
 library(trackRai)
 library(data.table)
 library(plotly)
-library(processx)
-library(cli)
 
 
 #--------------------------------------------------------------
@@ -62,8 +60,7 @@ ui <- function(request) {
           contentWidth = 11,
           menuSide = "right",
           selected = "1",
-          source("UI/train.R", local = TRUE)$value,
-          source("UI/check.R", local = TRUE)$value
+          source("UI/track.R", local = TRUE)$value
         )
       )
     )
@@ -76,12 +73,9 @@ ui <- function(request) {
 #--------------------------------------------------------------
 server <- function(input, output, session) {
   source("SERVER/global.R", local = TRUE)
-  source("SERVER/train.R", local = TRUE)
-  source("SERVER/check.R", local = TRUE)
+  source("SERVER/track.R", local = TRUE)
   session$onSessionEnded(function() {
-    if (!is.null(yolo_proc)) {
-      yolo_proc$kill_tree()
-    }
+    
   })
 }
 

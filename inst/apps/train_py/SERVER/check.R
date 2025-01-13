@@ -14,8 +14,6 @@ shiny::observeEvent(theModelFolder(), {
     theVideo(NULL)
   } else {
     theModel(ul$YOLO(normalizePath(paste0(theModelFolder(), "/weights/best.pt"), mustWork = FALSE)))
-    # theTempFrame <<- tempfile(fileext = ".jpg")
-    # theTempPredict <<- tempdir()
     theVideo(cv2$VideoCapture(normalizePath(paste0(theYOLOPath(), "/video.mp4"), mustWork = FALSE)))
   }
 })
@@ -23,7 +21,6 @@ shiny::observeEvent(theModelFolder(), {
 shiny::observeEvent(input$frame_x, {
   if (trackRai::is_video_capture(theVideo())) {
     theFrame <<- trackRai::read_frame(theVideo(), input$frame_x)
-    # cv2$imwrite(normalizePath(theTempFrame, mustWork = FALSE), theFrame)
     refreshFrame(refreshFrame() + 1)
   }
 })

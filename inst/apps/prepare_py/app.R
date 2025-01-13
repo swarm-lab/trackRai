@@ -7,9 +7,9 @@ if (Sys.info()["sysname"] == "Darwin") {
 
 library(reticulate)
 reticulate::use_condaenv("trackRai")
-cv2 <- import("cv2", convert = FALSE)
-np <- import("numpy", convert = FALSE)
-base64 <- import("base64", convert = FALSE)
+cv2 <- reticulate::import("cv2", convert = FALSE)
+np <- reticulate::import("numpy", convert = FALSE)
+base64 <- reticulate::import("base64", convert = FALSE)
 
 library(shiny)
 library(shinyWidgets)
