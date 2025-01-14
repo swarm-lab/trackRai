@@ -55,7 +55,7 @@ ui <- function(request) {
       ),
       shiny::div(
         style = "width: 400px; margin-left: calc(100% - 400px);",
-        verticalTabsetPanel(
+        shinyWidgets::verticalTabsetPanel(
           id = "main",
           contentWidth = 11,
           menuSide = "right",

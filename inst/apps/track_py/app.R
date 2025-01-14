@@ -2,11 +2,11 @@
 # Packages
 #--------------------------------------------------------------
 if (Sys.info()["sysname"] == "Darwin") {
-  Sys.setenv(KMP_DUPLICATE_LIB_OK=TRUE)
+  Sys.setenv(KMP_DUPLICATE_LIB_OK = TRUE)
 }
 
 library(reticulate)
-reticulate::use_condaenv("trackRai")
+reticulate::use_virtualenv("trackRai")
 torch <- reticulate::import("torch", convert = FALSE)
 cv2 <- reticulate::import("cv2", convert = FALSE)
 np <- reticulate::import("numpy", convert = FALSE)
@@ -60,7 +60,7 @@ ui <- function(request) {
           contentWidth = 11,
           menuSide = "right",
           selected = "1",
-          source("UI/track.R", local = TRUE)$value
+          source("UI/prepare.R", local = TRUE)$value
         )
       )
     )
@@ -73,9 +73,9 @@ ui <- function(request) {
 #--------------------------------------------------------------
 server <- function(input, output, session) {
   source("SERVER/global.R", local = TRUE)
-  source("SERVER/track.R", local = TRUE)
+  source("SERVER/prepare.R", local = TRUE)
   session$onSessionEnded(function() {
-    
+
   })
 }
 

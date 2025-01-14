@@ -7,6 +7,16 @@ output$yoloStatus <- shiny::renderUI({
       "Please run install_yolo() in the console.",
       class = "bad"
     )
+  } else if (is.null(theModelFolder())) {
+    p("Dataset missing (and required).", class = "bad")
+  }
+})
+
+output$videoStatus <- shiny::renderUI({
+  if (refreshDisplay() > -1 & !trackRai::is_video_capture(theVideo)) {
+    p("Video missing (and required).", class = "bad")
+  } else if (!trackRai::is_video_capture(theVideo)) {
+    p("Incompatible videos.", class = "bad")
   }
 })
 
@@ -18,45 +28,54 @@ output$modelSelect <- shiny::renderUI({
     shiny::tagList(
       hr(),
       shiny::selectInput("model_x", "Select trained model:",
-      paste0(models, "/weights/best.pt"),
-      width = "100%"
-    )
+        paste0(models, "/weights/best.pt"),
+        width = "100%"
+      )
     )
   }
 })
 
 output$rangeSlider <- shiny::renderUI({
   if (refreshVideo() > 0 & trackRai::is_video_capture(theVideo)) {
-    shiny::sliderInput("rangePos_x", "Video range",
-      width = "100%", min = 1,
-      max = n_frames(theVideo),
-      value = c(1, n_frames(theVideo)), step = 1
+    shiny::tagList(
+      shiny::hr(),
+      shiny::sliderInput("rangePos_x", "Video range",
+        width = "100%", min = 1,
+        max = n_frames(theVideo),
+        value = c(1, n_frames(theVideo)), step = 1
+      )
     )
   }
 })
 
 output$videoSlider <- shiny::renderUI({
   if (refreshVideo() > 0 & !is.null(input$rangePos_x) & trackRai::is_video_capture(theVideo)) {
-    if (any(is.na(rangeMem))) {
-      rangeMem <<- input$rangePos_x
-    }
+    shiny::sliderInput("videoPos_x", "Frame",
+      width = "100%", step = 1,
+      value = input$rangePos_x[1],
+      min = input$rangePos_x[1],
+      max = input$rangePos_x[2]
+    )
+  }
+})
 
-    test <- rangeMem != input$rangePos_x
-    rangeMem <<- input$rangePos_x
-
-    if (test[2] & !test[1]) {
-      shiny::sliderInput("videoPos_x", "Frame",
-        width = "100%", step = 1,
-        value = input$rangePos_x[2],
-        min = input$rangePos_x[1],
-        max = input$rangePos_x[2]
-      )
-    } else {
-      shiny::sliderInput("videoPos_x", "Frame",
-        width = "100%", step = 1,
-        value = input$rangePos_x[1],
-        min = input$rangePos_x[1],
-        max = input$rangePos_x[2]
+output$startStop <- shiny::renderUI({
+  if (monitorProgress()) {
+    shiny::tagList(
+      shiny::actionButton(
+        "stopTrack_x", "Stop tracking",
+        width = "100%", class = "btn-danger"
+      ),
+      shiny::hr()
+    )
+  } else {
+    if (!is.null(theModelFolder()) & refreshDisplay() > -1 & trackRai::is_video_capture(theVideo)) {
+      shiny::tagList(
+        shiny::actionButton(
+          "startTrack_x", "Start tracking",
+          width = "100%", class = "btn-success"
+        ),
+        shiny::hr()
       )
     }
   }
@@ -76,6 +95,7 @@ shiny::observeEvent(input$dataset_x, {
     if (check) {
       theModelFolder(path)
     } else {
+      theModelFolder(NULL)
       shiny::showNotification(
         "No trained model was found in this dataset. Choose another one.",
         id = "yolo", type = "error"
@@ -139,16 +159,11 @@ shiny::observeEvent(theFrame(), {
 })
 
 
-# shiny::observeEvent(theYOLOPath(), {
-#   if (!is.null(theYOLOPath())) {
-#     shinyjs::enable("startTrack_x")
-#   } else {
-#     shinyjs::disable("startstartTrack_xTrain_x")
-#   }
-# })
-
-
 # Display
+shiny::observeEvent(input$videoPos_x, {
+  theFrame(input$videoPos_x)
+})
+
 shiny::observeEvent(refreshDisplay(), {
   if (input$main == "1") {
     if (trackRai::is_image(theImage)) {
@@ -192,3 +207,6 @@ session$onFlushed(function() {
 shiny::observeEvent(input$winResize, {
   js$uishape("displayImg")
 })
+
+
+# Track 

@@ -1,6 +1,6 @@
 .yolo_path <- function() {
-  if (reticulate::condaenv_exists("trackRai")) {
-    yolo_path <- paste0(dirname(reticulate::conda_python("trackRai")), "/yolo")
+  if (reticulate::virtualenv_exists("trackRai")) {
+    yolo_path <- paste0(dirname(reticulate::virtualenv_python("trackRai")), "/yolo")
     if (file.exists(yolo_path)) {
       yolo_path
     } else {
@@ -11,74 +11,45 @@
   }
 }
 
+#' @export
 install_yolo <- function() {
-  conda_installed <- !is.na(tryCatch(reticulate::conda_version(), error = function(e) NA))
-
-  if (!conda_installed) {
+  if (!reticulate::py_available(TRUE)) {
     answer <- utils::askYesNo(
       paste0(
-        "No conda installation was found on this system. \nMiniconda will be installed at ",
-        reticulate::miniconda_path(), ". \nDo you want to continue"
+        "\nNo suitable Python installation was found on this system.",
+        "\nPython will be installed.",
+        "\nWould you like to continue?"
       )
     )
 
     if (!is.na(answer)) {
       if (answer) {
-        reticulate::install_miniconda()
+        reticulate::install_python(version = "3.12:latest")
       }
     } else {
-      stop("YOLO was not installed on this system.")
+      stop("\nYOLO was not installed on this system.")
     }
   }
 
-  if (is.na(.yolo_path())) {
+  if (!reticulate::py_module_available("ultralytics")) {
     answer <- utils::askYesNo(
       paste0(
-        "No YOLO installation was found on this system. \nWould you like to install it now?"
-      )
-    )
-
-    nvidia <- as.numeric(system("nvidia-smi --list-gpus | wc -l", intern = TRUE)) > 0
-    print(nvidia)
-
-    if (!is.na(answer)) {
-      if (answer) {
-        if (nvidia) {
-          res <- system("nvidia-smi --version", intern = TRUE)
-          v <- strsplit(res[grepl("CUDA Version", res)], " ")[[1]]
-
-          reticulate::conda_create(
-            envname = "trackRai",
-            channel = c("pytorch", "nvidia", "conda-forge"),
-            packages = c(
-              "pytorch", "torchvision", "torchaudio",
-              paste0("pytorch-cuda=", v[length(v)]), "ultralytics"
-            )
-          )
-        } else {
-          reticulate::conda_create(
-            envname = "trackRai",
-            channel = c("pytorch", "conda-forge"),
-            packages = c("pytorch::pytorch", "torchvision", "torchaudio", "ultralytics")
-          )
-        }
-      }
-    } else {
-      stop("YOLO was not installed on this system.")
-    }
-  } else {
-    answer <- utils::askYesNo(
-      paste0(
-        "A YOLO installation was found on this system. \nWould you like to update it now?"
+        "No YOLO installation was found on this system.",
+        "\nYOLO will be installed.",
+        "\nWould you like to continue?"
       )
     )
 
     if (!is.na(answer)) {
-      if (answer) {
-        reticulate::conda_update()
-      }
+      reticulate::virtualenv_create(
+        envname = "trackRai",
+        version = "3.12",
+        packages = c(
+          "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+        )
+      )
     } else {
-      stop("YOLO was not updated on this system.")
+      stop("\nYOLO was not installed on this system.")
     }
   }
 
