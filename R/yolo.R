@@ -22,34 +22,84 @@ install_yolo <- function() {
       )
     )
 
-    if (!is.na(answer)) {
-      if (answer) {
-        reticulate::install_python(version = "3.12:latest")
-      }
+    if (is.na(answer)) {
+      answer <- FALSE
+    }
+
+    if (answer) {
+      reticulate::install_python(version = "3.12:latest")
     } else {
       stop("\nYOLO was not installed on this system.")
     }
   }
 
-  if (!reticulate::py_module_available("ultralytics")) {
+  if (!reticulate::virtualenv_exists("trackRai")) {
     answer <- utils::askYesNo(
       paste0(
-        "No YOLO installation was found on this system.",
-        "\nYOLO will be installed.",
+        "\nNo trackRai environment was found on this system.",
+        "\nIt will be created with all the necessary packages.",
         "\nWould you like to continue?"
       )
     )
 
-    if (!is.na(answer)) {
+    if (is.na(answer)) {
+      answer <- FALSE
+    }
+
+    if (answer) {
       reticulate::virtualenv_create(
         envname = "trackRai",
         version = "3.12",
         packages = c(
-          "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+          "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
         )
       )
     } else {
       stop("\nYOLO was not installed on this system.")
+    }
+  } else if (!file.exists(paste0(dirname(reticulate::virtualenv_python("trackRai")), "/yolo"))) {
+    answer <- utils::askYesNo(
+      paste0(
+        "\nNo YOLO installation was found on this system.",
+        "\nIt will be installed with all the necessary dependencies.",
+        "\nWould you like to continue?"
+      )
+    )
+
+    if (is.na(answer)) {
+      answer <- FALSE
+    }
+
+    if (answer) {
+      reticulate::virtualenv_install(
+        envname = "trackRai",
+        packages = c(
+          "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+        )
+      )
+    } else {
+      stop("\nYOLO was not installed on this system.")
+    }
+  } else {
+    answer <- utils::askYesNo(
+      paste0(
+        "\nYOLO is already installed on this system.",
+        "\nWould you like to try updating it?"
+      )
+    )
+
+    if (is.na(answer)) {
+      answer <- FALSE
+    }
+
+    if (answer) {
+      reticulate::virtualenv_install(
+        envname = "trackRai",
+        packages = c(
+          "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+        ),
+        pip_options = "--upgrade"
+      )
     }
   }
 
