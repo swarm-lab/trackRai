@@ -11,4 +11,10 @@ local <- new.env()
 
   cv2 <- reticulate::import("cv2", convert = FALSE, delay_load = TRUE)
   assign("cv2", value = cv2, envir = parent.env(local))
+
+  np <- reticulate::import("numpy", convert = FALSE, delay_load = TRUE)
+  assign("np", value = np, envir = parent.env(local))
+
+  base64 <- reticulate::import("base64", convert = FALSE, delay_load = TRUE)
+  assign("base64", value = base64, envir = parent.env(local))
 }

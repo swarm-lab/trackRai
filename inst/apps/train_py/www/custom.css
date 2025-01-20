@@ -136,9 +136,13 @@ hr.hr-text:after {
   z-index: 99;
 }
 
-/* #displayImg {
-  padding: 10px;
-} */
+/* display */
+.display-panel {
+  width: min(calc(100vh - 90px), calc(100% - 410px));
+  float: left;
+  margin-top: 20px;
+  margin-left: calc((calc(100% - 410px) - min(calc(100vh - 90px), calc(100% - 410px))) / 2)
+}
 
 #displayPlt {
   padding: 10px;
@@ -157,4 +161,54 @@ hr.hr-text:after {
   background-color: #000000;
   opacity: 0.10;
   z-index: 98;
+}
+
+/* noUiSlider */
+#controlPanel {
+  font-size: 12px;
+}
+
+#controlPanel>div>div>div {
+  padding-left: 0px !important;
+}
+
+.noUi-horizontal {
+  height: 10px !important;
+}
+
+.noUi-handle {
+  background-color: #66A61E !important;
+  box-shadow: none !important
+}
+
+.noUi-handle-upper,
+.noUi-handle-lower {
+  background-color: #c8c8c8 !important;
+}
+
+.noUi-horizontal .noUi-handle {
+  height: 20px !important;
+}
+
+.noUi-horizontal .noUi-handle:before,
+.noUi-handle:after {
+  height: 7px !important;
+}
+
+.noUi-tooltip {
+  padding: 0px !important;
+  border: none !important;
+}
+
+.noUi-marker-large {
+  height: 10px !important;
+}
+
+.noUi-marker-normal {
+  height: 3px !important;
+  width: 1px !important;
+}
+
+.noUi-pips-horizontal {
+  padding-top: 5px !important;
 }

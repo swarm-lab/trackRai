@@ -35,5 +35,10 @@ shinyWidgets::verticalTabPanel(
     0, 1, 0.8, 0.01, width = "100%"
   ),
   shiny::hr(),
-  shiny::uiOutput("startStop")
+  shiny::uiOutput("startStop"),
+  div(
+    style = "text-align: center;",
+    checkboxInput("preview", "Show preview", value = FALSE)
+  ),
+  shiny::hr()
 )

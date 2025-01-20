@@ -1,28 +1,14 @@
 # UI
 output$startStop <- shiny::renderUI({
   if (inProgress()) {
-    shiny::tagList(
-      shiny::actionButton(
-        "stopTrack_x", "Stop tracking",
-        width = "100%", class = "btn-danger"
-      ),
-      div(
-        style = "text-align: center;",
-        checkboxInput("preview_x", "Show preview", value = FALSE)
-      ),
-      shiny::hr()
+    shiny::actionButton(
+      "stopTrack", "Stop tracking",
+      width = "100%", class = "btn-danger"
     )
   } else {
-    shiny::tagList(
-      shinyFiles::shinySaveButton("startTrack_x", "Start tracking",
-        "Please select a location to save the tracks", "tracks", "csv",
-        class = "fullWidth btn-success"
-      ),
-      div(
-        style = "text-align: center;",
-        checkboxInput("preview_x", "Show preview", value = FALSE)
-      ),
-      shiny::hr()
+    shinyFiles::shinySaveButton("startTrack_x", "Start tracking",
+      "Please select a location to save the tracks", "tracks", "csv",
+      class = "fullWidth btn-success"
     )
   }
 })
@@ -46,8 +32,9 @@ shiny::observeEvent(theTrackPath(), {
   theLoop(0)
   inProgress(TRUE)
   shiny::showNotification("Tracking in progress.", id = "tracking", duration = NULL)
-  toggleTabs(1:2, "OFF")
-  toggledTabs$toggled[1:2] <<- FALSE
+  toggleTabs(1, "OFF")
+  toggledTabs$toggled[1] <<- FALSE
+  toggleInputs(input, state = "OFF")
   sc <<- max(c(trackRai::n_row(theImage), trackRai::n_col(theImage)) / 720)
   font_scale <<- as.integer(sc)
   font_thickness <<- as.integer(max(1, 1.5 * sc))
@@ -92,7 +79,8 @@ shiny::observeEvent(theDebounce(), {
         iou = input$iou_x,
         max_det = as.integer(input$maxObjects_x),
         tracker = normalizePath(theTmpTracker, mustWork = FALSE),
-        verbose = FALSE
+        verbose = FALSE,
+        device = device
       )
 
       obb <- reticulate::py_to_r(tracks[0]$obb$xyxyxyxy$cpu()$numpy())
@@ -107,13 +95,14 @@ shiny::observeEvent(theDebounce(), {
           obb[, , 2]
         )
       )
-      names(tab) <- c("frame", "id", "x", "y", "width", "height", "angle", "x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4")
+      names(tab) <- c(
+        "frame", "id", "x", "y", "width", "height", "angle",
+        "x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4"
+      )
 
       displayTable <<- data.table::rbindlist(list(displayTable, tab))[frame >= (max(frame) - input$trackBuffer_x), ]
 
-      print(input$preview_x)
-
-      if (input$preview_x) {
+      if (input$preview) {
         if ((theLoop() %% input$trackBuffer_x) == 0) {
           toDisplay <<- frame[1]$copy()
           last <- displayTable[frame == max(frame)]
@@ -127,7 +116,7 @@ shiny::observeEvent(theDebounce(), {
           )
           box <- np$int_(box)
           shades <- col[(last$id %% length(col)) + 1]
-  
+
           for (i in seq_len(py_to_r(box$shape[0]))) {
             toDisplay <<- cv2$drawContours(
               toDisplay, list(box[i - 1]), 0L, c(255L, 255L, 255),
@@ -143,7 +132,7 @@ shiny::observeEvent(theDebounce(), {
               as.integer(max(0.5, 2 * sc))
             )
           }
-  
+
           printDisplay(printDisplay() + 1)
         }
       }
@@ -178,18 +167,20 @@ shiny::observeEvent(theDebounce(), {
       inProgress(FALSE)
       shiny::removeNotification(id = "tracking")
       pb$close()
-      toggleTabs(1:2, "ON")
-      toggledTabs$toggled[1:2] <<- TRUE
+      toggleTabs(1, "ON")
+      toggledTabs$toggled[1] <<- TRUE
+      toggleInputs(input, state = "ON")
     }
   }
 })
 
-shiny::observeEvent(input$stopTrack_x, {
+shiny::observeEvent(input$stopTrack, {
   theLoop(NULL)
   theTrackPath(NULL)
   inProgress(FALSE)
   shiny::removeNotification(id = "tracking")
   pb$close()
-  toggleTabs(1:2, "ON")
-  toggledTabs$toggled[1:2] <<- TRUE
+  toggleTabs(1, "ON")
+  toggledTabs$toggled[1] <<- TRUE
+  toggleInputs(input, state = "ON")
 })

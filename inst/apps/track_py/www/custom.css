@@ -181,7 +181,8 @@ hr.hr-text:after {
   box-shadow: none !important
 }
 
-.noUi-handle-upper, .noUi-handle-lower {
+.noUi-handle-upper,
+.noUi-handle-lower {
   background-color: #c8c8c8 !important;
 }
 
@@ -189,7 +190,8 @@ hr.hr-text:after {
   height: 20px !important;
 }
 
-.noUi-horizontal .noUi-handle:before, .noUi-handle:after {
+.noUi-horizontal .noUi-handle:before,
+.noUi-handle:after {
   height: 7px !important;
 }
 

@@ -13,7 +13,7 @@ shiny::observeEvent(theModelFolder(), {
   if (is.null(theModelFolder())) {
     theVideo(NULL)
   } else {
-    theModel(ul$YOLO(normalizePath(paste0(theModelFolder(), "/weights/best.pt"), mustWork = FALSE)))
+    theModel(ultralytics$YOLO(normalizePath(paste0(theModelFolder(), "/weights/best.pt"), mustWork = FALSE)))
     theVideo(cv2$VideoCapture(normalizePath(paste0(theYOLOPath(), "/video.mp4"), mustWork = FALSE)))
   }
 })

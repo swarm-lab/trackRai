@@ -7,11 +7,11 @@ if (Sys.info()["sysname"] == "Darwin") {
 
 library(reticulate)
 reticulate::use_virtualenv("trackRai")
+torch <- reticulate::import("torch", convert = FALSE)
+ultralytics <- reticulate::import("ultralytics", convert = FALSE)
 cv2 <- reticulate::import("cv2", convert = FALSE)
 np <- reticulate::import("numpy", convert = FALSE)
 base64 <- reticulate::import("base64", convert = FALSE)
-torch <- reticulate::import("torch", convert = FALSE)
-ultralytics <- reticulate::import("ultralytics", convert = FALSE)
 
 library(shiny)
 library(shinyWidgets)
