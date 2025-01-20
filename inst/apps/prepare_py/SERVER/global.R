@@ -29,6 +29,18 @@ theFrame <- shiny::reactiveVal()
 refreshVideo <- shiny::reactiveVal(0)
 rangeMem <- c(NA, NA)
 frameMem <- NA
+vw <- cv2$VideoWriter(
+  normalizePath(tempfile(fileext = ".mp4"), mustWork = FALSE),
+  cv2$VideoWriter_fourcc("a", "v", "c", "1"),
+  30L, c(1920L, 1080L)
+)
+if (reticulate::py_to_r(vw$isOpened())) {
+  codec <- cv2$VideoWriter_fourcc("a", "v", "c", "1")
+} else {
+  codec <- cv2$VideoWriter_fourcc("m", "p", "4", "v")
+}
+vw$release()
+
 
 # Image
 theImage <- NULL

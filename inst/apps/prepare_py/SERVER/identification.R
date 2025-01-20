@@ -258,7 +258,7 @@ shiny::observeEvent(refreshDisplay(), {
           (ell_py[1][1] >= input$rangeHeight_x[1]) &
           (ell_py[1][1] <= input$rangeHeight_x[2])
         box <- cv2$boxPoints(ell_py)
-        box <- np$int0(box)
+        box <- np$int_(box)
         cv2$drawContours(
           toDisplay, list(box), 0L, c(255L, 255L, 255),
           as.integer(max(0.5, 4 * sc))

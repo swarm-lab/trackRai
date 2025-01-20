@@ -83,24 +83,36 @@ shiny::observeEvent(theDebounce(), {
         device = device
       )
 
-      obb <- reticulate::py_to_r(tracks[0]$obb$xyxyxyxy$cpu()$numpy())
-      xywhr <- reticulate::py_to_r(tracks[0]$obb$xywhr$cpu()$numpy())
-      ids <- reticulate::py_to_r(tracks[0]$obb$id$cpu()$numpy())
-      tab <- data.table::as.data.table(
-        cbind(
-          input$videoControls[1] + theLoop(),
-          ids,
-          xywhr,
-          obb[, , 1],
-          obb[, , 2]
-        )
-      )
-      names(tab) <- c(
-        "frame", "id", "x", "y", "width", "height", "angle",
-        "x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4"
-      )
+      if (!reticulate::py_to_r(tracks[0]$obb$id == py_none())) {
+        obb <- asplit(reticulate::py_to_r(tracks[0]$obb$xyxyxyxy$cpu()$numpy()), 3)
+        xywhr <- reticulate::py_to_r(tracks[0]$obb$xywhr$cpu()$numpy())
+        ids <- reticulate::py_to_r(tracks[0]$obb$id$cpu()$numpy())
 
-      displayTable <<- data.table::rbindlist(list(displayTable, tab))[frame >= (max(frame) - input$trackBuffer_x), ]
+        tab <- data.table::as.data.table(
+          cbind(
+            input$videoControls[1] + theLoop(),
+            ids,
+            xywhr,
+            obb[[1]],
+            obb[[2]]
+          )
+        )
+        names(tab) <- c(
+          "frame", "id", "x", "y", "width", "height", "angle",
+          "x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4"
+        )
+
+        if (theLoop() == 0) {
+          if (file.exists(normalizePath(theTrackPath(), mustWork = FALSE))) {
+            unlink(normalizePath(theTrackPath(), mustWork = FALSE))
+          }
+          fwrite(tab, normalizePath(theTrackPath(), mustWork = FALSE), append = FALSE)
+        } else {
+          fwrite(tab, normalizePath(theTrackPath(), mustWork = FALSE), append = TRUE)
+        }
+
+        displayTable <<- data.table::rbindlist(list(displayTable, tab))[frame >= (max(frame) - input$trackBuffer_x), ]
+      }
 
       if (input$preview) {
         if ((theLoop() %% input$trackBuffer_x) == 0) {
@@ -135,15 +147,6 @@ shiny::observeEvent(theDebounce(), {
 
           printDisplay(printDisplay() + 1)
         }
-      }
-
-      if (theLoop() == 0) {
-        if (file.exists(normalizePath(theTrackPath(), mustWork = FALSE))) {
-          unlink(normalizePath(theTrackPath(), mustWork = FALSE))
-        }
-        fwrite(tab, normalizePath(theTrackPath(), mustWork = FALSE), append = FALSE)
-      } else {
-        fwrite(tab, normalizePath(theTrackPath(), mustWork = FALSE), append = TRUE)
       }
 
       new_check <- floor(100 * theLoop() / n)

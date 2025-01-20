@@ -89,7 +89,7 @@ shiny::observeEvent(input$testComposite_x, {
       box <- cv2$boxPoints(ell)
       box[, 0] <- box[, 0] + left
       box[, 1] <- box[, 1] + top
-      box <- np$int0(box)
+      box <- np$int_(box)
       sc <- max(c(trackRai::n_row(theComposite), trackRai::n_col(theComposite)) / 720)
       cv2$drawContours(
         theComposite, list(box), 0L, c(255L, 255L, 255),
@@ -221,7 +221,7 @@ shiny::observeEvent(theYOLOPath(), {
       theVideo$set(cv2$CAP_PROP_POS_FRAMES, input$videoControls[1] - 1)
       vw <- cv2$VideoWriter(
         normalizePath(paste0(theYOLOPath(), "/YOLO/video.mp4"), mustWork = FALSE),
-        cv2$VideoWriter_fourcc("a", "v", "c", "1"),
+        codec,
         theVideo$get(cv2$CAP_PROP_FPS),
         as.integer(c(trackRai::n_col(prepped), trackRai::n_row(prepped)))
       )
@@ -429,6 +429,7 @@ shiny::observeEvent(theYOLOPath(), {
       write("    0: object", con, append = TRUE)
       close(con)
 
+      theYOLOPath(NULL)
       shiny::removeNotification(id = "yolo")
       shinyjs::hideElement("curtain")
     }

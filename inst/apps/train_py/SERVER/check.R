@@ -33,7 +33,7 @@ output$displayFrame <- shiny::renderUI({
 
       pred <- theModel()(theFrame)
       obb <- pred[0]$obb$xyxyxyxy$cpu()$numpy()
-      obb <- np$int0(obb)
+      obb <- np$int_(obb)
       sc <- max(c(trackRai::n_row(theFrame), trackRai::n_col(theFrame)) / 720)
 
       for (i in seq_len(py_to_r(obb$shape[0]))) {
