@@ -111,7 +111,69 @@ shiny::observeEvent(theVideoPath(), {
     if (!is.na(trackRai::n_frames(toCheck))) {
       theVideo <<- toCheck
       theImage <<- theVideo$read()[1]
+
+      if (!all(unlist(reticulate::py_to_r(theMask$shape)) == unlist(reticulate::py_to_r(theImage$shape)))) {
+        theMask <<- reticulate::np_array(
+          array(1L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
+          dtype = "uint8"
+        )
+      }
+
       refreshVideo(refreshVideo() + 1)
+      refreshDisplay(refreshDisplay() + 1)
+    }
+  }
+})
+
+shinyFiles::shinyFileChoose(input, "maskFile_x",
+  roots = volumes, session = session,
+  defaultRoot = defaultRoot(), defaultPath = defaultPath()
+)
+
+shiny::observeEvent(input$maskFile_x, {
+  path <- shinyFiles::parseFilePaths(volumes, input$maskFile_x)
+  if (nrow(path) > 0) {
+    theMaskPath(normalizePath(path$datapath, mustWork = FALSE))
+    refreshMask(refreshMask() + 1)
+  }
+})
+
+shiny::observeEvent(refreshMask(), {
+  if (refreshMask() > 0) {
+    toCheck <- cv2$imread(theMaskPath())
+
+    if (trackRai::is_image(toCheck)) {
+      if (!all(unlist(reticulate::py_to_r(toCheck$shape)) == unlist(reticulate::py_to_r(theImage$shape)))) {
+        shinyalert::shinyalert("Error:",
+          "The video and mask do not have the same dimensions.",
+          type = "error", animation = FALSE,
+          closeOnClickOutside = TRUE
+        )
+        theMask <<- reticulate::np_array(
+          array(1L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
+          dtype = "uint8"
+        )
+      } else {
+        theMask <<- cv2$divide(cv2$compare(toCheck, 0, 1L), 255L)
+      }
+
+      ix <- which.max(
+        sapply(
+          stringr::str_locate_all(theMaskPath(), volumes),
+          function(l) {
+            if (nrow(l) > 0) {
+              diff(l[1, ])
+            } else {
+              NA
+            }
+          }
+        )
+      )
+      volume <- volumes[ix]
+      dir <- dirname(theMaskPath())
+      defaultRoot(names(volumes)[ix])
+      defaultPath(gsub(volume, "", dir))
+
       refreshDisplay(refreshDisplay() + 1)
     }
   }
@@ -136,6 +198,10 @@ shiny::observeEvent(refreshDisplay(), {
   if (input$main == "1") {
     if (trackRai::is_image(theImage)) {
       toDisplay <<- theImage$copy()
+
+      if (trackRai::is_image(theMask)) {
+        toDisplay <<- cv2$multiply(toDisplay, cv2$divide(cv2$compare(theMask, 0, 1L), 255L))
+      }
     } else {
       toDisplay <<- black_screen$copy()
     }

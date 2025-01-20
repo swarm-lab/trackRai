@@ -11,6 +11,7 @@ volumes <- c(Home = fs::path_home(), getVolumes()())
 defaultRoot <- shiny::reactiveVal()
 defaultPath <- shiny::reactiveVal("")
 theVideoPath <- shiny::reactiveVal()
+theMaskPath <- shiny::reactiveVal()
 theTrackPath <- shiny::reactiveVal()
 
 # Progress monitoring
@@ -39,6 +40,8 @@ black_screen <- reticulate::r_to_py(
 toDisplay <- NULL
 refreshDisplay <- shiny::reactiveVal(0)
 printDisplay <- shiny::reactiveVal(0)
+refreshMask <- shiny::reactiveVal(0)
+theMask <- NULL
 displayTable <- NULL
 col <- pals::alphabet()
 

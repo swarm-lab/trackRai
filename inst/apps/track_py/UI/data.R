@@ -8,6 +8,10 @@ shinyWidgets::verticalTabPanel(
     "Please select a video file", FALSE, class = "fullWidth"
   ),
   shiny::hr(),
+  shinyFiles::shinyFilesButton("maskFile_x", "Select mask (optional)",
+    "Please select an optional mask file", FALSE, class = "fullWidth"
+  ),
+  shiny::hr(),
   shiny::htmlOutput("yoloStatus"),
   shinyFiles::shinyDirButton("dataset_x", "Select trained dataset",
     "Please select the folder containing the trained dataset",

@@ -71,7 +71,7 @@ shiny::observeEvent(theDebounce(), {
 
     if (reticulate::py_to_r(frame[0])) {
       tracks <<- theModel$track(
-        source = frame[1],
+        source = cv2$multiply(frame[1], theMask),
         show = FALSE,
         persist = TRUE,
         imgsz = c(trackRai::n_row(frame[1]), trackRai::n_col(frame[1])),
@@ -116,33 +116,36 @@ shiny::observeEvent(theDebounce(), {
 
       if (input$preview) {
         if ((theLoop() %% input$trackBuffer_x) == 0) {
-          toDisplay <<- frame[1]$copy()
-          last <- displayTable[frame == max(frame)]
-          box <- reticulate::r_to_py(
-            simplify2array(
-              list(
-                as.matrix(last[, c("x1", "x2", "x3", "x4")]),
-                as.matrix(last[, c("y1", "y2", "y3", "y4")])
+          toDisplay <<- cv2$multiply(frame[1], theMask)
+
+          if (!is.null(displayTable)) {
+            last <- displayTable[frame == max(frame)]
+            box <- reticulate::r_to_py(
+              simplify2array(
+                list(
+                  as.matrix(last[, c("x1", "x2", "x3", "x4")]),
+                  as.matrix(last[, c("y1", "y2", "y3", "y4")])
+                )
               )
             )
-          )
-          box <- np$int_(box)
-          shades <- col[(last$id %% length(col)) + 1]
+            box <- np$int_(box)
+            shades <- col[(last$id %% length(col)) + 1]
 
-          for (i in seq_len(py_to_r(box$shape[0]))) {
-            toDisplay <<- cv2$drawContours(
-              toDisplay, list(box[i - 1]), 0L, c(255L, 255L, 255),
-              as.integer(max(0.5, 4 * sc))
-            )
-            toDisplay <<- cv2$drawContours(
-              toDisplay, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-              as.integer(max(0.5, 2 * sc))
-            )
-            trace <- reticulate::r_to_py(as.matrix(displayTable[id == last$id[i], c("x", "y")]))
-            toDisplay <<- cv2$polylines(
-              toDisplay, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-              as.integer(max(0.5, 2 * sc))
-            )
+            for (i in seq_len(py_to_r(box$shape[0]))) {
+              toDisplay <<- cv2$drawContours(
+                toDisplay, list(box[i - 1]), 0L, c(255L, 255L, 255),
+                as.integer(max(0.5, 4 * sc))
+              )
+              toDisplay <<- cv2$drawContours(
+                toDisplay, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+                as.integer(max(0.5, 2 * sc))
+              )
+              trace <- reticulate::r_to_py(as.matrix(displayTable[id == last$id[i], c("x", "y")]))
+              toDisplay <<- cv2$polylines(
+                toDisplay, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+                as.integer(max(0.5, 2 * sc))
+              )
+            }
           }
 
           printDisplay(printDisplay() + 1)
