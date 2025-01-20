@@ -6,6 +6,10 @@ output$startStop <- shiny::renderUI({
         "stopTrack_x", "Stop tracking",
         width = "100%", class = "btn-danger"
       ),
+      div(
+        style = "text-align: center;",
+        checkboxInput("preview_x", "Show preview", value = FALSE)
+      ),
       shiny::hr()
     )
   } else {
@@ -13,6 +17,10 @@ output$startStop <- shiny::renderUI({
       shinyFiles::shinySaveButton("startTrack_x", "Start tracking",
         "Please select a location to save the tracks", "tracks", "csv",
         class = "fullWidth btn-success"
+      ),
+      div(
+        style = "text-align: center;",
+        checkboxInput("preview_x", "Show preview", value = FALSE)
       ),
       shiny::hr()
     )
@@ -101,39 +109,43 @@ shiny::observeEvent(theDebounce(), {
       )
       names(tab) <- c("frame", "id", "x", "y", "width", "height", "angle", "x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4")
 
-      displayTable <<- data.table::rbindlist(list(displayTable, tab))[frame >= (max(frame) - 30), ]
+      displayTable <<- data.table::rbindlist(list(displayTable, tab))[frame >= (max(frame) - input$trackBuffer_x), ]
 
-      if ((theLoop() %% input$trackBuffer_x) == 0) {
-        toDisplay <<- frame[1]$copy()
-        last <- displayTable[frame == max(frame)]
-        box <- reticulate::r_to_py(
-          simplify2array(
-            list(
-              as.matrix(last[, c("x1", "x2", "x3", "x4")]),
-              as.matrix(last[, c("y1", "y2", "y3", "y4")])
+      print(input$preview_x)
+
+      if (input$preview_x) {
+        if ((theLoop() %% input$trackBuffer_x) == 0) {
+          toDisplay <<- frame[1]$copy()
+          last <- displayTable[frame == max(frame)]
+          box <- reticulate::r_to_py(
+            simplify2array(
+              list(
+                as.matrix(last[, c("x1", "x2", "x3", "x4")]),
+                as.matrix(last[, c("y1", "y2", "y3", "y4")])
+              )
             )
           )
-        )
-        box <- np$int_(box)
-        shades <- col[(last$id %% length(col)) + 1]
-
-        for (i in seq_len(py_to_r(box$shape[0]))) {
-          toDisplay <<- cv2$drawContours(
-            toDisplay, list(box[i - 1]), 0L, c(255L, 255L, 255),
-            as.integer(max(0.5, 4 * sc))
-          )
-          toDisplay <<- cv2$drawContours(
-            toDisplay, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-            as.integer(max(0.5, 2 * sc))
-          )
-          trace <- reticulate::r_to_py(as.matrix(displayTable[id == last$id[i], c("x", "y")]))
-          toDisplay <<- cv2$polylines(
-            toDisplay, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-            as.integer(max(0.5, 2 * sc))
-          )
+          box <- np$int_(box)
+          shades <- col[(last$id %% length(col)) + 1]
+  
+          for (i in seq_len(py_to_r(box$shape[0]))) {
+            toDisplay <<- cv2$drawContours(
+              toDisplay, list(box[i - 1]), 0L, c(255L, 255L, 255),
+              as.integer(max(0.5, 4 * sc))
+            )
+            toDisplay <<- cv2$drawContours(
+              toDisplay, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+              as.integer(max(0.5, 2 * sc))
+            )
+            trace <- reticulate::r_to_py(as.matrix(displayTable[id == last$id[i], c("x", "y")]))
+            toDisplay <<- cv2$polylines(
+              toDisplay, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+              as.integer(max(0.5, 2 * sc))
+            )
+          }
+  
+          printDisplay(printDisplay() + 1)
         }
-
-        printDisplay(printDisplay() + 1)
       }
 
       if (theLoop() == 0) {
