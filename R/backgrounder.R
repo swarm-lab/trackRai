@@ -55,7 +55,7 @@ backgrounder <- function(video, n = 10, method = "median", prob = 0.025,
 
   l <- lapply(frames, function(i) {
     video$set(cv2$CAP_PROP_POS_FRAMES, i-1)
-    reticulate::py_to_r(video$read()[1])
+    reticulate::py_to_r(video$read()[1]) * 1.0
   })
 
   if (shiny::isRunning()) {
