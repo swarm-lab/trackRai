@@ -27,8 +27,7 @@ shiny::observeEvent(input$testComposite_x, {
     nz <- cv2$findNonZero(mask)
     roi <- cbind(reticulate::py_to_r(nz[, , 0]), trackRai::n_row(mask) - reticulate::py_to_r(nz[, , 1]))
 
-    # theComposite <<- theBackground$copy()
-    theComposite <<- cv2$cvtColor(cv2$compare(mask, 0, 1L), cv2$COLOR_GRAY2BGR)
+    theComposite <<- theBackground$copy()
     stamp <- reticulate::np_array(
       array(0L, c(trackRai::n_row(theComposite), trackRai::n_col(theComposite), 3)),
       dtype = "uint8"
