@@ -1,5 +1,5 @@
 # UI
-shiny::observeEvent(refreshMask(), {
+shiny::observeEvent(refreshDisplay(), {
   if (!trackRai::is_image(theMask)) {
     toggleTabs(4:6, "OFF")
     toggledTabs$toggled[4:6] <<- FALSE

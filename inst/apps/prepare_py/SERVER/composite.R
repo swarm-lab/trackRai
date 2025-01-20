@@ -25,9 +25,10 @@ shiny::observeEvent(input$testComposite_x, {
     tmp <- cv2$erode(tmp, k)
     mask <- tmp[1:(1 + trackRai::n_row(mask)), 1:(1 + trackRai::n_col(mask))]
     nz <- cv2$findNonZero(mask)
-    roi <- cbind(reticulate::py_to_r(nz[, , 0]), reticulate::py_to_r(nz[, , 1]))
+    roi <- cbind(reticulate::py_to_r(nz[, , 0]), trackRai::n_row(mask) - reticulate::py_to_r(nz[, , 1]))
 
-    theComposite <<- theBackground$copy()
+    # theComposite <<- theBackground$copy()
+    theComposite <<- cv2$cvtColor(cv2$compare(mask, 0, 1L), cv2$COLOR_GRAY2BGR)
     stamp <- reticulate::np_array(
       array(0L, c(trackRai::n_row(theComposite), trackRai::n_col(theComposite), 3)),
       dtype = "uint8"
@@ -190,7 +191,7 @@ shiny::observeEvent(theYOLOPath(), {
       w <- diff(range(roi[, 1])) + 1
       h <- diff(range(roi[, 2])) + 1
 
-      sub <- cv2$multiply(theBackground, cv2$divide(theMask, 255L))[y:(y + h), x:(x + w)]
+      sub <- cv2$multiply(theBackground, cv2$divide(cv2$compare(theMask, 0, 1L), 255L))[y:(y + h), x:(x + w)]
 
       top <- ceiling((ceiling(h / 32) * 32 - h) / 2)
       bottom <- floor((ceiling(h / 32) * 32 - h) / 2)
@@ -211,7 +212,7 @@ shiny::observeEvent(theYOLOPath(), {
       )
       cv2$imwrite(normalizePath(paste0(theYOLOPath(), "/YOLO/mask.png"), mustWork = FALSE), prepped)
 
-      prepped_mask <- cv2$divide(prepped, 255L)
+      prepped_mask <- cv2$divide(cv2$compare(prepped, 0, 1L), 255L)
 
       shiny::removeNotification(id = "yoloStep1")
 

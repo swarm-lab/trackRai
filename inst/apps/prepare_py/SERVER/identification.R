@@ -89,7 +89,6 @@ shiny::observeEvent(input$computeStats_x, {
 
         if (valid) {
           ell <- cv2$fitEllipse(nz[labs == ulabs[j - 1]])
-          # box <- cv2$boxPoints(ell)
           tmp <- reticulate::py_to_r(ell[1])
           obb[[length(obb) + 1]] <- data.table::as.data.table(tmp)
 
@@ -98,7 +97,7 @@ shiny::observeEvent(input$computeStats_x, {
             cv2$compare(cc[1][bb[2]:(bb[2] + bb[4]), bb[1]:(bb[1] + bb[3])], 0, 1L), cv2$COLOR_GRAY2BGR
           )
           submasks <<- c(submasks, submask)
-          subs <<- c(subs, cv2$multiply(sub, cv2$divide(submask, 255)))
+          subs <<- c(subs, cv2$multiply(sub, cv2$divide(cv2$compare(submask, 0, 1L), 255)))
         }
       }
 

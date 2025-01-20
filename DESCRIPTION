@@ -21,6 +21,7 @@ Imports:
     plotly (>= 4.10.4),
     processx (>= 3.8.5),
     reticulate (>= 1.40.0),
+    Rfast (>= 2.1.4),
     shiny (>= 1.10.0),
     shinyalert (>= 3.1.0),
     shinyFiles (>= 0.9.3),
