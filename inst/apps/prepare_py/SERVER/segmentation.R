@@ -1,10 +1,10 @@
 # UI
 shiny::observe({
-  if (is.null(input$videoPos2_x)) {
-    toggleTabs(5:6, "OFF")
-    toggledTabs$toggled[5:6] <<- FALSE
-  } else {
-    if (toggledTabs$toggled[5] == FALSE) {
+  if (input$main == "4") {
+    if (is.null(input$threshold_x)) {
+      toggleTabs(5:6, "OFF")
+      toggledTabs$toggled[5:6] <<- FALSE
+    } else if (toggledTabs$toggled[5] == FALSE) {
       toggleTabs(5, "ON")
       toggledTabs$toggled[5] <<- TRUE
       shiny::updateCheckboxInput(session, "autoSelect_x", value = TRUE)
@@ -12,33 +12,8 @@ shiny::observe({
   }
 })
 
-output$videoSlider2 <- shiny::renderUI({
-  if (!is.null(input$rangePos_x)) {
-    sliderInput("videoPos2_x", "Frame",
-      width = "100%", step = 1,
-      value = frameMem,
-      min = input$rangePos_x[1],
-      max = input$rangePos_x[2]
-    )
-  }
-})
-
 
 # Events
-shiny::observeEvent(input$videoPos2_x, {
-  if (input$main == "4") {
-    if (!is.null(input$videoPos2_x)) {
-      shiny::updateSliderInput(session, "videoPos_x", value = input$videoPos2_x)
-
-      if (!is.null(input$videoPos3_x)) {
-        shiny::updateSliderInput(session, "videoPos3_x", value = input$videoPos2_x)
-      }
-    }
-
-    refreshDisplay(refreshDisplay() + 1)
-  }
-})
-
 shiny::observeEvent(input$optimizeThresholds_x, {
   if (trackRai::is_video_capture(theVideo) & trackRai::is_image(theBackground) &
     trackRai::n_row(theImage) == trackRai::n_row(theBackground) &
@@ -46,7 +21,7 @@ shiny::observeEvent(input$optimizeThresholds_x, {
     shinyjs::showElement("curtain")
     shiny::showNotification("Loading images in memory.", id = "load", duration = NULL)
 
-    frame_pos <- round(seq.int(input$rangePos_x[1], input$rangePos_x[2],
+    frame_pos <- round(seq.int(input$videoControls[1], input$videoControls[3],
       length.out = 20
     ))
 
@@ -63,7 +38,7 @@ shiny::observeEvent(input$optimizeThresholds_x, {
       )
     } else {
       mask <- cv2$compare(theMask, 0, 1L)
-      mask <- cv2$divide(mask, 255)    
+      mask <- cv2$divide(mask, 255)
     }
 
     frames <- lapply(frame_pos, function(i) {
@@ -136,7 +111,7 @@ shiny::observeEvent(refreshDisplay(), {
         )
       } else {
         mask <- cv2$compare(theMask, 0, 1L)
-        mask <- cv2$divide(mask, 255)          
+        mask <- cv2$divide(mask, 255)
       }
 
       frame <- theImage$copy()

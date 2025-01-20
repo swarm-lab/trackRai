@@ -2,11 +2,11 @@
 # Packages
 #--------------------------------------------------------------
 if (Sys.info()["sysname"] == "Darwin") {
-  Sys.setenv(KMP_DUPLICATE_LIB_OK=TRUE)
+  Sys.setenv(KMP_DUPLICATE_LIB_OK = TRUE)
 }
 
 library(reticulate)
-reticulate::use_condaenv("trackRai")
+reticulate::use_virtualenv("trackRai")
 cv2 <- reticulate::import("cv2", convert = FALSE)
 np <- reticulate::import("numpy", convert = FALSE)
 base64 <- reticulate::import("base64", convert = FALSE)
@@ -27,7 +27,7 @@ library(data.table)
 #--------------------------------------------------------------
 # Custom functions
 #--------------------------------------------------------------
-source("FUNCTIONS/toggler.R", local = FALSE)
+source("HELPERS/toggler.R", local = FALSE)
 
 
 #--------------------------------------------------------------
@@ -45,13 +45,9 @@ ui <- function(request) {
     shiny::div(
       style = "width: 100%;",
       shiny::div(
-        style = "width: min(100vh, calc(100% - 410px));
-            float: left;
-            margin-top: 20px;
-            margin-left: calc((calc(100% - 410px) -
-              min(100vh, calc(100% - 410px))) / 2)",
-        class = "vrtc-tab-panel-container",
-        shiny::uiOutput("display")
+        class = "vrtc-tab-panel-container display-panel",
+        shiny::uiOutput("display"),
+        source("UI/controls.R", local = TRUE)$value
       ),
       shiny::div(
         style = "width: 400px; margin-left: calc(100% - 400px);",
@@ -84,6 +80,7 @@ server <- function(input, output, session) {
   source("SERVER/segmentation.R", local = TRUE)
   source("SERVER/identification.R", local = TRUE)
   source("SERVER/composite.R", local = TRUE)
+  source("SERVER/controls.R", local = TRUE)
   session$onSessionEnded(function() { })
 }
 

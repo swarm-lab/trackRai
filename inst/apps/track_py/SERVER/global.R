@@ -1,13 +1,16 @@
 # YOLO
 yolo_installed <- !is.na(trackRai:::.yolo_path())
+n_gpus <- reticulate::py_to_r(torch$cuda$device_count())
+mps <- reticulate::py_to_r(torch$backends$mps$is_available())
 theModelFolder <- shiny::reactiveVal()
-theModel <- shiny::reactiveVal()
+theModel <- NULL
 
 # File manager
 volumes <- c(Home = fs::path_home(), getVolumes()())
-defaultRoot <- reactiveVal()
-defaultPath <- reactiveVal("")
+defaultRoot <- shiny::reactiveVal()
+defaultPath <- shiny::reactiveVal("")
 theVideoPath <- shiny::reactiveVal()
+theTrackPath <- shiny::reactiveVal()
 
 # Progress monitoring
 theRawProgress <- shiny::reactiveVal()
@@ -16,11 +19,14 @@ monitorProgress <- shiny::reactiveVal(FALSE)
 
 # UI
 shinyjs::hideElement("curtain")
-toggleTabs(2, "OFF")
+toggledTabs <- data.frame(
+  tab = 1:2,
+  toggled = c(TRUE, FALSE)
+)
 
 # Video
 theVideo <- shiny::reactiveVal()
-refreshVideo <- reactiveVal(0)
+refreshVideo <- shiny::reactiveVal(0)
 refreshFrame <- shiny::reactiveVal(0)
 theFrame <- shiny::reactiveVal()
 theImage <- NULL
@@ -30,5 +36,25 @@ black_screen <- reticulate::r_to_py(
   array(0L, c(1080, 1920, 3))
 )
 toDisplay <- NULL
-refreshDisplay <- reactiveVal(0)
-printDisplay <- reactiveVal(0)
+refreshDisplay <- shiny::reactiveVal(0)
+printDisplay <- shiny::reactiveVal(0)
+displayTable <- NULL
+col <- pals::alphabet()
+
+# Tracking
+theTmpTracker <- tempfile("tracker", fileext = ".yaml")
+theLoop <- shiny::reactiveVal()
+theDebounce <- shiny::debounce(theLoop, 1)
+inProgress <- shiny::reactiveVal(FALSE)
+frame <- NULL
+tracks <- NULL
+sc <- NULL
+font_scale <- NULL
+font_thickness <- NULL
+lab <- NULL
+xywhr <- NULL
+pb <- NULL
+n <- NULL
+old_check <- NULL
+old_frame <- NULL
+old_time <- NULL

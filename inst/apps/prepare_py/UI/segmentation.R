@@ -51,7 +51,6 @@ shinyjs::disabled(
       width = "100%", min = 1, max = 255,
       value = 30, step = 1
     ),
-    shiny::hr(),
-    shiny::htmlOutput("videoSlider2")
+    shiny::hr()
   )
 )

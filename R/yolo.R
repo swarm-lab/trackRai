@@ -13,11 +13,11 @@
 
 #' @export
 install_yolo <- function() {
-  if (!reticulate::py_available(TRUE)) {
+  if (reticulate::py_discover_config()$version < "3.12.8") {
     answer <- utils::askYesNo(
       paste0(
-        "\nNo suitable Python installation was found on this system.",
-        "\nPython will be installed.",
+        "\nThe Python version found on this system is lower than the recommended one.",
+        "\nPython 3.12.8 will be installed.",
         "\nWould you like to continue?"
       )
     )
@@ -29,9 +29,11 @@ install_yolo <- function() {
     if (answer) {
       reticulate::install_python(version = "3.12:latest")
     } else {
-      stop("\nYOLO was not installed on this system.")
+      warning("\nContinuing installation of YOLO with a non-recommended version of Python.")
     }
   }
+
+  reticulate::py_available(TRUE)
 
   if (!reticulate::virtualenv_exists("trackRai")) {
     answer <- utils::askYesNo(
@@ -50,8 +52,9 @@ install_yolo <- function() {
       reticulate::virtualenv_create(
         envname = "trackRai",
         version = "3.12",
+        python = reticulate::virtualenv_python(),
         packages = c(
-          "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+          "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
         )
       )
     } else {
@@ -74,7 +77,7 @@ install_yolo <- function() {
       reticulate::virtualenv_install(
         envname = "trackRai",
         packages = c(
-          "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+          "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
         )
       )
     } else {
@@ -96,7 +99,7 @@ install_yolo <- function() {
       reticulate::virtualenv_install(
         envname = "trackRai",
         packages = c(
-          "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+          "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
         ),
         pip_options = "--upgrade"
       )

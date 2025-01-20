@@ -11,29 +11,10 @@ shiny::observe({
   }
 })
 
-output$videoSlider3 <- shiny::renderUI({
-  if (!is.null(input$rangePos_x)) {
-    sliderInput("videoPos3_x", "Frame",
-      width = "100%", step = 1,
-      value = frameMem,
-      min = input$rangePos_x[1],
-      max = input$rangePos_x[2]
-    )
-  }
-})
-
 
 # Events
-shiny::observeEvent(input$videoPos3_x, {
+shiny::observeEvent(input$videoControls[2], {
   if (input$main == "5") {
-    if (!is.null(input$videoPos3_x)) {
-      shiny::updateSliderInput(session, "videoPos_x", value = input$videoPos3_x)
-
-      if (!is.null(input$videoPos2_x)) {
-        shiny::updateSliderInput(session, "videoPos2_x", value = input$videoPos3_x)
-      }
-    }
-
     refreshDisplay(refreshDisplay() + 1)
   }
 })
@@ -46,7 +27,7 @@ shiny::observeEvent(input$computeStats_x, {
       duration = NULL
     )
 
-    frame_pos <- round(seq.int(input$rangePos_x[1], input$rangePos_x[2],
+    frame_pos <- round(seq.int(input$videoControls[1], input$videoControls[3],
       length.out = input$nIDFrames_x
     ))
 

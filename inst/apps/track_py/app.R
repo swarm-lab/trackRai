@@ -7,11 +7,11 @@ if (Sys.info()["sysname"] == "Darwin") {
 
 library(reticulate)
 reticulate::use_virtualenv("trackRai")
-torch <- reticulate::import("torch", convert = FALSE)
 cv2 <- reticulate::import("cv2", convert = FALSE)
 np <- reticulate::import("numpy", convert = FALSE)
 base64 <- reticulate::import("base64", convert = FALSE)
-ul <- reticulate::import("ultralytics", convert = FALSE)
+torch <- reticulate::import("torch", convert = FALSE)
+ultralytics <- reticulate::import("ultralytics", convert = FALSE)
 
 library(shiny)
 library(shinyWidgets)
@@ -21,7 +21,7 @@ library(shinyalert)
 library(htmlwidgets)
 library(trackRai)
 library(data.table)
-library(plotly)
+library(pals)
 
 
 #--------------------------------------------------------------
@@ -45,13 +45,10 @@ ui <- function(request) {
     shiny::div(
       style = "width: 100%;",
       shiny::div(
-        style = "width: min(100vh, calc(100% - 410px));
-            float: left;
-            margin-top: 20px;
-            margin-left: calc((calc(100% - 410px) -
-              min(100vh, calc(100% - 410px))) / 2);",
-        class = "vrtc-tab-panel-container",
-        shiny::uiOutput("display")
+
+        class = "vrtc-tab-panel-container display-panel",
+        shiny::uiOutput("display"),
+        source("UI/controls.R", local = TRUE)$value
       ),
       shiny::div(
         style = "width: 400px; margin-left: calc(100% - 400px);",
@@ -60,7 +57,8 @@ ui <- function(request) {
           contentWidth = 11,
           menuSide = "right",
           selected = "1",
-          source("UI/prepare.R", local = TRUE)$value
+          source("UI/data.R", local = TRUE)$value,
+          source("UI/tracking.R", local = TRUE)$value
         )
       )
     )
@@ -73,7 +71,9 @@ ui <- function(request) {
 #--------------------------------------------------------------
 server <- function(input, output, session) {
   source("SERVER/global.R", local = TRUE)
-  source("SERVER/prepare.R", local = TRUE)
+  source("SERVER/data.R", local = TRUE)
+  source("SERVER/tracking.R", local = TRUE)
+  source("SERVER/controls.R", local = TRUE)
   session$onSessionEnded(function() {
 
   })

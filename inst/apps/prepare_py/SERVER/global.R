@@ -1,14 +1,14 @@
 # File manager 
 volumes <- c(Home = fs::path_home(), getVolumes()())
-defaultRoot <- reactiveVal()
-defaultPath <- reactiveVal("")
-theBackgroundPath <- reactiveVal()
-theMaskPath <- reactiveVal()
-theYOLOPath <- reactiveVal()
+defaultRoot <- shiny::reactiveVal()
+defaultPath <- shiny::reactiveVal("")
+theBackgroundPath <- shiny::reactiveVal()
+theMaskPath <- shiny::reactiveVal()
+theYOLOPath <- shiny::reactiveVal()
 tmpDir <- tempdir()
 
 # UI
-hideElement("curtain")
+shinyjs::hideElement("curtain")
 toggledTabs <- data.frame(
   tab = 1:6,
   toggled = c(TRUE, rep(FALSE, 5))
@@ -19,14 +19,14 @@ black_screen <- reticulate::r_to_py(
   array(0L, c(1080, 1920, 3))
 )
 toDisplay <- NULL
-refreshDisplay <- reactiveVal(0)
-printDisplay <- reactiveVal(0)
+refreshDisplay <- shiny::reactiveVal(0)
+printDisplay <- shiny::reactiveVal(0)
 
 # Video 
-theVideoPath <- reactiveVal()
+theVideoPath <- shiny::reactiveVal()
 theVideo <- NULL
-theFrame <- reactiveVal()
-refreshVideo <- reactiveVal(0)
+theFrame <- shiny::reactiveVal()
+refreshVideo <- shiny::reactiveVal(0)
 rangeMem <- c(NA, NA)
 frameMem <- NA
 
@@ -35,21 +35,21 @@ theImage <- NULL
 
 # Background
 theBackground <- NULL
-refreshBackground <- reactiveVal(0)
-collectGhost <- reactiveVal(0)
-stopGhostCollection <- reactiveVal(0)
+refreshBackground <- shiny::reactiveVal(0)
+collectGhost <- shiny::reactiveVal(0)
+stopGhostCollection <- shiny::reactiveVal(0)
 ghostCoords <- NULL
 
 # Mask
 theMask <- NULL
-refreshMask <- reactiveVal(0)
-collectMask <- reactiveVal(0)
-stopMaskCollection <- reactiveVal(0)
+refreshMask <- shiny::reactiveVal(0)
+collectMask <- shiny::reactiveVal(0)
+stopMaskCollection <- shiny::reactiveVal(0)
 maskCoords <- NULL
 
 # Objects
-theStats <- reactiveVal()
-refreshStats <- reactiveVal(0)
+theStats <- shiny::reactiveVal()
+refreshStats <- shiny::reactiveVal(0)
 subs <- list()
 submasks <- list()
 theComposite <- NULL

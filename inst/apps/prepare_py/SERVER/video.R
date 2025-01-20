@@ -18,45 +18,6 @@ output$videoStatus <- shiny::renderUI({
 })
 
 
-# UI
-output$rangeSlider <- shiny::renderUI({
-  if (refreshVideo() > 0 & trackRai::is_video_capture(theVideo)) {
-    shiny::sliderInput("rangePos_x", "Video range",
-      width = "100%", min = 1,
-      max = n_frames(theVideo),
-      value = c(1, n_frames(theVideo)), step = 1
-    )
-  }
-})
-
-output$videoSlider <- shiny::renderUI({
-  if (refreshVideo() > 0 & !is.null(input$rangePos_x) & trackRai::is_video_capture(theVideo)) {
-    if (any(is.na(rangeMem))) {
-      rangeMem <<- input$rangePos_x
-    }
-
-    test <- rangeMem != input$rangePos_x
-    rangeMem <<- input$rangePos_x
-
-    if (test[2] & !test[1]) {
-      shiny::sliderInput("videoPos_x", "Frame",
-        width = "100%", step = 1,
-        value = input$rangePos_x[2],
-        min = input$rangePos_x[1],
-        max = input$rangePos_x[2]
-      )
-    } else {
-      shiny::sliderInput("videoPos_x", "Frame",
-        width = "100%", step = 1,
-        value = input$rangePos_x[1],
-        min = input$rangePos_x[1],
-        max = input$rangePos_x[2]
-      )
-    }
-  }
-})
-
-
 # Events
 shiny::observeEvent(input$main, {
   refreshDisplay(refreshDisplay() + 1)
@@ -162,17 +123,8 @@ shiny::observeEvent(input$winResize, {
   js$uishape("displayImg")
 })
 
-shiny::observeEvent(input$videoPos_x, {
-  theFrame(input$videoPos_x)
-  frameMem <<- input$videoPos_x
-
-  if (input$main == "1") {
-    if (!is.null(input$videoPos2_x)) {
-      shiny::updateSliderInput(session, "videoPos2_x", value = input$videoPos_x)
-    }
-
-    if (!is.null(input$videoPos3_x)) {
-      shiny::updateSliderInput(session, "videoPos3_x", value = input$videoPos_x)
-    }
+shiny::observeEvent(input$videoControls[2], {
+  if (trackRai::is_video_capture(theVideo)) {
+    theFrame(input$videoControls[2])
   }
 })

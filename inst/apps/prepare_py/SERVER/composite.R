@@ -218,7 +218,7 @@ shiny::observeEvent(theYOLOPath(), {
       # Tracking video
       shiny::showNotification("Creating video for tracking.", id = "yoloStep2", duration = NULL)
 
-      theVideo$set(cv2$CAP_PROP_POS_FRAMES, input$rangePos_x[1] - 1)
+      theVideo$set(cv2$CAP_PROP_POS_FRAMES, input$videoControls[1] - 1)
       vw <- cv2$VideoWriter(
         normalizePath(paste0(theYOLOPath(), "/YOLO/video.mp4"), mustWork = FALSE),
         cv2$VideoWriter_fourcc("a", "v", "c", "1"),
@@ -228,12 +228,12 @@ shiny::observeEvent(theYOLOPath(), {
 
       pb <- shiny::Progress$new()
       pb$set(message = "Computing: ", value = 0, detail = "0%")
-      n <- input$rangePos_x[2] - input$rangePos_x[1] + 1
+      n <- input$videoControls[3] - input$videoControls[1] + 1
       old_check <- 0
       old_frame <- 1
       old_time <- Sys.time()
 
-      for (i in input$rangePos_x[1]:input$rangePos_x[2]) {
+      for (i in input$videoControls[1]:input$videoControls[3]) {
         frame <- theVideo$read()[1]
         sub <- frame[y:(y + h), x:(x + w)]
         prepped <- cv2$copyMakeBorder(

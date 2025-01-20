@@ -5,10 +5,7 @@ shinyWidgets::verticalTabPanel(
   shiny::hr(),
   shiny::htmlOutput("videoStatus"),
   shinyFiles::shinyFilesButton("videoFile_x", "Select video",
-    multiple = TRUE,
     "Please select a video file", FALSE, class = "fullWidth"
   ),
-  shiny::hr(),
-  shiny::htmlOutput("rangeSlider"),
-  shiny::htmlOutput("videoSlider")
+  shiny::hr()
 )
