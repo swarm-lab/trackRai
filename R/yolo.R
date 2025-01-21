@@ -13,12 +13,16 @@
 
 #' @export
 install_yolo <- function() {
-  if (reticulate::py_discover_config()$version < "3.12.8") {
+  if (reticulate::py_discover_config()$version != "3.11.11") {
     answer <- utils::askYesNo(
       paste0(
-        "\nThe Python version found on this system is lower than the recommended one.",
-        "\nPython 3.12.8 will be installed.",
-        "\nWould you like to continue?"
+        "\n------------------------------------------------------------",
+        "\n",
+        "\nThe Python version found on this system is not the recommended one.",
+        "\nPython 3.11.11 will be installed.",
+        "\nWould you like to continue?",
+        "\n",
+        "\n------------------------------------------------------------"
       )
     )
 
@@ -27,7 +31,7 @@ install_yolo <- function() {
     }
 
     if (answer) {
-      reticulate::install_python(version = "3.12:latest")
+      reticulate::install_python(version = "3.11.11")
     } else {
       warning("\nContinuing installation of YOLO with a non-recommended version of Python.")
     }
@@ -38,9 +42,13 @@ install_yolo <- function() {
   if (!reticulate::virtualenv_exists("trackRai")) {
     answer <- utils::askYesNo(
       paste0(
+        "\n------------------------------------------------------------",
+        "\n",
         "\nNo trackRai environment was found on this system.",
         "\nIt will be created with all the necessary packages.",
-        "\nWould you like to continue?"
+        "\nWould you like to continue?",
+        "\n",
+        "\n------------------------------------------------------------"
       )
     )
 
@@ -51,8 +59,8 @@ install_yolo <- function() {
     if (answer) {
       reticulate::virtualenv_create(
         envname = "trackRai",
-        version = "3.12",
-        python = reticulate::virtualenv_python(),
+        version = "3.11.11",
+        # python = reticulate::virtualenv_python(),
         packages = c(
           "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
         )
@@ -63,9 +71,13 @@ install_yolo <- function() {
   } else if (!file.exists(paste0(dirname(reticulate::virtualenv_python("trackRai")), "/yolo"))) {
     answer <- utils::askYesNo(
       paste0(
+        "\n------------------------------------------------------------",
+        "\n",
         "\nNo YOLO installation was found on this system.",
         "\nIt will be installed with all the necessary dependencies.",
-        "\nWould you like to continue?"
+        "\nWould you like to continue?",
+        "\n",
+        "\n------------------------------------------------------------"
       )
     )
 
@@ -86,8 +98,12 @@ install_yolo <- function() {
   } else {
     answer <- utils::askYesNo(
       paste0(
+        "\n------------------------------------------------------------",
+        "\n",
         "\nYOLO is already installed on this system.",
-        "\nWould you like to try updating it?"
+        "\nWould you like to try updating it?",
+        "\n",
+        "\n------------------------------------------------------------"
       )
     )
 
