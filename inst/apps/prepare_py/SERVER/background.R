@@ -138,6 +138,16 @@ shinyjs::onevent("click", "displayImg", function(props) {
     y <- trackRai::n_row(toDisplay) * (props$offsetY / input$displayImg_height)
     ghostCoords <<- rbind(ghostCoords, c(x, y))
     refreshDisplay(refreshDisplay() + 1)
+  } else if (collectMask() > 0) {
+    x <- trackRai::n_col(toDisplay) * (props$offsetX / input$displayImg_width)
+    y <- trackRai::n_row(toDisplay) * (props$offsetY / input$displayImg_height)
+    maskCoords <<- rbind(maskCoords, c(x, y))
+
+    if (collectMask() == 2 & nrow(maskCoords) >= 5) {
+      stopMaskCollection(stopMaskCollection() + 1)
+    }
+
+    refreshDisplay(refreshDisplay() + 1)
   }
 })
 

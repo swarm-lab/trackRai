@@ -138,10 +138,18 @@ hr.hr-text:after {
 
 /* display */
 .display-panel {
-  width: min(calc(100vh - 90px), calc(100% - 410px));
+  /* width: min(calc(100vh - 90px), calc(100% - 410px));  */
+  width: calc(100% - 410px);
   float: left;
   margin-top: 20px;
-  margin-left: calc((calc(100% - 410px) - min(calc(100vh - 90px), calc(100% - 410px))) / 2)
+  text-align: center;
+  /* margin-left: calc((calc(100% - 410px) - min(calc(100vh - 90px), calc(100% - 410px))) / 2) */
+}
+
+#displayImg {
+  width: auto;
+  max-height: calc(100vh - 150px);
+  max-width: 100%;
 }
 
 #displayPlt {

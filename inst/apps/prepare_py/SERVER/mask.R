@@ -184,20 +184,6 @@ shiny::observeEvent(input$ellButton_x, {
   }
 })
 
-shinyjs::onevent("click", "displayImg", function(props) {
-  if (collectMask() > 0) {
-    x <- trackRai::n_col(toDisplay) * (props$offsetX / input$displayImg_width)
-    y <- trackRai::n_row(toDisplay) * (props$offsetY / input$displayImg_height)
-    maskCoords <<- rbind(maskCoords, c(x, y))
-
-    if (collectMask() == 2 & nrow(maskCoords) >= 5) {
-      stopMaskCollection(stopMaskCollection() + 1)
-    }
-
-    refreshDisplay(refreshDisplay() + 1)
-  }
-})
-
 shiny::observeEvent(input$retKey, {
   if (collectMask() > 0) {
     stopMaskCollection(stopMaskCollection() + 1)
