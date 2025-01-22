@@ -65,9 +65,6 @@ shiny::observeEvent(theTrackPath(), {
 
 
 # Tracking loop
-
-# The loop doesnt stop if the user-defined upper frame limit is reached
-
 shiny::observeEvent(theDebounce(), {
   if (!is.null(theLoop())) {
     frame <<- theVideo$read()
