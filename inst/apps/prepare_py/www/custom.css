@@ -146,7 +146,7 @@ hr.hr-text:after {
   /* margin-left: calc((calc(100% - 410px) - min(calc(100vh - 90px), calc(100% - 410px))) / 2) */
 }
 
-#displayImg {
+#display_img {
   width: auto;
   max-height: calc(100vh - 150px);
   max-width: 100%;
@@ -172,11 +172,11 @@ hr.hr-text:after {
 }
 
 /* noUiSlider */
-#controlPanel {
+#control_panel {
   font-size: 12px;
 }
 
-#controlPanel>div>div>div {
+#control_panel>div>div>div {
   padding-left: 0px !important;
 }
 

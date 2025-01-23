@@ -12,23 +12,23 @@ output$yoloStatus <- shiny::renderUI({
   }
 })
 
-output$videoStatus <- shiny::renderUI({
-  if (refreshDisplay() > -1 & !trackRai::is_video_capture(theVideo)) {
+output$video_status <- shiny::renderUI({
+  if (refresh_display() > -1 & !trackRai::is_video_capture(the_video)) {
     p("Video missing (and required).", class = "bad")
-  } else if (!trackRai::is_video_capture(theVideo)) {
+  } else if (!trackRai::is_video_capture(the_video)) {
     p("Incompatible videos.", class = "bad")
   }
 })
 
 shiny::observe({
-  if (!is.null(theModelFolder()) & !is.null(theVideoPath()) & trackRai::is_video_capture(theVideo)) {
-    if (toggledTabs$toggled[2] == FALSE) {
+  if (!is.null(theModelFolder()) & !is.null(video_path()) & trackRai::is_video_capture(the_video)) {
+    if (toggled_tabs$toggled[2] == FALSE) {
       toggleTabs(2, "ON")
-      toggledTabs$toggled[2] <<- TRUE
+      toggled_tabs$toggled[2] <<- TRUE
     }
   } else {
     toggleTabs(2, "OFF")
-    toggledTabs$toggled[2] <<- FALSE
+    toggled_tabs$toggled[2] <<- FALSE
   }
 })
 
@@ -70,22 +70,22 @@ shiny::observeEvent(input$dataset_x, {
   }
 })
 
-shinyFiles::shinyFileChoose(input, "videoFile_x",
+shinyFiles::shinyFileChoose(input, "video_file_x",
   roots = volumes, session = session,
-  defaultRoot = defaultRoot(), defaultPath = defaultPath()
+  defaultRoot = default_root(), defaultPath = default_path()
 )
 
-shiny::observeEvent(input$videoFile_x, {
-  path <- shinyFiles::parseFilePaths(volumes, input$videoFile_x)
+shiny::observeEvent(input$video_file_x, {
+  path <- shinyFiles::parseFilePaths(volumes, input$video_file_x)
   if (nrow(path) > 0) {
-    theVideoPath(normalizePath(path$datapath, mustWork = FALSE))
+    video_path(normalizePath(path$datapath, mustWork = FALSE))
   }
 })
 
-shiny::observeEvent(theVideoPath(), {
+shiny::observeEvent(video_path(), {
   ix <- which.max(
     sapply(
-      stringr::str_locate_all(theVideoPath(), volumes),
+      stringr::str_locate_all(video_path(), volumes),
       function(l) {
         if (nrow(l) > 0) {
           diff(l[1, ])
@@ -98,68 +98,68 @@ shiny::observeEvent(theVideoPath(), {
   volume <- volumes[ix]
 
   if (length(volume) > 0) {
-    dir <- dirname(theVideoPath())
-    defaultRoot(names(volumes)[ix])
-    defaultPath(gsub(volume, "", dir))
+    dir <- dirname(video_path())
+    default_root(names(volumes)[ix])
+    default_path(gsub(volume, "", dir))
   }
 })
 
-shiny::observeEvent(theVideoPath(), {
-  toCheck <- cv2$VideoCapture(theVideoPath())
+shiny::observeEvent(video_path(), {
+  to_check <- cv2$VideoCapture(video_path())
 
-  if (reticulate::py_to_r(toCheck$isOpened())) {
-    if (!is.na(trackRai::n_frames(toCheck))) {
-      theVideo <<- toCheck
-      theImage <<- theVideo$read()[1]
+  if (reticulate::py_to_r(to_check$isOpened())) {
+    if (!is.na(trackRai::n_frames(to_check))) {
+      the_video <<- to_check
+      the_image <<- the_video$read()[1]
 
-      if (!all(unlist(reticulate::py_to_r(theMask$shape)) == unlist(reticulate::py_to_r(theImage$shape)))) {
-        theMask <<- reticulate::np_array(
-          array(1L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
+      if (!all(unlist(reticulate::py_to_r(the_mask$shape)) == unlist(reticulate::py_to_r(the_image$shape)))) {
+        the_mask <<- reticulate::np_array(
+          array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
           dtype = "uint8"
         )
       }
 
-      refreshVideo(refreshVideo() + 1)
-      refreshDisplay(refreshDisplay() + 1)
+      refresh_video(refresh_video() + 1)
+      refresh_display(refresh_display() + 1)
     }
   }
 })
 
 shinyFiles::shinyFileChoose(input, "maskFile_x",
   roots = volumes, session = session,
-  defaultRoot = defaultRoot(), defaultPath = defaultPath()
+  defaultRoot = default_root(), defaultPath = default_path()
 )
 
 shiny::observeEvent(input$maskFile_x, {
   path <- shinyFiles::parseFilePaths(volumes, input$maskFile_x)
   if (nrow(path) > 0) {
-    theMaskPath(normalizePath(path$datapath, mustWork = FALSE))
-    refreshMask(refreshMask() + 1)
+    mask_path(normalizePath(path$datapath, mustWork = FALSE))
+    refresh_mask(refresh_mask() + 1)
   }
 })
 
-shiny::observeEvent(refreshMask(), {
-  if (refreshMask() > 0) {
-    toCheck <- cv2$imread(theMaskPath())
+shiny::observeEvent(refresh_mask(), {
+  if (refresh_mask() > 0) {
+    to_check <- cv2$imread(mask_path())
 
-    if (trackRai::is_image(toCheck)) {
-      if (!all(unlist(reticulate::py_to_r(toCheck$shape)) == unlist(reticulate::py_to_r(theImage$shape)))) {
+    if (trackRai::is_image(to_check)) {
+      if (!all(unlist(reticulate::py_to_r(to_check$shape)) == unlist(reticulate::py_to_r(the_image$shape)))) {
         shinyalert::shinyalert("Error:",
           "The video and mask do not have the same dimensions.",
           type = "error", animation = FALSE,
           closeOnClickOutside = TRUE
         )
-        theMask <<- reticulate::np_array(
-          array(1L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
+        the_mask <<- reticulate::np_array(
+          array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
           dtype = "uint8"
         )
       } else {
-        theMask <<- cv2$divide(cv2$compare(toCheck, 0, 1L), 255L)
+        the_mask <<- cv2$divide(cv2$compare(to_check, 0, 1L), 255L)
       }
 
       ix <- which.max(
         sapply(
-          stringr::str_locate_all(theMaskPath(), volumes),
+          stringr::str_locate_all(mask_path(), volumes),
           function(l) {
             if (nrow(l) > 0) {
               diff(l[1, ])
@@ -170,55 +170,55 @@ shiny::observeEvent(refreshMask(), {
         )
       )
       volume <- volumes[ix]
-      dir <- dirname(theMaskPath())
-      defaultRoot(names(volumes)[ix])
-      defaultPath(gsub(volume, "", dir))
+      dir <- dirname(mask_path())
+      default_root(names(volumes)[ix])
+      default_path(gsub(volume, "", dir))
 
-      refreshDisplay(refreshDisplay() + 1)
+      refresh_display(refresh_display() + 1)
     }
   }
 })
 
-shiny::observeEvent(theFrame(), {
-  if (!is.null(theFrame())) {
-    theImage <<- trackRai::read_frame(theVideo, theFrame())
-    refreshDisplay(refreshDisplay() + 1)
+shiny::observeEvent(the_frame(), {
+  if (!is.null(the_frame())) {
+    the_image <<- trackRai::read_frame(the_video, the_frame())
+    refresh_display(refresh_display() + 1)
   }
 })
 
 
 # Displays
-shiny::observeEvent(input$videoControls[2], {
-  if (trackRai::is_video_capture(theVideo)) {
-    theFrame(input$videoControls[2])
+shiny::observeEvent(input$video_controls[2], {
+  if (trackRai::is_video_capture(the_video)) {
+    the_frame(input$video_controls[2])
   }
 })
 
-shiny::observeEvent(refreshDisplay(), {
+shiny::observeEvent(refresh_display(), {
   if (input$main == "1") {
-    if (trackRai::is_image(theImage)) {
-      toDisplay <<- theImage$copy()
+    if (trackRai::is_image(the_image)) {
+      to_display <<- the_image$copy()
 
-      if (trackRai::is_image(theMask)) {
-        toDisplay <<- cv2$multiply(toDisplay, cv2$divide(cv2$compare(theMask, 0, 1L), 255L))
+      if (trackRai::is_image(the_mask)) {
+        to_display <<- cv2$multiply(to_display, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))
       }
     } else {
-      toDisplay <<- black_screen$copy()
+      to_display <<- black_screen$copy()
     }
 
-    printDisplay(printDisplay() + 1)
+    print_display(print_display() + 1)
   }
 })
 
 output$display <- shiny::renderUI({
-  if (printDisplay() > 0) {
-    if (trackRai::is_image(toDisplay)) {
+  if (print_display() > 0) {
+    if (trackRai::is_image(to_display)) {
       shiny::tags$img(
         src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
-          base64$b64encode(cv2$imencode(".jpg", toDisplay)[1])$decode("utf-8")
+          base64$b64encode(cv2$imencode(".jpg", to_display)[1])$decode("utf-8")
         )),
         width = "100%",
-        id = "displayImg",
+        id = "display_img",
         draggable = "false"
       )
     } else {
@@ -227,7 +227,7 @@ output$display <- shiny::renderUI({
           base64$b64encode(cv2$imencode(".jpg", black_screen)[1])$decode("utf-8")
         )),
         width = "100%",
-        id = "displayImg",
+        id = "display_img",
         draggable = "false"
       )
     }
@@ -235,9 +235,9 @@ output$display <- shiny::renderUI({
 })
 
 session$onFlushed(function() {
-  js$uishape("displayImg")
+  js$uishape("display_img")
 }, once = TRUE)
 
-shiny::observeEvent(input$winResize, {
-  js$uishape("displayImg")
+shiny::observeEvent(input$win_resize, {
+  js$uishape("display_img")
 })

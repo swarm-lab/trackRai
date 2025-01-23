@@ -4,7 +4,7 @@ shinyjs::disabled(
     box_height = "100%",
     shiny::p("Background module", class = "module-title"),
     shiny::hr(),
-    shiny::htmlOutput("backgroundStatus", container = p, class = "good"),
+    shiny::htmlOutput("background_status", container = p, class = "good"),
     shinyFiles::shinyFilesButton("backgroundFile_x", "Select existing background",
       "Please select a background image", FALSE,
       class = "fullWidth"
@@ -23,7 +23,7 @@ shinyjs::disabled(
     shiny::hr(),
     shiny::actionButton("ghostButton_x", "Select ghost for removal", width = "100%"),
     shiny::hr(),
-    shinyFiles::shinySaveButton("saveBackground_x", "Save background file", "Save background as...",
+    shinyFiles::shinySaveButton("save_background_x", "Save background file", "Save background as...",
       filetype = list(picture = c("png", "jpg")),
       class = "fullWidth"
     ),

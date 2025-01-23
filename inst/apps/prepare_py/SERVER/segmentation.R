@@ -1,55 +1,107 @@
+# Display 
+shiny::observeEvent(refresh_display(), {
+  if (input$main == "4") {
+    if (trackRai::n_row(the_image) != trackRai::n_row(the_background) |
+      trackRai::n_col(the_image) != trackRai::n_col(the_background)) {
+      to_display <<- black_screen$copy()
+    } else {
+      background <- the_background$copy()
+      if (input$dark_button_x == "Darker") {
+        background <- cv2$bitwise_not(background)
+      }
+
+      if (!trackRai::is_image(the_mask) | trackRai::n_row(the_image) != trackRai::n_row(the_mask) |
+        trackRai::n_col(the_image) != trackRai::n_col(the_mask)) {
+        mask <- reticulate::np_array(
+          array(1L, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 3)),
+          dtype = "uint8"
+        )
+      } else {
+        mask <- cv2$compare(the_mask, 0, 1L)
+        mask <- cv2$divide(mask, 255)
+      }
+
+      frame <- the_image$copy()
+      if (input$dark_button_x == "Darker") {
+        frame <- cv2$bitwise_not(frame)
+      }
+
+      if (input$dark_button_x == "A bit of both") {
+        frame <- cv2$absdiff(frame, background)
+      } else {
+        frame <- cv2$subtract(frame, background)
+      }
+
+      frame <- cv2$multiply(frame, mask)
+      gray <- cv2$cvtColor(frame, cv2$COLOR_BGR2GRAY)
+
+      to_display <<- cv2$multiply(gray, 255L / gray$max())
+      to_display <<- cv2$cvtColor(to_display, cv2$COLOR_GRAY2BGR)
+
+      bw <- cv2$compare(gray, input$threshold_x, 2L)
+      ct <- cv2$findContours(bw, cv2$RETR_EXTERNAL, cv2$CHAIN_APPROX_NONE)[0]
+
+      sc <- max(c(trackRai::n_row(frame), trackRai::n_col(frame)) / 720)
+      cv2$drawContours(to_display, ct, -1L, c(0L, 224L, 0L), as.integer(max(1, 1.5 * sc)))
+    }
+
+    print_display(print_display() + 1)
+  }
+})
+
+
 # UI
 shiny::observe({
   if (input$main == "4") {
     if (is.null(input$threshold_x)) {
       toggleTabs(5:6, "OFF")
-      toggledTabs$toggled[5:6] <<- FALSE
-    } else if (toggledTabs$toggled[5] == FALSE) {
+      toggled_tabs$toggled[5:6] <<- FALSE
+    } else if (toggled_tabs$toggled[5] == FALSE) {
       toggleTabs(5, "ON")
-      toggledTabs$toggled[5] <<- TRUE
+      toggled_tabs$toggled[5] <<- TRUE
       shiny::updateCheckboxInput(session, "autoSelect_x", value = TRUE)
     }
   }
 })
 
 
-# Events
-shiny::observeEvent(input$optimizeThresholds_x, {
-  if (trackRai::is_video_capture(theVideo) & trackRai::is_image(theBackground) &
-    trackRai::n_row(theImage) == trackRai::n_row(theBackground) &
-    trackRai::n_col(theImage) == trackRai::n_col(theBackground)) {
+# Optimize segmentation threshold
+shiny::observeEvent(input$optimize_thresholds_x, {
+  if (trackRai::is_video_capture(the_video) & trackRai::is_image(the_background) &
+    trackRai::n_row(the_image) == trackRai::n_row(the_background) &
+    trackRai::n_col(the_image) == trackRai::n_col(the_background)) {
     shinyjs::showElement("curtain")
     shiny::showNotification("Loading images in memory.", id = "load", duration = NULL)
 
-    frame_pos <- round(seq.int(input$videoControls[1], input$videoControls[3],
+    frame_pos <- round(seq.int(input$video_controls[1], input$video_controls[3],
       length.out = 20
     ))
 
-    background <- theBackground$copy()
-    if (input$darkButton_x == "Darker") {
+    background <- the_background$copy()
+    if (input$dark_button_x == "Darker") {
       background <- cv2$bitwise_not(background)
     }
 
-    if (!trackRai::is_image(theMask) | trackRai::n_row(theImage) != trackRai::n_row(theMask) |
-      trackRai::n_col(theImage) != trackRai::n_col(theMask)) {
+    if (!trackRai::is_image(the_mask) | trackRai::n_row(the_image) != trackRai::n_row(the_mask) |
+      trackRai::n_col(the_image) != trackRai::n_col(the_mask)) {
       mask <- reticulate::np_array(
-        array(1L, c(trackRai::n_row(theBackground), trackRai::n_col(theBackground), 3)),
+        array(1L, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 3)),
         dtype = "uint8"
       )
     } else {
-      mask <- cv2$compare(theMask, 0, 1L)
+      mask <- cv2$compare(the_mask, 0, 1L)
       mask <- cv2$divide(mask, 255)
     }
 
     frames <- lapply(frame_pos, function(i) {
-      theVideo$set(cv2$CAP_PROP_POS_FRAMES, i - 1)
-      frame <- theVideo$read()[1]
+      the_video$set(cv2$CAP_PROP_POS_FRAMES, i - 1)
+      frame <- the_video$read()[1]
 
-      if (input$darkButton_x == "Darker") {
+      if (input$dark_button_x == "Darker") {
         frame <- cv2$bitwise_not(frame)
       }
 
-      if (input$darkButton_x == "A bit of both") {
+      if (input$dark_button_x == "A bit of both") {
         frame <- cv2$absdiff(frame, background)
       } else {
         frame <- cv2$subtract(frame, background)
@@ -85,59 +137,9 @@ shiny::observeEvent(input$optimizeThresholds_x, {
 })
 
 shiny::observeEvent(input$threshold_x, {
-  refreshDisplay(refreshDisplay() + 1)
+  refresh_display(refresh_display() + 1)
 })
 
-shiny::observeEvent(input$darkButton_x, {
-  refreshDisplay(refreshDisplay() + 1)
-})
-
-shiny::observeEvent(refreshDisplay(), {
-  if (input$main == "4") {
-    if (trackRai::n_row(theImage) != trackRai::n_row(theBackground) |
-      trackRai::n_col(theImage) != trackRai::n_col(theBackground)) {
-      toDisplay <<- black_screen$copy()
-    } else {
-      background <- theBackground$copy()
-      if (input$darkButton_x == "Darker") {
-        background <- cv2$bitwise_not(background)
-      }
-
-      if (!trackRai::is_image(theMask) | trackRai::n_row(theImage) != trackRai::n_row(theMask) |
-        trackRai::n_col(theImage) != trackRai::n_col(theMask)) {
-        mask <- reticulate::np_array(
-          array(1L, c(trackRai::n_row(theBackground), trackRai::n_col(theBackground), 3)),
-          dtype = "uint8"
-        )
-      } else {
-        mask <- cv2$compare(theMask, 0, 1L)
-        mask <- cv2$divide(mask, 255)
-      }
-
-      frame <- theImage$copy()
-      if (input$darkButton_x == "Darker") {
-        frame <- cv2$bitwise_not(frame)
-      }
-
-      if (input$darkButton_x == "A bit of both") {
-        frame <- cv2$absdiff(frame, background)
-      } else {
-        frame <- cv2$subtract(frame, background)
-      }
-
-      frame <- cv2$multiply(frame, mask)
-      gray <- cv2$cvtColor(frame, cv2$COLOR_BGR2GRAY)
-
-      toDisplay <<- cv2$multiply(gray, 255L / gray$max())
-      toDisplay <<- cv2$cvtColor(toDisplay, cv2$COLOR_GRAY2BGR)
-
-      bw <- cv2$compare(gray, input$threshold_x, 2L)
-      ct <- cv2$findContours(bw, cv2$RETR_EXTERNAL, cv2$CHAIN_APPROX_NONE)[0]
-
-      sc <- max(c(trackRai::n_row(frame), trackRai::n_col(frame)) / 720)
-      cv2$drawContours(toDisplay, ct, -1L, c(0L, 224L, 0L), as.integer(max(1, 1.5 * sc)))
-    }
-
-    printDisplay(printDisplay() + 1)
-  }
+shiny::observeEvent(input$dark_button_x, {
+  refresh_display(refresh_display() + 1)
 })

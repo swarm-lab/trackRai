@@ -8,9 +8,9 @@ theModel <- NULL
 
 # File manager
 volumes <- c(Home = fs::path_home(), getVolumes()())
-defaultRoot <- shiny::reactiveVal()
-defaultPath <- shiny::reactiveVal("")
-theVideoPath <- shiny::reactiveVal()
+default_root <- shiny::reactiveVal()
+default_path <- shiny::reactiveVal("")
+video_path <- shiny::reactiveVal()
 theTrackPath <- shiny::reactiveVal()
 theExportPath <- shiny::reactiveVal()
 
@@ -21,17 +21,17 @@ monitorProgress <- shiny::reactiveVal(FALSE)
 
 # UI
 shinyjs::hideElement("curtain")
-toggledTabs <- data.frame(
+toggled_tabs <- data.frame(
   tab = 1:2,
   toggled = c(TRUE, FALSE)
 )
 
 # Video
-theVideo <- shiny::reactiveVal()
-refreshVideo <- shiny::reactiveVal(0)
+the_video <- shiny::reactiveVal()
+refresh_video <- shiny::reactiveVal(0)
 refreshFrame <- shiny::reactiveVal(0)
-theFrame <- shiny::reactiveVal()
-theImage <- NULL
+the_frame <- shiny::reactiveVal()
+the_image <- NULL
 vw <- cv2$VideoWriter(
   normalizePath(tempfile(fileext = ".mp4"), mustWork = FALSE),
   cv2$VideoWriter_fourcc("a", "v", "c", "1"),
@@ -49,11 +49,11 @@ vw$release()
 black_screen <- reticulate::r_to_py(
   array(0L, c(1080, 1920, 3))
 )
-toDisplay <- NULL
-refreshDisplay <- shiny::reactiveVal(0)
-printDisplay <- shiny::reactiveVal(0)
+to_display <- NULL
+refresh_display <- shiny::reactiveVal(0)
+print_display <- shiny::reactiveVal(0)
 refreshTracks <- shiny::reactiveVal(0)
-theMask <- NULL
+the_mask <- NULL
 displayTable <- NULL
 col <- pals::alphabet()
 

@@ -9,7 +9,7 @@ theModel <- shiny::reactiveVal()
 
 # File manager
 volumes <- c(Home = fs::path_home(), getVolumes()())
-theYOLOPath <- shiny::reactiveVal()
+yolo_path <- shiny::reactiveVal()
 theTempFile <- NULL
 
 # Progress monitoring
@@ -22,9 +22,9 @@ shinyjs::hideElement("curtain")
 toggleTabs(2, "OFF")
 
 # Check
-theVideo <- shiny::reactiveVal()
+the_video <- shiny::reactiveVal()
 refreshFrame <- shiny::reactiveVal(0)
-theFrame <- NULL
+the_frame <- NULL
 theTempFrame <- NULL
 theTempPredict <- NULL
 
@@ -32,6 +32,6 @@ theTempPredict <- NULL
 black_screen <- reticulate::r_to_py(
   array(0L, c(1080, 1920, 3))
 )
-toDisplay <- NULL
-refreshDisplay <- reactiveVal(0)
-printDisplay <- reactiveVal(0)
+to_display <- NULL
+refresh_display <- reactiveVal(0)
+print_display <- reactiveVal(0)

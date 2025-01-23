@@ -17,7 +17,7 @@ output$startStop <- shiny::renderUI({
 # Events
 shinyFiles::shinyFileSave(input, "startTrack_x",
   roots = volumes, session = session,
-  defaultRoot = defaultRoot(), defaultPath = defaultPath()
+  defaultRoot = default_root(), defaultPath = default_path()
 )
 
 shiny::observeEvent(input$startTrack_x, {
@@ -28,21 +28,21 @@ shiny::observeEvent(input$startTrack_x, {
 })
 
 shiny::observeEvent(theTrackPath(), {
-  theVideo$set(cv2$CAP_PROP_POS_FRAMES, input$videoControls[1] - 1)
+  the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls[1] - 1)
   theLoop(0)
   inProgress(TRUE)
   shiny::showNotification("Tracking in progress.", id = "tracking", duration = NULL)
   toggleTabs(1, "OFF")
-  toggledTabs$toggled[1] <<- FALSE
+  toggled_tabs$toggled[1] <<- FALSE
   toggleInputs(input, state = "OFF")
-  sc <<- max(c(trackRai::n_row(theImage), trackRai::n_col(theImage)) / 720)
+  sc <<- max(c(trackRai::n_row(the_image), trackRai::n_col(the_image)) / 720)
   font_scale <<- as.integer(sc)
   font_thickness <<- as.integer(max(1, 1.5 * sc))
   theModel <<- ultralytics$YOLO(normalizePath(paste0(theModelFolder(), "/runs/obb/", input$model_x)))
 
   pb <<- Progress$new()
   pb$set(message = "Computing: ", value = 0, detail = "0%")
-  n <<- input$videoControls[3] - input$videoControls[1] + 1
+  n <<- input$video_controls[3] - input$video_controls[1] + 1
   old_check <<- 0
   old_frame <<- 1
   old_time <<- Sys.time()
@@ -70,11 +70,11 @@ shiny::observeEvent(theTrackPath(), {
 
 shiny::observeEvent(theDebounce(), {
   if (!is.null(theLoop())) {
-    frame <<- theVideo$read()
+    frame <<- the_video$read()
 
     if (reticulate::py_to_r(frame[0])) {
       tracks <<- theModel$track(
-        source = cv2$multiply(frame[1], theMask),
+        source = cv2$multiply(frame[1], the_mask),
         show = FALSE,
         persist = TRUE,
         imgsz = c(trackRai::n_row(frame[1]), trackRai::n_col(frame[1])),
@@ -93,7 +93,7 @@ shiny::observeEvent(theDebounce(), {
 
         tab <- data.table::as.data.table(
           cbind(
-            input$videoControls[1] + theLoop(),
+            input$video_controls[1] + theLoop(),
             ids,
             xywhr,
             obb[[1]],
@@ -119,7 +119,7 @@ shiny::observeEvent(theDebounce(), {
 
       if (input$preview) {
         if ((theLoop() %% input$trackBuffer_x) == 0) {
-          toDisplay <<- cv2$multiply(frame[1], theMask)
+          to_display <<- cv2$multiply(frame[1], the_mask)
 
           if (!is.null(displayTable)) {
             last <- displayTable[frame == max(frame)]
@@ -135,23 +135,23 @@ shiny::observeEvent(theDebounce(), {
             shades <- col[(last$id %% length(col)) + 1]
 
             for (i in seq_len(py_to_r(box$shape[0]))) {
-              toDisplay <<- cv2$drawContours(
-                toDisplay, list(box[i - 1]), 0L, c(255L, 255L, 255),
+              to_display <<- cv2$drawContours(
+                to_display, list(box[i - 1]), 0L, c(255L, 255L, 255),
                 as.integer(max(0.5, 4 * sc))
               )
-              toDisplay <<- cv2$drawContours(
-                toDisplay, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+              to_display <<- cv2$drawContours(
+                to_display, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
                 as.integer(max(0.5, 2 * sc))
               )
               trace <- reticulate::r_to_py(as.matrix(displayTable[id == last$id[i], c("x", "y")]))
-              toDisplay <<- cv2$polylines(
-                toDisplay, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+              to_display <<- cv2$polylines(
+                to_display, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
                 as.integer(max(0.5, 2 * sc))
               )
             }
           }
 
-          printDisplay(printDisplay() + 1)
+          print_display(print_display() + 1)
         }
       }
 
@@ -177,7 +177,7 @@ shiny::observeEvent(theDebounce(), {
       shiny::removeNotification(id = "tracking")
       pb$close()
       toggleTabs(1, "ON")
-      toggledTabs$toggled[1] <<- TRUE
+      toggled_tabs$toggled[1] <<- TRUE
       toggleInputs(input, state = "ON")
     }
   }
@@ -190,6 +190,6 @@ shiny::observeEvent(input$stopTrack, {
   shiny::removeNotification(id = "tracking")
   pb$close()
   toggleTabs(1, "ON")
-  toggledTabs$toggled[1] <<- TRUE
+  toggled_tabs$toggled[1] <<- TRUE
   toggleInputs(input, state = "ON")
 })

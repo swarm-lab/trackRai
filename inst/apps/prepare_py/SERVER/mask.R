@@ -1,89 +1,24 @@
-# UI
-shiny::observeEvent(refreshDisplay(), {
-  if (!trackRai::is_image(theMask)) {
-    toggleTabs(4:6, "OFF")
-    toggledTabs$toggled[4:6] <<- FALSE
-  } else {
-    if (toggledTabs$toggled[4] == FALSE) {
-      toggleTabs(4, "ON")
-      toggledTabs$toggled[4] <<- TRUE
-    }
-  }
-})
-
-
-# Events
-shinyFiles::shinyFileChoose(input, "maskFile_x",
-  roots = volumes, session = session,
-  defaultRoot = defaultRoot(), defaultPath = defaultPath()
-)
-
-shiny::observeEvent(input$maskFile_x, {
-  path <- shinyFiles::parseFilePaths(volumes, input$maskFile_x)
-  if (nrow(path) > 0) {
-    theMaskPath(normalizePath(path$datapath, mustWork = FALSE))
-    refreshMask(refreshMask() + 1)
-  }
-})
-
-shiny::observeEvent(refreshMask(), {
-  if (refreshMask() > 0) {
-    toCheck <- cv2$imread(theMaskPath())
-
-    if (trackRai::is_image(toCheck)) {
-      if (!all(unlist(reticulate::py_to_r(toCheck$shape)) == unlist(reticulate::py_to_r(theImage$shape)))) {
-        shinyalert::shinyalert("Error:",
-          "The video and mask do not have the same dimensions.",
-          type = "error", animation = FALSE,
-          closeOnClickOutside = TRUE
-        )
-        theMask <<- NULL
-      } else {
-        theMask <<- toCheck$copy()
-      }
-
-      ix <- which.max(
-        sapply(
-          stringr::str_locate_all(theMaskPath(), volumes),
-          function(l) {
-            if (nrow(l) > 0) {
-              diff(l[1, ])
-            } else {
-              NA
-            }
-          }
-        )
-      )
-      volume <- volumes[ix]
-      dir <- dirname(theMaskPath())
-      defaultRoot(names(volumes)[ix])
-      defaultPath(gsub(volume, "", dir))
-
-      refreshDisplay(refreshDisplay() + 1)
-    }
-  }
-})
-
-shiny::observeEvent(refreshDisplay(), {
+# Display
+shiny::observeEvent(refresh_display(), {
   if (input$main == "3") {
-    if (!trackRai::is_image(theMask) & trackRai::is_image(theImage)) {
-      theMask <<- reticulate::np_array(
-        array(1L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
+    if (!trackRai::is_image(the_mask) & trackRai::is_image(the_image)) {
+      the_mask <<- reticulate::np_array(
+        array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
         dtype = "uint8"
       )
     }
 
-    if (trackRai::is_image(theMask)) {
-      gray <- cv2$cvtColor(theMask, cv2$COLOR_BGR2GRAY)
+    if (trackRai::is_image(the_mask)) {
+      gray <- cv2$cvtColor(the_mask, cv2$COLOR_BGR2GRAY)
       green <- gray$copy()
       green[green > 0] <- 255L
       red <- cv2$bitwise_not(green)
-      blue <- np_array(array(0, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 1)), "uint8")
+      blue <- np_array(array(0, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 1)), "uint8")
 
-      toDisplay <<- cv2$addWeighted(cv2$merge(c(blue, green, red)), 0.25, theImage, 0.75, 0.0)
+      to_display <<- cv2$addWeighted(cv2$merge(c(blue, green, red)), 0.25, the_image, 0.75, 0.0)
 
-      sc <- max(c(trackRai::n_row(toDisplay), trackRai::n_col(toDisplay)) / 720)
-      r <- 0.01 * min(trackRai::n_row(toDisplay), trackRai::n_col(toDisplay))
+      sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
+      r <- 0.01 * min(trackRai::n_row(to_display), trackRai::n_col(to_display))
       font_scale <- as.integer(sc)
       font_thickness <- as.integer(max(1, 1.5 * sc))
 
@@ -104,7 +39,7 @@ shiny::observeEvent(refreshDisplay(), {
         m1 <- cv2$dilate(green, k1)
         m2 <- cv2$dilate(red, k1)
         m <- cv2$dilate(cv2$bitwise_and(m1, m2), k2)
-        toDisplay <<- cv2$add(toDisplay, cv2$cvtColor(m, cv2$COLOR_GRAY2BGR))
+        to_display <<- cv2$add(to_display, cv2$cvtColor(m, cv2$COLOR_GRAY2BGR))
 
         cc <- cv2$connectedComponents(bw)[1]
         n <- reticulate::py_to_r(cc$max())
@@ -120,44 +55,113 @@ shiny::observeEvent(refreshDisplay(), {
           x <- reticulate::py_to_r(indices[1]$mean()) - lab_size[[1]] / 2 
           y <- reticulate::py_to_r(indices[0]$mean()) + lab_size[[2]] / 2
   
-          toDisplay <<- cv2$putText(
-            toDisplay, lab, as.integer(c(x, y)), cv2$FONT_HERSHEY_SIMPLEX,
+          to_display <<- cv2$putText(
+            to_display, lab, as.integer(c(x, y)), cv2$FONT_HERSHEY_SIMPLEX,
             font_scale, c(255L, 255L, 255L), font_thickness, cv2$LINE_AA
           )
         }
       }
 
-      if (collectMask() == 1) {
-        if (nrow(maskCoords) > 1) {
+      if (collect_mask() == 1) {
+        if (nrow(mask_coords) > 1) {
           cv2$polylines(
-            toDisplay, array(as.integer(maskCoords), c(1, dim(maskCoords))),
+            to_display, array(as.integer(mask_coords), c(1, dim(mask_coords))),
             TRUE, c(255, 255, 255), as.integer(max(1, 1.5 * sc))
           )
         }
       }
 
-      if (collectMask() > 0) {
-        for (i in seq_len(nrow(maskCoords))) {
+      if (collect_mask() > 0) {
+        for (i in seq_len(nrow(mask_coords))) {
           cv2$circle(
-            toDisplay, as.integer(maskCoords[i, ]), as.integer(r * 1.5),
+            to_display, as.integer(mask_coords[i, ]), as.integer(r * 1.5),
             c(255L, 255L, 255L), -1L
           )
           cv2$circle(
-            toDisplay, as.integer(maskCoords[i, ]), as.integer(r),
+            to_display, as.integer(mask_coords[i, ]), as.integer(r),
             c(0L, 0L, 255L), -1L
           )
         }
       }
     } else {
-      toDisplay <<- black_screen$copy()
+      to_display <<- black_screen$copy()
     }
 
-    printDisplay(printDisplay() + 1)
+    print_display(print_display() + 1)
   }
 })
 
+
+# UI
+shiny::observeEvent(refresh_display(), {
+  if (!trackRai::is_image(the_mask)) {
+    toggleTabs(4:6, "OFF")
+    toggled_tabs$toggled[4:6] <<- FALSE
+  } else {
+    if (toggled_tabs$toggled[4] == FALSE) {
+      toggleTabs(4, "ON")
+      toggled_tabs$toggled[4] <<- TRUE
+    }
+  }
+})
+
+
+# Load existing mask
+shinyFiles::shinyFileChoose(input, "maskFile_x",
+  roots = volumes, session = session,
+  defaultRoot = default_root(), defaultPath = default_path()
+)
+
+shiny::observeEvent(input$maskFile_x, {
+  path <- shinyFiles::parseFilePaths(volumes, input$maskFile_x)
+  if (nrow(path) > 0) {
+    mask_path(normalizePath(path$datapath, mustWork = FALSE))
+    refresh_mask(refresh_mask() + 1)
+  }
+})
+
+shiny::observeEvent(refresh_mask(), {
+  if (refresh_mask() > 0) {
+    to_check <- cv2$imread(mask_path())
+
+    if (trackRai::is_image(to_check)) {
+      if (!all(unlist(reticulate::py_to_r(to_check$shape)) == unlist(reticulate::py_to_r(the_image$shape)))) {
+        shinyalert::shinyalert("Error:",
+          "The video and mask do not have the same dimensions.",
+          type = "error", animation = FALSE,
+          closeOnClickOutside = TRUE
+        )
+        the_mask <<- NULL
+      } else {
+        the_mask <<- to_check$copy()
+      }
+
+      ix <- which.max(
+        sapply(
+          stringr::str_locate_all(mask_path(), volumes),
+          function(l) {
+            if (nrow(l) > 0) {
+              diff(l[1, ])
+            } else {
+              NA
+            }
+          }
+        )
+      )
+      volume <- volumes[ix]
+      dir <- dirname(mask_path())
+      default_root(names(volumes)[ix])
+      default_path(gsub(volume, "", dir))
+
+      refresh_display(refresh_display() + 1)
+    }
+  }
+})
+
+
+# Create mask
 shiny::observeEvent(input$polyButton_x, {
-  if (trackRai::is_image(theMask)) {
+  if (trackRai::is_image(the_mask)) {
     toggleInputs(input, "OFF")
     toggleTabs(1:2, "OFF")
     shiny::showNotification("Click to draw the polygonal ROI. Return to stop.
@@ -166,12 +170,12 @@ shiny::observeEvent(input$polyButton_x, {
       type = "message"
     )
 
-    collectMask(1)
+    collect_mask(1)
   }
 })
 
 shiny::observeEvent(input$ellButton_x, {
-  if (trackRai::is_image(theMask)) {
+  if (trackRai::is_image(the_mask)) {
     toggleInputs(input, "OFF")
     toggleTabs(1:2, "OFF")
     shiny::showNotification("Click to select 5 points along the periphery of the
@@ -180,58 +184,58 @@ shiny::observeEvent(input$ellButton_x, {
       type = "message"
     )
 
-    collectMask(2)
+    collect_mask(2)
   }
 })
 
 shiny::observeEvent(input$retKey, {
-  if (collectMask() > 0) {
-    stopMaskCollection(stopMaskCollection() + 1)
+  if (collect_mask() > 0) {
+    stop_mask_collection(stop_mask_collection() + 1)
   }
 })
 
 shiny::observeEvent(input$escKey, {
-  if (collectMask() > 0) {
-    maskCoords <<- NULL
-    stopMaskCollection(stopMaskCollection() + 1)
+  if (collect_mask() > 0) {
+    mask_coords <<- NULL
+    stop_mask_collection(stop_mask_collection() + 1)
   }
 })
 
-shiny::observeEvent(stopMaskCollection(), {
-  if (collectMask() > 0) {
-    if (!is.null(maskCoords)) {
-      if (collectMask() == 1) {
-        if (nrow(maskCoords) > 2) {
+shiny::observeEvent(stop_mask_collection(), {
+  if (collect_mask() > 0) {
+    if (!is.null(mask_coords)) {
+      if (collect_mask() == 1) {
+        if (nrow(mask_coords) > 2) {
           polyMask <- reticulate::np_array(
-            array(0L, c(trackRai::n_row(theMask), trackRai::n_col(theMask), 3)),
+            array(0L, c(trackRai::n_row(the_mask), trackRai::n_col(the_mask), 3)),
             dtype = "uint8"
           )
           cv2$fillPoly(
             polyMask,
-            pts = array(as.integer(maskCoords), c(1, dim(maskCoords))),
+            pts = array(as.integer(mask_coords), c(1, dim(mask_coords))),
             color = c(255, 255, 255)
           )
           if (input$incButton_x == "Including") {
-            theMask[polyMask > 0] <<- as.integer(input$roi_x)
+            the_mask[polyMask > 0] <<- as.integer(input$roi_x)
           } else if (input$incButton_x == "Excluding") {
-            theMask[polyMask > 0] <<- 0L
+            the_mask[polyMask > 0] <<- 0L
           }
         }
-      } else if (collectMask() == 2) {
-        if (nrow(maskCoords) == 5) {
+      } else if (collect_mask() == 2) {
+        if (nrow(mask_coords) == 5) {
           ellMask <- reticulate::np_array(
-            array(0L, c(trackRai::n_row(theMask), trackRai::n_col(theMask), 3)),
+            array(0L, c(trackRai::n_row(the_mask), trackRai::n_col(the_mask), 3)),
             dtype = "uint8"
           )
-          ell <- trackRai::optimEllipse(maskCoords[, 1], maskCoords[, 2])
+          ell <- trackRai::optimEllipse(mask_coords[, 1], mask_coords[, 2])
           ellMask <- cv2$ellipse(
             ellMask, as.integer(c(ell[1], ell[2])), as.integer(c(ell[3], ell[4]) / 2),
             ell[5], 0, 360, c(255L, 255L, 255L), -1L
           )
           if (input$incButton_x == "Including") {
-            theMask[ellMask > 0] <<- as.integer(input$roi_x)
+            the_mask[ellMask > 0] <<- as.integer(input$roi_x)
           } else if (input$incButton_x == "Excluding") {
-            theMask[ellMask > 0] <<- 0L
+            the_mask[ellMask > 0] <<- 0L
           }
         }
       }
@@ -240,9 +244,9 @@ shiny::observeEvent(stopMaskCollection(), {
     removeNotification(id = "mask_notif")
     toggleInputs(input, "ON")
     toggleTabs(1:2, "ON")
-    collectMask(0)
-    maskCoords <<- NULL
-    refreshDisplay(refreshDisplay() + 1)
+    collect_mask(0)
+    mask_coords <<- NULL
+    refresh_display(refresh_display() + 1)
   }
 })
 
@@ -255,36 +259,38 @@ shiny::observeEvent(input$incButton_x, {
 })
 
 shiny::observeEvent(input$includeAll_x, {
-  if (trackRai::is_image(theMask)) {
-    theMask <<- reticulate::np_array(
-      array(1L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
+  if (trackRai::is_image(the_mask)) {
+    the_mask <<- reticulate::np_array(
+      array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
       dtype = "uint8"
     )
-    refreshDisplay(refreshDisplay() + 1)
+    refresh_display(refresh_display() + 1)
   }
 })
 
 shiny::observeEvent(input$excludeAll_x, {
-  if (trackRai::is_image(theMask)) {
-    theMask <<- reticulate::np_array(
-      array(0L, c(trackRai::n_row(theImage), trackRai::n_col(theImage), 3)),
+  if (trackRai::is_image(the_mask)) {
+    the_mask <<- reticulate::np_array(
+      array(0L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
       dtype = "uint8"
     )
-    refreshDisplay(refreshDisplay() + 1)
+    refresh_display(refresh_display() + 1)
   }
 })
 
-shinyFiles::shinyFileSave(input, "saveMask_x",
+
+# Save mask
+shinyFiles::shinyFileSave(input, "save_mask_x",
   roots = volumes, session = session,
-  defaultRoot = defaultRoot(), defaultPath = defaultPath()
+  defaultRoot = default_root(), defaultPath = default_path()
 )
 
-shiny::observeEvent(input$saveMask_x, {
-  path <- shinyFiles::parseSavePath(volumes, input$saveMask_x)
+shiny::observeEvent(input$save_mask_x, {
+  path <- shinyFiles::parseSavePath(volumes, input$save_mask_x)
 
-  if (trackRai::is_image(theMask) & nrow(path) > 0) {
+  if (trackRai::is_image(the_mask) & nrow(path) > 0) {
     path <- normalizePath(path$datapath, mustWork = FALSE)
-    cv2$imwrite(path, theMask)
-    theMaskPath(path)
+    cv2$imwrite(path, the_mask)
+    mask_path(path)
   }
 })

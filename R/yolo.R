@@ -13,13 +13,13 @@
 
 #' @export
 install_yolo <- function() {
-  if (reticulate::py_discover_config()$version != "3.11.11") {
+  if (reticulate::py_discover_config()$version != "3.12.8") {
     answer <- utils::askYesNo(
       paste0(
         "\n------------------------------------------------------------",
         "\n",
         "\nThe Python version found on this system is not the recommended one.",
-        "\nPython 3.11.11 will be installed.",
+        "\nPython 3.12.8 will be installed.",
         "\nWould you like to continue?",
         "\n",
         "\n------------------------------------------------------------"
@@ -31,7 +31,7 @@ install_yolo <- function() {
     }
 
     if (answer) {
-      reticulate::install_python(version = "3.11.11")
+      reticulate::install_python(version = "3.12.8")
     } else {
       warning("\nContinuing installation of YOLO with a non-recommended version of Python.")
     }
@@ -59,8 +59,7 @@ install_yolo <- function() {
     if (answer) {
       reticulate::virtualenv_create(
         envname = "trackRai",
-        version = "3.11.11",
-        # python = reticulate::virtualenv_python(),
+        version = "3.12.8",
         packages = c(
           "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
         )

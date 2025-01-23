@@ -1,1 +1,1 @@
-shiny::uiOutput("controlPanel")
+shiny::uiOutput("control_panel")

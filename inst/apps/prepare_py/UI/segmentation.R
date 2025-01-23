@@ -8,7 +8,7 @@ shinyjs::disabled(
     shiny::div(
       style = "text-align: center;",
       shinyWidgets::awesomeRadio(
-        inputId = "darkButton_x",
+        inputId = "dark_button_x",
         label = "Are the objects darker or lighter than the background?",
         choices = c("Darker", "Lighter", "A bit of both"), selected = "Darker",
         inline = TRUE, checkbox = TRUE, width = "100%"
@@ -18,7 +18,7 @@ shinyjs::disabled(
     shiny::tags$table(
       shiny::tags$tr(
         shiny::tags$td(
-          shiny::actionButton("optimizeThresholds_x", "Autothreshold", width = "100%"),
+          shiny::actionButton("optimize_thresholds_x", "Autothreshold", width = "100%"),
           style = "width: 39%; padding-top: 4px"
         ),
         shiny::tags$td(HTML("&nbsp;with&nbsp;")),

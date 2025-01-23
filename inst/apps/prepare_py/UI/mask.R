@@ -42,7 +42,7 @@ shinyjs::disabled(
     ),
     shiny::numericInput("roi_x", "ROI id", 1, 1, 255, 1, "100%"),
     shiny::hr(),
-    shinyFiles::shinySaveButton("saveMask_x", "Save mask file", "Save mask as...",
+    shinyFiles::shinySaveButton("save_mask_x", "Save mask file", "Save mask as...",
       filetype = list(picture = c("png", "jpg")),
       class = "fullWidth"
     ),

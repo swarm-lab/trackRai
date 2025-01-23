@@ -1,19 +1,33 @@
-# Events
-shiny::observeEvent(input$testComposite_x, {
-  if (!is.null(theStats())) {
+# Display
+shiny::observeEvent(refresh_display(), {
+  if (input$main == "6") {
+    if (!trackRai::is_image(the_composite)) {
+      to_display <<- the_background
+    } else {
+      to_display <<- the_composite
+    }
+
+    print_display(print_display() + 1)
+  }
+})
+
+
+# Create test composite
+shiny::observeEvent(input$test_composite_x, {
+  if (!is.null(the_stats())) {
     shinyjs::showElement("curtain")
     shiny::showNotification("Computing composite image.",
       id = "composite",
       duration = NULL
     )
 
-    dt <- theStats()
+    dt <- the_stats()
     rw <- input$rangeWidth_x
     rh <- input$rangeHeight_x
     dt[, select := (width >= rw[1]) & (width <= rw[2]) &
       (height >= rh[1]) & (height <= rh[2])]
 
-    mask <- cv2$cvtColor(theMask, cv2$COLOR_BGR2GRAY)
+    mask <- cv2$cvtColor(the_mask, cv2$COLOR_BGR2GRAY)
     tmp <- cv2$copyMakeBorder(mask, 1L, 1L, 1L, 1L, cv2$BORDER_CONSTANT, NULL, 0L)
     k <- cv2$getStructuringElement(
       cv2$MORPH_RECT,
@@ -27,9 +41,9 @@ shiny::observeEvent(input$testComposite_x, {
     nz <- cv2$findNonZero(mask)
     roi <- cbind(reticulate::py_to_r(nz[, , 0]), trackRai::n_row(mask) - reticulate::py_to_r(nz[, , 1]))
 
-    theComposite <<- theBackground$copy()
+    the_composite <<- the_background$copy()
     stamp <- reticulate::np_array(
-      array(0L, c(trackRai::n_row(theComposite), trackRai::n_col(theComposite), 3)),
+      array(0L, c(trackRai::n_row(the_composite), trackRai::n_col(the_composite), 3)),
       dtype = "uint8"
     )
 
@@ -46,11 +60,11 @@ shiny::observeEvent(input$testComposite_x, {
 
     for (i in seq_len(input$nObjects_x)) {
       if (rnd_rot[i] == -1L) {
-        sub <- subs[[rnd_blob[i]]]
-        submask <- submasks[[rnd_blob[i]]]
+        sub <- the_subs[[rnd_blob[i]]]
+        submask <- the_submasks[[rnd_blob[i]]]
       } else {
-        sub <- cv2$rotate(subs[[rnd_blob[i]]], rnd_rot[i])
-        submask <- cv2$rotate(submasks[[rnd_blob[i]]], rnd_rot[i])
+        sub <- cv2$rotate(the_subs[[rnd_blob[i]]], rnd_rot[i])
+        submask <- cv2$rotate(the_submasks[[rnd_blob[i]]], rnd_rot[i])
       }
 
       bottom <- roi[rnd_loc[i], 2] - round(trackRai::n_row(sub) / 2)
@@ -82,7 +96,7 @@ shiny::observeEvent(input$testComposite_x, {
         sub, as.integer(top), as.integer(bottom),
         as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
       )
-      theComposite <<- cv2$subtract(theComposite, stamp)
+      the_composite <<- cv2$subtract(the_composite, stamp)
 
       nz <- cv2$findNonZero(cv2$cvtColor(submask, cv2$COLOR_BGR2GRAY))
       ell <- cv2$fitEllipse(nz)
@@ -90,13 +104,13 @@ shiny::observeEvent(input$testComposite_x, {
       box[, 0] <- box[, 0] + left
       box[, 1] <- box[, 1] + top
       box <- np$int_(box)
-      sc <- max(c(trackRai::n_row(theComposite), trackRai::n_col(theComposite)) / 720)
+      sc <- max(c(trackRai::n_row(the_composite), trackRai::n_col(the_composite)) / 720)
       cv2$drawContours(
-        theComposite, list(box), 0L, c(255L, 255L, 255),
+        the_composite, list(box), 0L, c(255L, 255L, 255),
         as.integer(max(0.5, 4 * sc))
       )
       cv2$drawContours(
-        theComposite, list(box), 0L, c(0L, 224L, 0L),
+        the_composite, list(box), 0L, c(0L, 224L, 0L),
         as.integer(max(0.5, 2 * sc))
       )
 
@@ -119,22 +133,22 @@ shiny::observeEvent(input$testComposite_x, {
       }
     }
 
-    theComposite <<- cv2$multiply(theComposite, runif(1, 1 / (1 + input$gain_x), 1 + input$gain_x))
-    theComposite <<- cv2$add(theComposite, runif(1, -input$bias_x, input$bias_x))
+    the_composite <<- cv2$multiply(the_composite, runif(1, 1 / (1 + input$gain_x), 1 + input$gain_x))
+    the_composite <<- cv2$add(the_composite, runif(1, -input$bias_x, input$bias_x))
 
     if (input$saltpepper_x > 0) {
       r <- sample(0:input$saltpepper_x, 1)
       sp <- reticulate::np_array(
         array(
-          sample(-r:r, trackRai::n_row(theComposite) * trackRai::n_col(theComposite) * 3, replace = TRUE),
-          c(trackRai::n_row(theComposite), trackRai::n_col(theComposite), 3)
+          sample(-r:r, trackRai::n_row(the_composite) * trackRai::n_col(the_composite) * 3, replace = TRUE),
+          c(trackRai::n_row(the_composite), trackRai::n_col(the_composite), 3)
         ),
         dtype = "int_"
       )
-      theComposite <<- cv2$add(theComposite, sp, dtype = theComposite$dtype$type())
+      the_composite <<- cv2$add(the_composite, sp, dtype = the_composite$dtype$type())
     }
 
-    refreshDisplay(refreshDisplay() + 1)
+    refresh_display(refresh_display() + 1)
 
     pb$close()
 
@@ -143,37 +157,27 @@ shiny::observeEvent(input$testComposite_x, {
   }
 })
 
-shiny::observeEvent(refreshDisplay(), {
-  if (input$main == "6") {
-    if (!trackRai::is_image(theComposite)) {
-      toDisplay <<- theBackground
-    } else {
-      toDisplay <<- theComposite
-    }
 
-    printDisplay(printDisplay() + 1)
-  }
-})
-
-shinyFiles::shinyDirChoose(input, "generateDataset_x",
+# Create YOLO dataset
+shinyFiles::shinyDirChoose(input, "generate_dataset_x",
   roots = volumes, session = session
 )
 
-shiny::observeEvent(input$generateDataset_x, {
-  path <- shinyFiles::parseDirPath(volumes, input$generateDataset_x)
+shiny::observeEvent(input$generate_dataset_x, {
+  path <- shinyFiles::parseDirPath(volumes, input$generate_dataset_x)
   if (length(path) > 0) {
-    theYOLOPath(path)
+    yolo_path(path)
   }
 })
 
-shiny::observeEvent(theYOLOPath(), {
-  if (!is.null(theYOLOPath())) {
-    if (dir.exists(paste0(theYOLOPath(), "/YOLO"))) {
+shiny::observeEvent(yolo_path(), {
+  if (!is.null(yolo_path())) {
+    if (dir.exists(paste0(yolo_path(), "/YOLO"))) {
       shiny::showNotification(
         "A folder named YOLO already exists at this location. Choose another one.",
         id = "yolo", type = "error"
       )
-      shiny::isolate(theYOLOPath(NULL))
+      shiny::isolate(yolo_path(NULL))
     } else {
       shinyjs::showElement("curtain")
       shiny::showNotification("Generating YOLO dataset.", id = "yolo", duration = NULL)
@@ -181,16 +185,16 @@ shiny::observeEvent(theYOLOPath(), {
       # Background and mask
       shiny::showNotification("Creating background and mask.", id = "yoloStep1", duration = NULL)
 
-      dir.create(paste0(theYOLOPath(), "/YOLO"))
+      dir.create(paste0(yolo_path(), "/YOLO"))
 
-      nz <- cv2$findNonZero(cv2$cvtColor(theMask, cv2$COLOR_BGR2GRAY))
+      nz <- cv2$findNonZero(cv2$cvtColor(the_mask, cv2$COLOR_BGR2GRAY))
       roi <- cbind(reticulate::py_to_r(nz[, , 0]), reticulate::py_to_r(nz[, , 1]))
       x <- min(roi[, 1])
       y <- min(roi[, 2])
       w <- diff(range(roi[, 1])) + 1
       h <- diff(range(roi[, 2])) + 1
 
-      sub <- cv2$multiply(theBackground, cv2$divide(cv2$compare(theMask, 0, 1L), 255L))[y:(y + h), x:(x + w)]
+      sub <- cv2$multiply(the_background, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))[y:(y + h), x:(x + w)]
 
       top <- ceiling((ceiling(h / 32) * 32 - h) / 2)
       bottom <- floor((ceiling(h / 32) * 32 - h) / 2)
@@ -202,14 +206,14 @@ shiny::observeEvent(theYOLOPath(), {
         as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
       )
       prepped_background <- prepped$copy()
-      cv2$imwrite(normalizePath(paste0(theYOLOPath(), "/YOLO/background.png"), mustWork = FALSE), prepped_background)
+      cv2$imwrite(normalizePath(paste0(yolo_path(), "/YOLO/background.png"), mustWork = FALSE), prepped_background)
 
-      sub <- theMask[y:(y + h), x:(x + w)]
+      sub <- the_mask[y:(y + h), x:(x + w)]
       prepped <- cv2$copyMakeBorder(
         sub, as.integer(top), as.integer(bottom),
         as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
       )
-      cv2$imwrite(normalizePath(paste0(theYOLOPath(), "/YOLO/mask.png"), mustWork = FALSE), prepped)
+      cv2$imwrite(normalizePath(paste0(yolo_path(), "/YOLO/mask.png"), mustWork = FALSE), prepped)
 
       prepped_mask <- cv2$divide(cv2$compare(prepped, 0, 1L), 255L)
 
@@ -218,23 +222,23 @@ shiny::observeEvent(theYOLOPath(), {
       # Tracking video
       shiny::showNotification("Creating video for tracking.", id = "yoloStep2", duration = NULL)
 
-      theVideo$set(cv2$CAP_PROP_POS_FRAMES, input$videoControls[1] - 1)
+      the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls[1] - 1)
       vw <- cv2$VideoWriter(
-        normalizePath(paste0(theYOLOPath(), "/YOLO/video.mp4"), mustWork = FALSE),
+        normalizePath(paste0(yolo_path(), "/YOLO/video.mp4"), mustWork = FALSE),
         codec,
-        theVideo$get(cv2$CAP_PROP_FPS),
+        the_video$get(cv2$CAP_PROP_FPS),
         as.integer(c(trackRai::n_col(prepped), trackRai::n_row(prepped)))
       )
 
       pb <- shiny::Progress$new()
       pb$set(message = "Computing: ", value = 0, detail = "0%")
-      n <- input$videoControls[3] - input$videoControls[1] + 1
+      n <- input$video_controls[3] - input$video_controls[1] + 1
       old_check <- 0
       old_frame <- 1
       old_time <- Sys.time()
 
-      for (i in input$videoControls[1]:input$videoControls[3]) {
-        frame <- theVideo$read()[1]
+      for (i in input$video_controls[1]:input$video_controls[3]) {
+        frame <- the_video$read()[1]
         sub <- frame[y:(y + h), x:(x + w)]
         prepped <- cv2$copyMakeBorder(
           sub, as.integer(top), as.integer(bottom),
@@ -268,10 +272,10 @@ shiny::observeEvent(theYOLOPath(), {
       shiny::removeNotification(id = "yoloStep2")
 
       # Training images
-      dir.create(paste0(theYOLOPath(), "/YOLO/labels"))
-      dir.create(paste0(theYOLOPath(), "/YOLO/images"))
+      dir.create(paste0(yolo_path(), "/YOLO/labels"))
+      dir.create(paste0(yolo_path(), "/YOLO/images"))
 
-      dt <- theStats()
+      dt <- the_stats()
       rw <- input$rangeWidth_x
       rh <- input$rangeHeight_x
       dt[, select := (width >= rw[1]) & (width <= rw[2]) &
@@ -304,8 +308,8 @@ shiny::observeEvent(theYOLOPath(), {
           id = paste0("yoloStep", 2 + i), duration = NULL
         )
 
-        dir.create(paste0(theYOLOPath(), "/YOLO/labels/", composite_folders[i]))
-        dir.create(paste0(theYOLOPath(), "/YOLO/images/", composite_folders[i]))
+        dir.create(paste0(yolo_path(), "/YOLO/labels/", composite_folders[i]))
+        dir.create(paste0(yolo_path(), "/YOLO/images/", composite_folders[i]))
 
         pb <- shiny::Progress$new()
         pb$set(message = "Computing: ", value = 0, detail = "0%")
@@ -323,11 +327,11 @@ shiny::observeEvent(theYOLOPath(), {
 
           for (iii in seq_len(input$nObjects_x)) {
             if (rnd_rot[iii] == -1L) {
-              sub <- subs[[rnd_blob[iii]]]
-              submask <- submasks[[rnd_blob[iii]]]
+              sub <- the_subs[[rnd_blob[iii]]]
+              submask <- the_submasks[[rnd_blob[iii]]]
             } else {
-              sub <- cv2$rotate(subs[[rnd_blob[iii]]], rnd_rot[iii])
-              submask <- cv2$rotate(submasks[[rnd_blob[iii]]], rnd_rot[iii])
+              sub <- cv2$rotate(the_subs[[rnd_blob[iii]]], rnd_rot[iii])
+              submask <- cv2$rotate(the_submasks[[rnd_blob[iii]]], rnd_rot[iii])
             }
 
             bottom <- roi[rnd_loc[iii], 2] - round(trackRai::n_row(sub) / 2)
@@ -386,12 +390,12 @@ shiny::observeEvent(theYOLOPath(), {
           }
 
           cv2$imwrite(
-            normalizePath(paste0(theYOLOPath(), "/YOLO/images/", composite_folders[i], ii, ".png"), mustWork = FALSE),
+            normalizePath(paste0(yolo_path(), "/YOLO/images/", composite_folders[i], ii, ".png"), mustWork = FALSE),
             composite
           )
 
           write.table(annotations,
-            normalizePath(paste0(theYOLOPath(), "/YOLO/labels/", composite_folders[i], ii, ".txt"), mustWork = FALSE),
+            normalizePath(paste0(yolo_path(), "/YOLO/labels/", composite_folders[i], ii, ".txt"), mustWork = FALSE),
             row.names = FALSE,
             col.names = FALSE
           )
@@ -419,8 +423,8 @@ shiny::observeEvent(theYOLOPath(), {
         shiny::removeNotification(id = paste0("yoloStep", 2 + i))
       }
 
-      con <- file(normalizePath(paste0(theYOLOPath(), "/YOLO/dataset.yaml"), mustWork = FALSE), "w")
-      write(paste0("path: ", paste0(theYOLOPath(), "/YOLO/")), con)
+      con <- file(normalizePath(paste0(yolo_path(), "/YOLO/dataset.yaml"), mustWork = FALSE), "w")
+      write(paste0("path: ", paste0(yolo_path(), "/YOLO/")), con)
       write("train: images/train", con, append = TRUE)
       write("val: images/val", con, append = TRUE)
       write("test: images/test", con, append = TRUE)
@@ -429,7 +433,7 @@ shiny::observeEvent(theYOLOPath(), {
       write("    0: object", con, append = TRUE)
       close(con)
 
-      theYOLOPath(NULL)
+      yolo_path(NULL)
       shiny::removeNotification(id = "yolo")
       shinyjs::hideElement("curtain")
     }

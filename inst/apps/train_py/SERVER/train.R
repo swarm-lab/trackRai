@@ -32,7 +32,7 @@ output$startStop <- shiny::renderUI({
       width = "100%", class = "btn-danger"
     )
   } else {
-    if (!is.null(theYOLOPath())) {
+    if (!is.null(yolo_path())) {
       shiny::actionButton(
         "startTrain_x", "Start training",
         width = "100%", class = "btn-success"
@@ -91,7 +91,7 @@ output$display <- shiny::renderUI({
       )
     )
   } else if (input$main == "2") {
-    # shiny::imageOutput("displayImg",
+    # shiny::imageOutput("display_img",
     #   height = "auto"
     # )
     shiny::uiOutput("displayFrame")
@@ -121,7 +121,7 @@ shiny::observeEvent(input$dataset_x, {
       dir.exists(paste0(path, "/labels"))
 
     if (check) {
-      theYOLOPath(path)
+      yolo_path(path)
     } else {
       shiny::showNotification(
         "Incorrectly formatted dataset. Choose another one.",
@@ -131,8 +131,8 @@ shiny::observeEvent(input$dataset_x, {
   }
 })
 
-shiny::observeEvent(theYOLOPath(), {
-  if (!is.null(theYOLOPath())) {
+shiny::observeEvent(yolo_path(), {
+  if (!is.null(yolo_path())) {
     shinyjs::enable("startTrain_x")
   } else {
     shinyjs::disable("startTrain_x")
@@ -140,8 +140,8 @@ shiny::observeEvent(theYOLOPath(), {
 })
 
 shiny::observeEvent(input$startTrain_x, {
-  if (!is.null(theYOLOPath())) {
-    background <- cv2$imread(normalizePath(paste0(theYOLOPath(), "/background.png"), mustWork = FALSE))
+  if (!is.null(yolo_path())) {
+    background <- cv2$imread(normalizePath(paste0(yolo_path(), "/background.png"), mustWork = FALSE))
     imgsz <- trackRai::n_col(background)
     theTempFile <<- tempfile(fileext = ".txt")
 
@@ -161,7 +161,7 @@ shiny::observeEvent(input$startTrain_x, {
         ),
         stdout = theTempFile,
         stderr = "2>&1",
-        wd = theYOLOPath()
+        wd = yolo_path()
       )
     } else if (mps) {
       yolo_proc <<- processx::process$new(
@@ -179,7 +179,7 @@ shiny::observeEvent(input$startTrain_x, {
         ),
         stdout = theTempFile,
         stderr = "2>&1",
-        wd = theYOLOPath()
+        wd = yolo_path()
       )
     } else {
       yolo_proc <<- processx::process$new(
@@ -196,7 +196,7 @@ shiny::observeEvent(input$startTrain_x, {
         ),
         stdout = theTempFile,
         stderr = "2>&1",
-        wd = theYOLOPath()
+        wd = yolo_path()
       )
     }
 
@@ -241,7 +241,7 @@ shiny::observeEvent(theRawProgress(), {
 
         if (length(stop) > 0) {
           model_folder <- paste0(
-            theYOLOPath(), "/",
+            yolo_path(), "/",
             gsub("Results saved to ", "", ansi_strip(theRawProgress()[stop]))
           )
           theModelFolder(model_folder)

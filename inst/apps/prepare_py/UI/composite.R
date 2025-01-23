@@ -20,7 +20,7 @@ disabled(
     sliderInput("saltpepper_x", "Add random image noise", 0, 50, 0),
     sliderInput("gain_x", "Add random gain", 0, 1, 0, 0.05),
     sliderInput("bias_x", "Add random bias", 0, 50, 0),
-    actionButton("testComposite_x", "Generate test composite", width = "100%"),
+    actionButton("test_composite_x", "Generate test composite", width = "100%"),
     hr(),
     tags$b("Number of images for..."),
     tags$table(
@@ -43,7 +43,7 @@ disabled(
     ),
     hr(),
 
-    shinyDirButton("generateDataset_x", "Generate YOLO dataset", "Save dataset in...", class = "fullWidth"),
+    shinyDirButton("generate_dataset_x", "Generate YOLO dataset", "Save dataset in...", class = "fullWidth"),
 
     htmlOutput("yoloStatus"),
 
