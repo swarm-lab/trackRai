@@ -12,7 +12,7 @@ shinyWidgets::verticalTabPanel(
     "Please select an optional mask file", FALSE, class = "fullWidth"
   ),
   shiny::hr(),
-  shiny::htmlOutput("yoloStatus"),
+  shiny::htmlOutput("yolo_status"),
   shinyFiles::shinyDirButton("dataset_x", "Select trained dataset",
     "Please select the folder containing the trained dataset",
     class = "fullWidth"

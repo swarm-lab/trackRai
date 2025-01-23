@@ -1,5 +1,68 @@
+# Display
+shiny::observeEvent(input$video_controls, {
+  if (trackRai::is_video_capture(the_video)) {
+    the_frame(input$video_controls[2])
+  }
+})
+
+shiny::observeEvent(the_frame(), {
+  if (!is.null(the_frame())) {
+    the_image <<- trackRai::read_frame(the_video, the_frame())
+    refresh_display(refresh_display() + 1)
+  }
+})
+
+shiny::observeEvent(refresh_display(), {
+  if (input$main == "1") {
+    if (trackRai::is_image(the_image)) {
+      to_display <<- the_image$copy()
+
+      if (trackRai::is_image(the_mask)) {
+        to_display <<- cv2$multiply(to_display, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))
+      }
+    } else {
+      to_display <<- black_screen$copy()
+    }
+
+    print_display(print_display() + 1)
+  }
+})
+
+output$display <- shiny::renderUI({
+  if (print_display() > 0) {
+    if (trackRai::is_image(to_display)) {
+      shiny::tags$img(
+        src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
+          base64$b64encode(cv2$imencode(".jpg", to_display)[1])$decode("utf-8")
+        )),
+        width = "100%",
+        id = "display_img",
+        draggable = "false"
+      )
+    } else {
+      shiny::tags$img(
+        src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
+          base64$b64encode(cv2$imencode(".jpg", black_screen)[1])$decode("utf-8")
+        )),
+        width = "100%",
+        id = "display_img",
+        draggable = "false"
+      )
+    }
+  }
+})
+
+session$onFlushed(function() {
+  js$uishape("display_img")
+}, once = TRUE)
+
+shiny::observeEvent(input$win_resize, {
+  js$uishape("display_img")
+})
+
+
 # Status
-output$yoloStatus <- shiny::renderUI({
+output$yolo_status <- shiny::renderUI({
   if (!yolo_installed) {
     p(
       "No YOLO installation was detected.",
@@ -7,7 +70,7 @@ output$yoloStatus <- shiny::renderUI({
       "Please run install_yolo() in the console.",
       class = "bad"
     )
-  } else if (is.null(theModelFolder())) {
+  } else if (is.null(the_model_folder())) {
     p("Dataset missing (and required).", class = "bad")
   }
 })
@@ -20,8 +83,10 @@ output$video_status <- shiny::renderUI({
   }
 })
 
+
+# UI
 shiny::observe({
-  if (!is.null(theModelFolder()) & !is.null(video_path()) & trackRai::is_video_capture(the_video)) {
+  if (!is.null(the_model_folder()) & !is.null(video_path()) & trackRai::is_video_capture(the_video)) {
     if (toggled_tabs$toggled[2] == FALSE) {
       toggleTabs(2, "ON")
       toggled_tabs$toggled[2] <<- TRUE
@@ -32,11 +97,9 @@ shiny::observe({
   }
 })
 
-
-# UI
 output$modelSelect <- shiny::renderUI({
-  if (!is.null(theModelFolder())) {
-    models <- list.files(paste0(theModelFolder(), "/runs/obb/"))
+  if (!is.null(the_model_folder())) {
+    models <- list.files(paste0(the_model_folder(), "/runs/obb/"))
     shiny::tagList(
       hr(),
       shiny::selectInput("model_x", "Select trained model:",
@@ -48,7 +111,7 @@ output$modelSelect <- shiny::renderUI({
 })
 
 
-# Events
+# Load YOLO dataset
 shinyFiles::shinyDirChoose(input, "dataset_x",
   roots = volumes, session = session
 )
@@ -59,9 +122,9 @@ shiny::observeEvent(input$dataset_x, {
     check <- any(grepl("train", list.files(paste0(path, "/runs/obb/"))))
 
     if (check) {
-      theModelFolder(path)
+      the_model_folder(path)
     } else {
-      theModelFolder(NULL)
+      the_model_folder(NULL)
       shiny::showNotification(
         "No trained model was found in this dataset. Choose another one.",
         id = "yolo", type = "error"
@@ -70,6 +133,8 @@ shiny::observeEvent(input$dataset_x, {
   }
 })
 
+
+# Load video
 shinyFiles::shinyFileChoose(input, "video_file_x",
   roots = volumes, session = session,
   defaultRoot = default_root(), defaultPath = default_path()
@@ -112,6 +177,13 @@ shiny::observeEvent(video_path(), {
       the_video <<- to_check
       the_image <<- the_video$read()[1]
 
+      if (!trackRai::is_image(the_mask)) {
+        the_mask <<- reticulate::np_array(
+          array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
+          dtype = "uint8"
+        )
+      }
+
       if (!all(unlist(reticulate::py_to_r(the_mask$shape)) == unlist(reticulate::py_to_r(the_image$shape)))) {
         the_mask <<- reticulate::np_array(
           array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
@@ -125,6 +197,8 @@ shiny::observeEvent(video_path(), {
   }
 })
 
+
+# Load optional mask
 shinyFiles::shinyFileChoose(input, "maskFile_x",
   roots = volumes, session = session,
   defaultRoot = default_root(), defaultPath = default_path()
@@ -179,65 +253,3 @@ shiny::observeEvent(refresh_mask(), {
   }
 })
 
-shiny::observeEvent(the_frame(), {
-  if (!is.null(the_frame())) {
-    the_image <<- trackRai::read_frame(the_video, the_frame())
-    refresh_display(refresh_display() + 1)
-  }
-})
-
-
-# Displays
-shiny::observeEvent(input$video_controls[2], {
-  if (trackRai::is_video_capture(the_video)) {
-    the_frame(input$video_controls[2])
-  }
-})
-
-shiny::observeEvent(refresh_display(), {
-  if (input$main == "1") {
-    if (trackRai::is_image(the_image)) {
-      to_display <<- the_image$copy()
-
-      if (trackRai::is_image(the_mask)) {
-        to_display <<- cv2$multiply(to_display, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))
-      }
-    } else {
-      to_display <<- black_screen$copy()
-    }
-
-    print_display(print_display() + 1)
-  }
-})
-
-output$display <- shiny::renderUI({
-  if (print_display() > 0) {
-    if (trackRai::is_image(to_display)) {
-      shiny::tags$img(
-        src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
-          base64$b64encode(cv2$imencode(".jpg", to_display)[1])$decode("utf-8")
-        )),
-        width = "100%",
-        id = "display_img",
-        draggable = "false"
-      )
-    } else {
-      shiny::tags$img(
-        src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
-          base64$b64encode(cv2$imencode(".jpg", black_screen)[1])$decode("utf-8")
-        )),
-        width = "100%",
-        id = "display_img",
-        draggable = "false"
-      )
-    }
-  }
-})
-
-session$onFlushed(function() {
-  js$uishape("display_img")
-}, once = TRUE)
-
-shiny::observeEvent(input$win_resize, {
-  js$uishape("display_img")
-})

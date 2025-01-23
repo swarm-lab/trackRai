@@ -1,58 +1,36 @@
-# Status
-output$yoloStatus <- shiny::renderUI({
-  if (!yolo_installed) {
-    p(
-      "No YOLO installation was detected.",
-      tags$br(),
-      "Please run install_yolo() in the console.",
-      class = "bad"
-    )
-  }
-})
-
-output$nvidiaStatus <- shiny::renderUI({
-  if (yolo_installed) {
-    if (n_gpus == 0 & !mps) {
-      p(
-        "No CUDA or MPS backend detected.",
-        tags$br(),
-        "Training may be very slow.",
-        class = "bad"
-      )
-    }
-  }
-})
-
-
-# UI
-output$startStop <- shiny::renderUI({
-  if (monitorProgress()) {
-    shiny::actionButton(
-      "stopTrain_x", "Stop training",
-      width = "100%", class = "btn-danger"
-    )
-  } else {
-    if (!is.null(yolo_path())) {
-      shiny::actionButton(
-        "startTrain_x", "Start training",
-        width = "100%", class = "btn-success"
-      )
-    } else {
-      shinyjs::disabled(shiny::actionButton(
-        "startTrain_x", "Start training",
-        width = "100%", class = "btn-success"
-      ))
-    }
-  }
-})
-
+# Display
 output$console <- shiny::renderUI({
-  invalidateLater(1000, session)
+  shiny::invalidateLater(1000, session)
 
-  if (monitorProgress()) {
-    raw <- suppressWarnings(readLines(theTempFile))
-    theRawProgress(raw)
+  if (monitor_progress()) {
+    raw <- suppressWarnings(readLines(the_temp_file))
+    the_raw_progress(raw)
     shiny::HTML(paste(raw, collapse = "<br/>"))
+  }
+})
+
+output$plotly <- plotly::renderPlotly({
+  if (!is.null(the_progress())) {
+    plotly::plot_ly(the_progress(),
+      x = ~epoch, y = ~box_loss, name = "Box loss",
+      type = "scatter", mode = "lines+markers"
+    ) %>%
+      plotly::add_trace(y = ~cls_loss, name = "Class loss", mode = "lines+markers") %>%
+      plotly::add_trace(y = ~dfl_loss, name = "DFL loss", mode = "lines+markers") %>%
+      plotly::layout(
+        margin = list(l = 20, r = 20, t = 20, b = 20, pad = 0),
+        xaxis = list(title = "Epochs", range = c(0, input$epochs_x)),
+        yaxis = list(title = "Loss", rangemode = "tozero")
+      ) %>%
+      plotly::config(displayModeBar = FALSE)
+  } else {
+    plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
+      plotly::layout(
+        margin = list(l = 20, r = 20, t = 20, b = 20, pad = 0),
+        xaxis = list(title = "Epochs", range = c(0, input$epochs_x)),
+        yaxis = list(title = "Loss", range = c(0, 1))
+      ) %>%
+      plotly::config(displayModeBar = FALSE)
   }
 })
 
@@ -91,23 +69,71 @@ output$display <- shiny::renderUI({
       )
     )
   } else if (input$main == "2") {
-    # shiny::imageOutput("display_img",
-    #   height = "auto"
-    # )
     shiny::uiOutput("displayFrame")
   }
 })
 
-shiny::observeEvent(theModelFolder(), {
-  if (is.null(theModelFolder())) {
-    toggleTabs(2, "OFF")
-  } else {
-    toggleTabs(2, "ON")
+
+# Status
+output$yolo_status <- shiny::renderUI({
+  if (!yolo_installed) {
+    shiny::p(
+      "No YOLO installation was detected.",
+      shiny::tags$br(),
+      "Please run install_yolo() in the console.",
+      class = "bad"
+    )
+  }
+})
+
+output$nvidia_status <- shiny::renderUI({
+  if (yolo_installed) {
+    if (n_gpus == 0) {
+      shiny::p(
+        "No CUDA backend detected.",
+        shiny::tags$br(),
+        "Training may be very slow.",
+        class = "bad"
+      )
+    }
   }
 })
 
 
-# Events
+# UI
+output$start_stop <- shiny::renderUI({
+  if (monitor_progress()) {
+    shiny::actionButton(
+      "stop_train_x", "Stop training",
+      width = "100%", class = "btn-danger"
+    )
+  } else {
+    if (!is.null(yolo_path())) {
+      shiny::actionButton(
+        "start_train_x", "Start training",
+        width = "100%", class = "btn-success"
+      )
+    } else {
+      shinyjs::disabled(shiny::actionButton(
+        "start_train_x", "Start training",
+        width = "100%", class = "btn-success"
+      ))
+    }
+  }
+})
+
+shiny::observeEvent(the_model_folder(), {
+  if (is.null(the_model_folder())) {
+    toggleTabs(2, "OFF")
+    toggled_tabs[2] <- FALSE
+  } else {
+    toggleTabs(2, "ON")
+    toggled_tabs[2] <- TRUE
+  }
+})
+
+
+# Train
 shinyFiles::shinyDirChoose(input, "dataset_x",
   roots = volumes, session = session
 )
@@ -133,17 +159,17 @@ shiny::observeEvent(input$dataset_x, {
 
 shiny::observeEvent(yolo_path(), {
   if (!is.null(yolo_path())) {
-    shinyjs::enable("startTrain_x")
+    shinyjs::enable("start_train_x")
   } else {
-    shinyjs::disable("startTrain_x")
+    shinyjs::disable("start_train_x")
   }
 })
 
-shiny::observeEvent(input$startTrain_x, {
+shiny::observeEvent(input$start_train_x, {
   if (!is.null(yolo_path())) {
     background <- cv2$imread(normalizePath(paste0(yolo_path(), "/background.png"), mustWork = FALSE))
     imgsz <- trackRai::n_col(background)
-    theTempFile <<- tempfile(fileext = ".txt")
+    the_temp_file <<- tempfile(fileext = ".txt")
 
     if (n_gpus > 1) {
       yolo_proc <<- processx::process$new(
@@ -159,7 +185,7 @@ shiny::observeEvent(input$startTrain_x, {
           "single_cls=True",
           paste0("device=", paste0((1:n_gpus) - 1, collapse = ","))
         ),
-        stdout = theTempFile,
+        stdout = the_temp_file,
         stderr = "2>&1",
         wd = yolo_path()
       )
@@ -177,7 +203,7 @@ shiny::observeEvent(input$startTrain_x, {
           "single_cls=True",
           "device=mps"
         ),
-        stdout = theTempFile,
+        stdout = the_temp_file,
         stderr = "2>&1",
         wd = yolo_path()
       )
@@ -194,32 +220,31 @@ shiny::observeEvent(input$startTrain_x, {
           "batch=-1",
           "single_cls=True"
         ),
-        stdout = theTempFile,
+        stdout = the_temp_file,
         stderr = "2>&1",
         wd = yolo_path()
       )
     }
 
-    monitorProgress(TRUE)
+    monitor_progress(TRUE)
     shinyjs::disable("epochs_x")
     shinyjs::disable("dataset_x")
   }
 })
 
-shiny::observeEvent(input$stopTrain_x, {
-  monitorProgress(FALSE)
+shiny::observeEvent(input$stop_train_x, {
+  monitor_progress(FALSE)
   shinyjs::enable("epochs_x")
   shinyjs::enable("dataset_x")
   yolo_proc$kill_tree()
 })
 
-shiny::observeEvent(theRawProgress(), {
-  if (monitorProgress()) {
-    start <- grep("Starting training for", theRawProgress())
-    stop <- grep("Results saved to", theRawProgress())
+shiny::observeEvent(the_raw_progress(), {
+  if (monitor_progress()) {
+    start <- grep("Starting training for", the_raw_progress())
 
     if (length(start) > 0) {
-      progress_tab <- data.table::data.table(string = theRawProgress())[
+      progress_tab <- data.table::data.table(string = the_raw_progress())[
         (1:.N) > start &
           !grepl("Class", string) &
           grepl("100%", string),
@@ -237,50 +262,24 @@ shiny::observeEvent(theRawProgress(), {
         progress_tab[, box_loss := as.numeric(box_loss)]
         progress_tab[, cls_loss := as.numeric(cls_loss)]
         progress_tab[, dfl_loss := as.numeric(dfl_loss)]
-        theProgress(progress_tab)
+        the_progress(progress_tab)
 
-        if (length(stop) > 0) {
+        if (!yolo_proc$is_alive()) {
+          stop <- grep("Results saved to", the_raw_progress())
           model_folder <- paste0(
             yolo_path(), "/",
-            gsub("Results saved to ", "", ansi_strip(theRawProgress()[stop]))
+            gsub("Results saved to ", "", ansi_strip(the_raw_progress()[stop]))
           )
-          theModelFolder(model_folder)
+          the_model_folder(model_folder)
           shiny::showNotification(
             paste0("Results saved to ", model_folder),
             id = "done", duration = NULL, type = "message"
           )
-          monitorProgress(FALSE)
+          monitor_progress(FALSE)
           shinyjs::enable("epochs_x")
           shinyjs::enable("dataset_x")
         }
       }
     }
-  }
-})
-
-
-# Plotting
-output$plotly <- plotly::renderPlotly({
-  if (!is.null(theProgress())) {
-    plotly::plot_ly(theProgress(),
-      x = ~epoch, y = ~box_loss, name = "Box loss",
-      type = "scatter", mode = "lines+markers"
-    ) %>%
-      plotly::add_trace(y = ~cls_loss, name = "Class loss", mode = "lines+markers") %>%
-      plotly::add_trace(y = ~dfl_loss, name = "DFL loss", mode = "lines+markers") %>%
-      plotly::layout(
-        margin = list(l = 20, r = 20, t = 20, b = 20, pad = 0),
-        xaxis = list(title = "Epochs", range = c(0, input$epochs_x)),
-        yaxis = list(title = "Loss", rangemode = "tozero")
-      ) %>%
-      plotly::config(displayModeBar = FALSE)
-  } else {
-    plotly::plot_ly(type = "scatter", mode = "lines+markers") %>%
-      plotly::layout(
-        margin = list(l = 20, r = 20, t = 20, b = 20, pad = 0),
-        xaxis = list(title = "Epochs", range = c(0, input$epochs_x)),
-        yaxis = list(title = "Loss", range = c(0, 1))
-      ) %>%
-      plotly::config(displayModeBar = FALSE)
   }
 })

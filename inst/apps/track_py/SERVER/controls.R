@@ -1,3 +1,4 @@
+# UI
 output$control_panel <- shiny::renderUI({
   shinyjs::hidden({
     shiny::div(
@@ -16,9 +17,9 @@ output$control_panel <- shiny::renderUI({
   })
 })
 
-shiny::observe({
+shiny::observeEvent(refresh_video(), {
   test_1 <- refresh_video() > 0
-  test_2 <- input$main %in% c("1")
+  test_2 <- input$main %in% c("1", "4", "5")
   test_3 <- trackRai::is_video_capture(the_video)
 
   if (test_1 & test_2 & test_3) {
@@ -28,27 +29,48 @@ shiny::observe({
   }
 })
 
-shiny::observe({
+
+# Update control sliders
+shiny::observeEvent(refresh_video(), {
   test_1 <- refresh_video() > 0
   test_2 <- trackRai::is_video_capture(the_video)
 
   if (test_1 & test_2) {
-    isolate({
-      min_val <- 1
-      max_val <- trackRai::n_frames(the_video)
-      val <- 1
+    min_val <- 1
+    max_val <- trackRai::n_frames(the_video)
+    val <- 1
+    video_range <<- c(1, trackRai::n_frames(the_video))
 
-      shinyWidgets::updateNoUiSliderInput(
-        session, "video_controls",
-        range = c(1, trackRai::n_frames(the_video)),
-        value = c(min_val, val, max_val)
-      )
-    })
+    shinyWidgets::updateNoUiSliderInput(
+      session, "video_controls",
+      range = c(1, trackRai::n_frames(the_video)),
+      value = c(min_val, val, max_val)
+    )
   } else {
     shinyWidgets::updateNoUiSliderInput(
       session, "video_controls",
       range = c(0, 0),
       value = c(0, 0, 0)
+    )
+  }
+})
+
+shiny::observeEvent(input$video_controls, {
+  if (input$video_controls[1] != video_range[1]) {
+    new_values <- input$video_controls
+    new_values[2] <- new_values[1]
+    video_range[1] <<- new_values[1]
+    shinyWidgets::updateNoUiSliderInput(
+      session, "video_controls",
+      value = new_values
+    )
+  } else if (input$video_controls[3] != video_range[2]) {
+    new_values <- input$video_controls
+    new_values[2] <- new_values[3]
+    video_range[2] <<- new_values[3]
+    shinyWidgets::updateNoUiSliderInput(
+      session, "video_controls",
+      value = new_values
     )
   }
 })

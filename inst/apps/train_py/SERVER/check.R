@@ -1,37 +1,10 @@
-# UI
-shiny::observeEvent(the_video(), {
-  if (trackRai::is_video_capture(the_video())) {
-    shiny::updateSliderInput(session, "frame_x", min = 1, max = trackRai::n_frames(the_video()), value = 1)
-  } else {
-    shiny::updateSliderInput(session, "frame_x", min = 0, max = 1, value = 0)
-  }
-})
-
-
-# Events
-shiny::observeEvent(theModelFolder(), {
-  if (is.null(theModelFolder())) {
-    the_video(NULL)
-  } else {
-    theModel(ultralytics$YOLO(normalizePath(paste0(theModelFolder(), "/weights/best.pt"), mustWork = FALSE)))
-    the_video(cv2$VideoCapture(normalizePath(paste0(yolo_path(), "/video.mp4"), mustWork = FALSE)))
-  }
-})
-
-shiny::observeEvent(input$frame_x, {
-  if (trackRai::is_video_capture(the_video())) {
-    the_frame <<- trackRai::read_frame(the_video(), input$frame_x)
-    refreshFrame(refreshFrame() + 1)
-  }
-})
-
-# Plotting
+# Display
 output$displayFrame <- shiny::renderUI({
-  if (refreshFrame() > 0) {
+  if (refresh_frame() > 0) {
     if (trackRai::is_image(the_frame)) {
-      showNotification("Computing check image", id = "check", duration = NULL)
+      shiny::showNotification("Computing check image", id = "check", duration = NULL)
 
-      pred <- theModel()(the_frame)
+      pred <- the_model()(the_frame, verbose = FALSE)
       obb <- pred[0]$obb$xyxyxyxy$cpu()$numpy()
       obb <- np$int_(obb)
       sc <- max(c(trackRai::n_row(the_frame), trackRai::n_col(the_frame)) / 720)
@@ -47,7 +20,7 @@ output$displayFrame <- shiny::renderUI({
         )
       }
 
-      removeNotification("check")
+      shiny::removeNotification("check")
 
       shiny::tags$img(
         src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
@@ -67,5 +40,33 @@ output$displayFrame <- shiny::renderUI({
         draggable = "false"
       )
     }
+  }
+})
+
+
+# UI
+shiny::observeEvent(the_video(), {
+  if (trackRai::is_video_capture(the_video())) {
+    shiny::updateSliderInput(session, "frame_x", min = 1, max = trackRai::n_frames(the_video()), value = 1)
+  } else {
+    shiny::updateSliderInput(session, "frame_x", min = 0, max = 1, value = 0)
+  }
+})
+
+
+# Predict
+shiny::observeEvent(the_model_folder(), {
+  if (is.null(the_model_folder())) {
+    the_video(NULL)
+  } else {
+    the_model(ultralytics$YOLO(normalizePath(paste0(the_model_folder(), "/weights/best.pt"), mustWork = FALSE)))
+    the_video(cv2$VideoCapture(normalizePath(paste0(yolo_path(), "/video.mp4"), mustWork = FALSE)))
+  }
+})
+
+shiny::observeEvent(input$frame_x, {
+  if (trackRai::is_video_capture(the_video())) {
+    the_frame <<- trackRai::read_frame(the_video(), input$frame_x)
+    refresh_frame(refresh_frame() + 1)
   }
 })

@@ -3,7 +3,7 @@ shinyWidgets::verticalTabPanel(
   box_height = "100%",
   shiny::p("Training module", class = "module-title"),
   shiny::hr(),
-  shiny::htmlOutput("yoloStatus"),
+  shiny::htmlOutput("yolo_status"),
   shinyFiles::shinyDirButton("dataset_x", "Select training dataset",
     "Please select the folder containing the training dataset",
     class = "fullWidth"
@@ -17,7 +17,7 @@ shinyWidgets::verticalTabPanel(
   shiny::hr(),
   shiny::numericInput("epochs_x", "Set the number of training epochs", 100, 1, NA, 1, "100%"),
   shiny::hr(),
-  shiny::htmlOutput("nvidiaStatus"),
-  shiny::uiOutput("startStop"),
+  shiny::htmlOutput("nvidia_status"),
+  shiny::uiOutput("start_stop"),
   shiny::hr()
 )

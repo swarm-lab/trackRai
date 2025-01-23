@@ -15,9 +15,9 @@ theTrackPath <- shiny::reactiveVal()
 theExportPath <- shiny::reactiveVal()
 
 # Progress monitoring
-theRawProgress <- shiny::reactiveVal()
-theProgress <- shiny::reactiveVal()
-monitorProgress <- shiny::reactiveVal(FALSE)
+the_raw_progress <- shiny::reactiveVal()
+the_progress <- shiny::reactiveVal()
+monitor_progress <- shiny::reactiveVal(FALSE)
 
 # UI
 shinyjs::hideElement("curtain")
@@ -29,7 +29,7 @@ toggled_tabs <- data.frame(
 # Video
 the_video <- shiny::reactiveVal()
 refresh_video <- shiny::reactiveVal(0)
-refreshFrame <- shiny::reactiveVal(0)
+refresh_frame <- shiny::reactiveVal(0)
 the_frame <- shiny::reactiveVal()
 the_image <- NULL
 vw <- cv2$VideoWriter(
