@@ -57,7 +57,7 @@ ui <- function(request) {
           contentWidth = 11,
           menuSide = "right",
           selected = "1",
-          source("UI/data.R", local = TRUE)$value # ,
+          source("UI/visualize.R", local = TRUE)$value # ,
         )
       )
     )
@@ -70,7 +70,7 @@ ui <- function(request) {
 #--------------------------------------------------------------
 server <- function(input, output, session) {
   source("SERVER/global.R", local = TRUE)
-  source("SERVER/data.R", local = TRUE)
+  source("SERVER/visualize.R", local = TRUE)
   source("SERVER/controls.R", local = TRUE)
   session$onSessionEnded(function() {
 

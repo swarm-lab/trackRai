@@ -1,7 +1,7 @@
 shinyWidgets::verticalTabPanel(
   title = "1",
   box_height = "100%",
-  shiny::p("Data module", class = "module-title"),
+  shiny::p("Visualization module", class = "module-title"),
   shiny::hr(),
   shiny::htmlOutput("video_status"),
   shinyFiles::shinyFilesButton("video_file_x", "Select video",

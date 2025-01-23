@@ -35,7 +35,7 @@ shiny::observeEvent(the_track_path(), {
   toggleTabs(1, "OFF")
   toggled_tabs$toggled[1] <<- FALSE
   toggleInputs(input, state = "OFF")
-  sc <<- max(c(1, trackRai::n_row(the_image) / 720, trackRai::n_col(the_image) / 720))    
+  sc <<- round(max(c(1, trackRai::n_row(the_image) / 720, trackRai::n_col(the_image) / 720)))
   the_model <<- ultralytics$YOLO(normalizePath(paste0(the_model_folder(), "/runs/obb/", input$model_x)))
 
   pb <<- Progress$new()
@@ -132,17 +132,13 @@ shiny::observeEvent(the_debounce(), {
 
               for (i in seq_len(py_to_r(box$shape[0]))) {
                 to_display <<- cv2$drawContours(
-                  to_display, list(box[i - 1]), 0L, c(255L, 255L, 255),
-                  as.integer(max(0.5, 4 * sc))
-                )
-                to_display <<- cv2$drawContours(
                   to_display, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-                  as.integer(max(0.5, 2 * sc))
+                  as.integer(sc)
                 )
                 trace <- reticulate::r_to_py(as.matrix(display_table[id == last$id[i], c("x", "y")]))
                 to_display <<- cv2$polylines(
                   to_display, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-                  as.integer(max(0.5, 2 * sc))
+                  as.integer(sc)
                 )
               }
             }
