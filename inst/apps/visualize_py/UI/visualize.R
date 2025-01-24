@@ -8,25 +8,25 @@ shinyWidgets::verticalTabPanel(
     "Please select a video file", FALSE, class = "fullWidth"
   ),
   shiny::hr(),
-  shiny::htmlOutput("trackStatus"),
-  shinyFiles::shinyFilesButton("trackFile_x", "Select tracks",
+  shiny::htmlOutput("track_status"),
+  shinyFiles::shinyFilesButton("track_file_x", "Select tracks",
     "Please select the file containing the tracks", FALSE, class = "fullWidth"
   ),
   shiny::hr(),
   shiny::tags$table(
     shiny::tags$tr(
       shiny::tags$td(
-        shiny::numericInput("lineWidth_x", "Line width (pixels):", 1, 0, NA, 1, "100%"),
+        shiny::numericInput("line_width_x", "Line width (pixels):", 1, 0, NA, 1, "100%"),
         style = "width: 49%;"
       ),
       tags$td(),
       tags$td(
-        shiny::numericInput("trackLength_x", "Track length (frames):", 30, 0, NA, 1, "100%"),
+        shiny::numericInput("track_length_x", "Track length (frames):", 30, 0, NA, 1, "100%"),
         style = "width: 49%;"
       )
     ),
     class = "settingsTable"
   ),
   shiny::hr(),
-  shiny::uiOutput("exportControls")
+  shiny::uiOutput("export_controls")
 )
