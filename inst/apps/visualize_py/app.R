@@ -7,8 +7,6 @@ if (Sys.info()["sysname"] == "Darwin") {
 
 library(reticulate)
 reticulate::use_virtualenv("trackRai")
-torch <- reticulate::import("torch", convert = FALSE)
-ultralytics <- reticulate::import("ultralytics", convert = FALSE)
 cv2 <- reticulate::import("cv2", convert = FALSE)
 np <- reticulate::import("numpy", convert = FALSE)
 base64 <- reticulate::import("base64", convert = FALSE)
@@ -28,6 +26,7 @@ library(pals)
 # Custom functions
 #--------------------------------------------------------------
 source("HELPERS/toggler.R", local = FALSE)
+source("HELPERS/drawers.R", local = FALSE)
 
 
 #--------------------------------------------------------------

@@ -1,4 +1,37 @@
 # Display
+.drawBoxes <- function(img, SD, BY, linewidth = 1L) {
+  if (nrow(SD) > 0) {
+    shade <- pals::alphabet()[(BY$id %% length(col)) + 1]
+    box <- reticulate::r_to_py(
+      simplify2array(
+        list(
+          as.matrix(SD[, c("x1", "x2", "x3", "x4")]),
+          as.matrix(SD[, c("y1", "y2", "y3", "y4")])
+        )
+      )
+    )
+    cv2$drawContours(
+      img, list(np$int_(box)), 0L, 
+      as.integer(col2rgb(shade, FALSE)[3:1, , drop = FALSE]),
+      as.integer(linewidth)
+    )
+  }
+  NULL
+}
+
+.drawTracks <- function(img, SD, BY, linewidth = 1L) {
+  if (nrow(SD) > 0) {
+    shade <- pals::alphabet()[(BY$id %% length(col)) + 1]
+    trace <- reticulate::r_to_py(as.matrix(SD))
+    cv2$polylines(
+      img, list(np$int_(trace)), 0L, 
+      as.integer(col2rgb(shade, FALSE)[3:1, , drop = FALSE]),
+      as.integer(linewidth)
+    )
+  }
+  NULL
+}
+
 shiny::observeEvent(input$video_controls, {
   if (trackRai::is_video_capture(the_video)) {
     the_frame(input$video_controls[2])
@@ -26,30 +59,40 @@ shiny::observeEvent(refresh_display(), {
       to_display <<- the_image$copy()
 
       if (data.table::is.data.table(the_tracks)) {
-        display_table <- the_tracks[frame <= the_frame() & frame > (the_frame() - input$track_length_x)]
-        last <- display_table[frame == max(frame)]
-        box <- reticulate::r_to_py(
-          simplify2array(
-            list(
-              as.matrix(last[, c("x1", "x2", "x3", "x4")]),
-              as.matrix(last[, c("y1", "y2", "y3", "y4")])
-            )
-          )
-        )
-        box <- np$int_(box)
-        shades <- col[(last$id %% length(col)) + 1]
+        void <- the_tracks[frame == the_frame(),
+          .drawBoxes(to_display, .SD, .BY, input$line_width_x),
+          by = .(id), .SDcols = c("x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4")
+        ]
+        void <- the_tracks[frame <= the_frame() & frame > (the_frame() - 30),
+          .drawTracks(to_display, .SD, .BY, input$line_width_x),
+          by = .(id), .SDcols = c("x", "y")
+        ]  
+        # display_table <- the_tracks[frame <= the_frame() & frame > (the_frame() - input$track_length_x)]
+        # last <- display_table[frame == max(frame)]
+        # box <- reticulate::r_to_py(
+        #   simplify2array(
+        #     list(
+        #       as.matrix(last[, c("x1", "x2", "x3", "x4")]),
+        #       as.matrix(last[, c("y1", "y2", "y3", "y4")])
+        #     )
+        #   )
+        # )
+        # box <- np$int_(box)
+        # shades <- col[(last$id %% length(col)) + 1]
 
-        for (i in seq_len(py_to_r(box$shape[0]))) {
-          to_display <<- cv2$drawContours(
-            to_display, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-            as.integer(input$line_width_x)
-          )
-          trace <- reticulate::r_to_py(as.matrix(display_table[id == last$id[i], c("x", "y")]))
-          to_display <<- cv2$polylines(
-            to_display, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-            as.integer(input$line_width_x)
-          )
-        }
+        # for (i in seq_len(py_to_r(box$shape[0]))) {
+        #   to_display <<- cv2$drawContours(
+        #     to_display, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+        #     as.integer(input$line_width_x)
+        #   )
+        #   trace <- reticulate::r_to_py(as.matrix(display_table[id == last$id[i], c("x", "y")]))
+        #   to_display <<- cv2$polylines(
+        #     to_display, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+        #     as.integer(input$line_width_x)
+        #   )
+        # }
+
+
       }
     } else {
       to_display <<- black_screen$copy()
@@ -127,7 +170,7 @@ output$export_controls <- shiny::renderUI({
 })
 
 
-# Load video file 
+# Load video file
 shinyFiles::shinyFileChoose(input, "video_file_x",
   roots = volumes, session = session,
   defaultRoot = default_root(), defaultPath = default_path()
@@ -176,7 +219,7 @@ shiny::observeEvent(video_path(), {
 })
 
 
-# Load track file 
+# Load track file
 shinyFiles::shinyFileChoose(input, "track_file_x",
   roots = volumes, session = session,
   defaultRoot = default_root(), defaultPath = default_path()
@@ -192,7 +235,11 @@ shiny::observeEvent(input$track_file_x, {
 
 shiny::observeEvent(refresh_tracks(), {
   if (refresh_tracks() > 0) {
+    shinyjs::show("curtain")
+    shiny::showNotification("Loading data. Please wait.", id = "loading", duration = NULL)
     to_check <- data.table::fread(the_track_path())
+    shiny::removeNotification("loading")
+    shinyjs::hide("curtain")
 
     if (all(names(to_check) == track_names)) {
       the_tracks <<- to_check
@@ -260,31 +307,14 @@ shiny::observeEvent(the_debounce(), {
     if (the_loop() < n) {
       out <<- the_video$read()[1]
 
-      track_table <- the_tracks[frame <= (input$video_controls[1] + the_loop()) &
-        frame > (input$video_controls[1] + the_loop() - input$track_length_x)]
-      last <- track_table[frame == max(frame)]
-      box <- reticulate::r_to_py(
-        simplify2array(
-          list(
-            as.matrix(last[, c("x1", "x2", "x3", "x4")]),
-            as.matrix(last[, c("y1", "y2", "y3", "y4")])
-          )
-        )
-      )
-      box <- np$int_(box)
-      shades <- col[(last$id %% length(col)) + 1]
-
-      for (i in seq_len(py_to_r(box$shape[0]))) {
-        out <<- cv2$drawContours(
-          out, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-          as.integer(input$line_width_x)
-        )
-        trace <- reticulate::r_to_py(as.matrix(track_table[id == last$id[i], c("x", "y")]))
-        out <<- cv2$polylines(
-          out, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-          as.integer(input$line_width_x)
-        )
-      }
+      void <- the_tracks[frame == the_frame(),
+        .drawBoxes(out, .SD, .BY, input$line_width_x),
+        by = .(id), .SDcols = c("x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4")
+      ]
+      void <- the_tracks[frame <= the_frame() & frame > (the_frame() - 30),
+        .drawTracks(out, .SD, .BY, input$line_width_x),
+        by = .(id), .SDcols = c("x", "y")
+      ]
 
       the_video_writer$write(out)
 
