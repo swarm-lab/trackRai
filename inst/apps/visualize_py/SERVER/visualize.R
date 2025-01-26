@@ -258,7 +258,7 @@ shiny::observeEvent(the_export_path(), {
 shiny::observeEvent(the_debounce(), {
   if (!is.null(the_loop())) {
     if (the_loop() < n) {
-      frame <<- the_video$read()[1]
+      out <<- the_video$read()[1]
 
       track_table <- the_tracks[frame <= (input$video_controls[1] + the_loop()) &
         frame > (input$video_controls[1] + the_loop() - input$track_length_x)]
@@ -275,18 +275,18 @@ shiny::observeEvent(the_debounce(), {
       shades <- col[(last$id %% length(col)) + 1]
 
       for (i in seq_len(py_to_r(box$shape[0]))) {
-        frame <<- cv2$drawContours(
-          frame, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+        out <<- cv2$drawContours(
+          out, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
           as.integer(input$line_width_x)
         )
         trace <- reticulate::r_to_py(as.matrix(track_table[id == last$id[i], c("x", "y")]))
-        frame <<- cv2$polylines(
-          frame, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
+        out <<- cv2$polylines(
+          out, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
           as.integer(input$line_width_x)
         )
       }
 
-      the_video_writer$write(frame)
+      the_video_writer$write(out)
 
       new_check <- floor(100 * the_loop() / n)
       if (new_check > old_check) {

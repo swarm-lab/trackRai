@@ -107,11 +107,11 @@ shiny::observeEvent(input$test_composite_x, {
       sc <- max(c(trackRai::n_row(the_composite), trackRai::n_col(the_composite)) / 720)
       cv2$drawContours(
         the_composite, list(box), 0L, c(255L, 255L, 255),
-        as.integer(max(0.5, 4 * sc))
+        as.integer(max(0.5, 2 * sc))
       )
       cv2$drawContours(
         the_composite, list(box), 0L, c(0L, 224L, 0L),
-        as.integer(max(0.5, 2 * sc))
+        as.integer(max(0.5, sc))
       )
 
       new_check <- floor(100 * i / n)
@@ -220,57 +220,59 @@ shiny::observeEvent(yolo_path(), {
       shiny::removeNotification(id = "yoloStep1")
 
       # Tracking video
-      shiny::showNotification("Creating video for tracking.", id = "yoloStep2", duration = NULL)
+      if (input$export_video_x) {
+        shiny::showNotification("Creating video for tracking.", id = "yoloStep2", duration = NULL)
 
-      the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls[1] - 1)
-      vw <- cv2$VideoWriter(
-        normalizePath(paste0(yolo_path(), "/YOLO/video.mp4"), mustWork = FALSE),
-        codec,
-        the_video$get(cv2$CAP_PROP_FPS),
-        as.integer(c(trackRai::n_col(prepped), trackRai::n_row(prepped)))
-      )
-
-      pb <- shiny::Progress$new()
-      pb$set(message = "Computing: ", value = 0, detail = "0%")
-      n <- input$video_controls[3] - input$video_controls[1] + 1
-      old_check <- 0
-      old_frame <- 1
-      old_time <- Sys.time()
-
-      for (i in input$video_controls[1]:input$video_controls[3]) {
-        frame <- the_video$read()[1]
-        sub <- frame[y:(y + h), x:(x + w)]
-        prepped <- cv2$copyMakeBorder(
-          sub, as.integer(top), as.integer(bottom),
-          as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
+        the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls[1] - 1)
+        vw <- cv2$VideoWriter(
+          normalizePath(paste0(yolo_path(), "/YOLO/video.mp4"), mustWork = FALSE),
+          codec,
+          the_video$get(cv2$CAP_PROP_FPS),
+          as.integer(c(trackRai::n_col(prepped), trackRai::n_row(prepped)))
         )
-        prepped <- cv2$multiply(prepped, prepped_mask)
-        vw$write(prepped)
-
-        new_check <- floor(100 * i / n)
-        if (new_check > (old_check + 5)) {
-          new_time <- Sys.time()
-          fps <- (i - old_frame + 1) / as.numeric(difftime(new_time, old_time,
-            units = "secs"
-          ))
-          old_check <- new_check
-          old_frame <- i
-          old_time <- new_time
-          pb$set(
-            value = new_check / 100,
-            detail = paste0(
-              new_check, "% - ",
-              round(fps, digits = 2), "fps"
-            )
+  
+        pb <- shiny::Progress$new()
+        pb$set(message = "Computing: ", value = 0, detail = "0%")
+        n <- input$video_controls[3] - input$video_controls[1] + 1
+        old_check <- 0
+        old_frame <- 1
+        old_time <- Sys.time()
+  
+        for (i in 1:n) {
+          frame <- the_video$read()[1]
+          sub <- frame[y:(y + h), x:(x + w)]
+          prepped <- cv2$copyMakeBorder(
+            sub, as.integer(top), as.integer(bottom),
+            as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
           )
+          prepped <- cv2$multiply(prepped, prepped_mask)
+          vw$write(prepped)
+  
+          new_check <- floor(100 * i / n)
+          if (new_check > (old_check + 5)) {
+            new_time <- Sys.time()
+            fps <- (i - old_frame + 1) / as.numeric(difftime(new_time, old_time,
+              units = "secs"
+            ))
+            old_check <- new_check
+            old_frame <- i
+            old_time <- new_time
+            pb$set(
+              value = new_check / 100,
+              detail = paste0(
+                new_check, "% - ",
+                round(fps, digits = 2), "fps"
+              )
+            )
+          }
         }
+  
+        pb$close()
+        vw$release()
+  
+        shiny::removeNotification(id = "yoloStep2")
       }
-
-      pb$close()
-      vw$release()
-
-      shiny::removeNotification(id = "yoloStep2")
-
+      
       # Training images
       dir.create(paste0(yolo_path(), "/YOLO/labels"))
       dir.create(paste0(yolo_path(), "/YOLO/images"))

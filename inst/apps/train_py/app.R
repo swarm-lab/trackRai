@@ -22,6 +22,7 @@ library(htmlwidgets)
 library(trackRai)
 library(data.table)
 library(plotly)
+library(yaml)
 library(processx)
 library(cli)
 
@@ -47,13 +48,9 @@ ui <- function(request) {
     shiny::div(
       style = "width: 100%;",
       shiny::div(
-        style = "width: min(100vh, calc(100% - 410px));
-            float: left;
-            margin-top: 20px;
-            margin-left: calc((calc(100% - 410px) -
-              min(100vh, calc(100% - 410px))) / 2);",
-        class = "vrtc-tab-panel-container",
-        shiny::uiOutput("display")
+        class = "vrtc-tab-panel-container display-panel",
+        shiny::uiOutput("display"),
+        source("UI/controls.R", local = TRUE)$value
       ),
       shiny::div(
         style = "width: 400px; margin-left: calc(100% - 400px);",

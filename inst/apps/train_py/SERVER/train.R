@@ -4,7 +4,10 @@ output$console <- shiny::renderUI({
 
   if (monitor_progress()) {
     raw <- suppressWarnings(readLines(the_temp_file))
-    the_raw_progress(raw)
+    isolate({
+      the_raw_progress(raw)
+      monitor_tick(monitor_tick() + 1)
+    })
     shiny::HTML(paste(raw, collapse = "<br/>"))
   }
 })
@@ -69,7 +72,7 @@ output$display <- shiny::renderUI({
       )
     )
   } else if (input$main == "2") {
-    shiny::uiOutput("displayFrame")
+    shiny::uiOutput("display_frame")
   }
 })
 
@@ -108,7 +111,7 @@ output$start_stop <- shiny::renderUI({
       width = "100%", class = "btn-danger"
     )
   } else {
-    if (!is.null(yolo_path())) {
+    if (!is.null(yolo_path()) & retrain()) {
       shiny::actionButton(
         "start_train_x", "Start training",
         width = "100%", class = "btn-success"
@@ -142,11 +145,26 @@ shiny::observeEvent(input$dataset_x, {
   path <- shinyFiles::parseDirPath(volumes, input$dataset_x)
   if (length(path) > 0) {
     check <- file.exists(paste0(path, "/dataset.yaml")) &
-      file.exists(paste0(path, "/video.mp4")) &
       dir.exists(paste0(path, "/images")) &
       dir.exists(paste0(path, "/labels"))
 
     if (check) {
+      if (any(grepl("best.pt", list.files(path, recursive = TRUE)))) {
+        shinyalert::shinyalert(
+          title = "Trained model detected",
+          text = paste0(
+            "A trained model was detected in this folder.",
+            "\nDo you want to load it for checking",
+            "\nor erase it and train anew?"
+          ),
+          type = "warning",
+          showCancelButton = TRUE,
+          confirmButtonText = "RETRAIN",
+          cancelButtonText = "LOAD",
+          inputId = "restart_training"
+        )
+      }
+
       yolo_path(path)
     } else {
       shiny::showNotification(
@@ -154,6 +172,14 @@ shiny::observeEvent(input$dataset_x, {
         id = "yolo", type = "error"
       )
     }
+  }
+})
+
+shiny::observeEvent(input$restart_training, {
+  retrain(input$restart_training)
+
+  if (!input$restart_training) {
+    the_model_folder(normalizePath(paste0(yolo_path(), "/runs/obb/train")))
   }
 })
 
@@ -167,68 +193,74 @@ shiny::observeEvent(yolo_path(), {
 
 shiny::observeEvent(input$start_train_x, {
   if (!is.null(yolo_path())) {
-    background <- cv2$imread(normalizePath(paste0(yolo_path(), "/background.png"), mustWork = FALSE))
-    imgsz <- trackRai::n_col(background)
-    the_temp_file <<- tempfile(fileext = ".txt")
+    if (retrain()) {
+      unlink(paste0(yolo_path(), "/runs/obb/train*"), recursive = TRUE)
+      background <- cv2$imread(normalizePath(paste0(yolo_path(), "/background.png"), mustWork = FALSE))
+      imgsz <- trackRai::n_col(background)
+      the_temp_file <<- tempfile(fileext = ".txt")
+      model <- paste0("yolo11", input$yolo_x, "-obb.pt")
+      epochs <- input$epochs_x
+      if (n_gpus > 1) {
+        yolo_proc <<- processx::process$new(
+          trackRai:::.yolo_path(),
+          c(
+            "obb",
+            "train",
+            "data=dataset.yaml",
+            paste0("model=", model),
+            paste0("epochs=", epochs),
+            paste0("imgsz=", imgsz),
+            "batch=8",
+            "single_cls=True",
+            paste0("device=", paste0((1:n_gpus) - 1, collapse = ","))
+          ),
+          stdout = the_temp_file,
+          stderr = "2>&1",
+          wd = yolo_path()
+        )
+      } else if (mps) {
+        yolo_proc <<- processx::process$new(
+          trackRai:::.yolo_path(),
+          c(
+            "obb",
+            "train",
+            "data=dataset.yaml",
+            paste0("model=", model),
+            paste0("resume=", resume),
+            paste0("epochs=", epochs),
+            paste0("imgsz=", imgsz),
+            "batch=-1",
+            "single_cls=True",
+            "device=mps"
+          ),
+          stdout = the_temp_file,
+          stderr = "2>&1",
+          wd = yolo_path()
+        )
+      } else {
+        yolo_proc <<- processx::process$new(
+          trackRai:::.yolo_path(),
+          c(
+            "obb",
+            "train",
+            "data=dataset.yaml",
+            paste0("model=", model),
+            paste0("resume=", resume),
+            paste0("epochs=", epochs),
+            paste0("imgsz=", imgsz),
+            "batch=-1",
+            "single_cls=True"
+          ),
+          stdout = the_temp_file,
+          stderr = "2>&1",
+          wd = yolo_path()
+        )
+      }
 
-    if (n_gpus > 1) {
-      yolo_proc <<- processx::process$new(
-        trackRai:::.yolo_path(),
-        c(
-          "obb",
-          "train",
-          "data=dataset.yaml",
-          paste0("model=yolo11", input$yolo_x, "-obb.pt"),
-          paste0("epochs=", input$epochs_x),
-          paste0("imgsz=", imgsz),
-          "batch=8",
-          "single_cls=True",
-          paste0("device=", paste0((1:n_gpus) - 1, collapse = ","))
-        ),
-        stdout = the_temp_file,
-        stderr = "2>&1",
-        wd = yolo_path()
-      )
-    } else if (mps) {
-      yolo_proc <<- processx::process$new(
-        trackRai:::.yolo_path(),
-        c(
-          "obb",
-          "train",
-          "data=dataset.yaml",
-          paste0("model=yolo11", input$yolo_x, "-obb.pt"),
-          paste0("epochs=", input$epochs_x),
-          paste0("imgsz=", imgsz),
-          "batch=-1",
-          "single_cls=True",
-          "device=mps"
-        ),
-        stdout = the_temp_file,
-        stderr = "2>&1",
-        wd = yolo_path()
-      )
-    } else {
-      yolo_proc <<- processx::process$new(
-        trackRai:::.yolo_path(),
-        c(
-          "obb",
-          "train",
-          "data=dataset.yaml",
-          paste0("model=yolo11", input$yolo_x, "-obb.pt"),
-          paste0("epochs=", input$epochs_x),
-          paste0("imgsz=", imgsz),
-          "batch=-1",
-          "single_cls=True"
-        ),
-        stdout = the_temp_file,
-        stderr = "2>&1",
-        wd = yolo_path()
-      )
+      monitor_progress(TRUE)
+      shinyjs::disable("epochs_x")
+      shinyjs::disable("dataset_x")
     }
-
-    monitor_progress(TRUE)
-    shinyjs::disable("epochs_x")
-    shinyjs::disable("dataset_x")
   }
 })
 
@@ -239,8 +271,8 @@ shiny::observeEvent(input$stop_train_x, {
   yolo_proc$kill_tree()
 })
 
-shiny::observeEvent(the_raw_progress(), {
-  if (monitor_progress()) {
+shiny::observeEvent(monitor_tick(), {
+  if (monitor_progress() & length(the_raw_progress()) > 0) {
     start <- grep("Starting training for", the_raw_progress())
 
     if (length(start) > 0) {
@@ -263,23 +295,32 @@ shiny::observeEvent(the_raw_progress(), {
         progress_tab[, cls_loss := as.numeric(cls_loss)]
         progress_tab[, dfl_loss := as.numeric(dfl_loss)]
         the_progress(progress_tab)
-
-        if (!yolo_proc$is_alive()) {
-          stop <- grep("Results saved to", the_raw_progress())
-          model_folder <- paste0(
-            yolo_path(), "/",
-            gsub("Results saved to ", "", ansi_strip(the_raw_progress()[stop]))
-          )
-          the_model_folder(model_folder)
-          shiny::showNotification(
-            paste0("Results saved to ", model_folder),
-            id = "done", duration = NULL, type = "message"
-          )
-          monitor_progress(FALSE)
-          shinyjs::enable("epochs_x")
-          shinyjs::enable("dataset_x")
-        }
       }
+    }
+
+    if (!yolo_proc$is_alive()) {
+      stop <- grep("Results saved to", the_raw_progress())
+
+      if (length(stop) > 0) {
+        model_folder <- paste0(
+          yolo_path(), "/",
+          gsub("Results saved to ", "", ansi_strip(the_raw_progress()[stop]))
+        )
+        the_model_folder(model_folder)
+        shiny::showNotification(
+          paste0("Results saved to ", model_folder),
+          id = "done", duration = NULL, type = "message"
+        )
+      } else {
+        shiny::showNotification(
+          paste0("Training failed. Logs can be found here: ", the_temp_file),
+          id = "done", duration = NULL, type = "error"
+        )
+      }
+
+      monitor_progress(FALSE)
+      shinyjs::enable("epochs_x")
+      shinyjs::enable("dataset_x")
     }
   }
 })

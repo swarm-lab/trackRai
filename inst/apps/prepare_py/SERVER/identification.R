@@ -75,12 +75,12 @@ shiny::observeEvent(refresh_display(), {
         box <- np$int_(box)
         cv2$drawContours(
           to_display, list(box), 0L, c(255L, 255L, 255),
-          as.integer(max(0.5, 4 * sc))
+          as.integer(max(0.5, 2 * sc))
         )
         cv2$drawContours(
           to_display, list(box), 0L,
           if (reticulate::py_to_r(good)) c(0L, 224L, 0L) else c(5L, 80L, 255L),
-          as.integer(max(0.5, 2 * sc))
+          as.integer(max(0.5, sc))
         )
       }
     }

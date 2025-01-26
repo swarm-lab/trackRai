@@ -19,19 +19,7 @@ output$control_panel <- shiny::renderUI({
 
 shiny::observeEvent(refresh_video(), {
   test_1 <- refresh_video() > 0
-  test_2 <- input$main %in% c("1")
-  test_3 <- trackRai::is_video_capture(the_video)
-
-  if (test_1 & test_2 & test_3) {
-    shinyjs::show("controls")
-  } else {
-    shinyjs::hide("controls")
-  }
-})
-
-shiny::observeEvent(input$main, {
-  test_1 <- refresh_video() > 0
-  test_2 <- input$main %in% c("1")
+  test_2 <- input$main %in% c("1", "4", "5")
   test_3 <- trackRai::is_video_capture(the_video)
 
   if (test_1 & test_2 & test_3) {

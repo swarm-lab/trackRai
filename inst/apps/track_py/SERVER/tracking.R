@@ -133,12 +133,12 @@ shiny::observeEvent(the_debounce(), {
               for (i in seq_len(py_to_r(box$shape[0]))) {
                 to_display <<- cv2$drawContours(
                   to_display, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-                  as.integer(sc)
+                  as.integer(2 * sc)
                 )
                 trace <- reticulate::r_to_py(as.matrix(display_table[id == last$id[i], c("x", "y")]))
                 to_display <<- cv2$polylines(
                   to_display, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-                  as.integer(sc)
+                  as.integer(2 * sc)
                 )
               }
             }

@@ -45,7 +45,10 @@ disabled(
 
     shinyDirButton("generate_dataset_x", "Generate YOLO dataset", "Save dataset in...", class = "fullWidth"),
 
-    htmlOutput("yoloStatus"),
+    div(
+      style = "text-align: center;",
+      checkboxInput("export_video_x", "Include reframed video", value = FALSE)
+    ),
 
     hr()
   )
