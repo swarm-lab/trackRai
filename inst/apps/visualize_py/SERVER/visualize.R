@@ -1,18 +1,14 @@
 # Display
+.shades <- col2rgb(pals::alphabet())[3:1, ]
+
 .drawBoxes <- function(img, SD, BY, linewidth = 1L) {
   if (nrow(SD) > 0) {
-    shade <- pals::alphabet()[(BY$id %% length(col)) + 1]
     box <- reticulate::r_to_py(
-      simplify2array(
-        list(
-          as.matrix(SD[, c("x1", "x2", "x3", "x4")]),
-          as.matrix(SD[, c("y1", "y2", "y3", "y4")])
-        )
-      )
+      array(c(SD$x1, SD$x2, SD$x3, SD$x4, SD$y1, SD$y2, SD$y3, SD$y4), dim = c(nrow(SD), 4, 2))
     )
     cv2$drawContours(
-      img, list(np$int_(box)), 0L, 
-      as.integer(col2rgb(shade, FALSE)[3:1, , drop = FALSE]),
+      img, list(np$int_(box)), 0L,
+      as.integer(.shades[, (BY$id %% length(col)) + 1, drop = FALSE]),
       as.integer(linewidth)
     )
   }
@@ -21,11 +17,10 @@
 
 .drawTracks <- function(img, SD, BY, linewidth = 1L) {
   if (nrow(SD) > 0) {
-    shade <- pals::alphabet()[(BY$id %% length(col)) + 1]
-    trace <- reticulate::r_to_py(as.matrix(SD))
+    trace <- reticulate::r_to_py(matrix(c(SD$x, SD$y), ncol = 2))
     cv2$polylines(
-      img, list(np$int_(trace)), 0L, 
-      as.integer(col2rgb(shade, FALSE)[3:1, , drop = FALSE]),
+      img, list(np$int_(trace)), 0L,
+      as.integer(.shades[, (BY$id %% length(col)) + 1, drop = FALSE]),
       as.integer(linewidth)
     )
   }
@@ -66,7 +61,7 @@ shiny::observeEvent(refresh_display(), {
         void <- the_tracks[frame %in% (the_frame() - input$track_length_x + 1):the_frame(),
           .drawTracks(to_display, .SD, .BY, input$line_width_x),
           by = .(id), .SDcols = c("x", "y")
-        ]  
+        ]
         # display_table <- the_tracks[frame <= the_frame() & frame > (the_frame() - input$track_length_x)]
         # last <- display_table[frame == max(frame)]
         # box <- reticulate::r_to_py(
@@ -91,8 +86,6 @@ shiny::observeEvent(refresh_display(), {
         #     as.integer(input$line_width_x)
         #   )
         # }
-
-
       }
     } else {
       to_display <<- black_screen$copy()
@@ -307,11 +300,13 @@ shiny::observeEvent(the_debounce(), {
     if (the_loop() < n) {
       out <<- the_video$read()[1]
 
-      void <- the_tracks[frame == the_frame(),
+      void <- the_tracks[
+        frame == (input$video_controls[1] + the_loop()),
         .drawBoxes(out, .SD, .BY, input$line_width_x),
         by = .(id), .SDcols = c("x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4")
       ]
-      void <- the_tracks[frame %in% (the_frame() - input$track_length_x + 1):the_frame(), # <= the_frame() & frame > (the_frame() - 30),
+      void <- the_tracks[
+        frame %in% ((input$video_controls[1] + the_loop()) - input$track_length_x + 1):(input$video_controls[1] + the_loop()),
         .drawTracks(out, .SD, .BY, input$line_width_x),
         by = .(id), .SDcols = c("x", "y")
       ]
