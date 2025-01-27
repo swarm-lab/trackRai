@@ -1,14 +1,14 @@
 # Display
 .shades <- col2rgb(pals::alphabet())[3:1, ]
+mode(.shades) <- "integer"
 
 .drawBoxes <- function(img, SD, BY, linewidth = 1L) {
   if (nrow(SD) > 0) {
-    box <- reticulate::r_to_py(
-      array(c(SD$x1, SD$x2, SD$x3, SD$x4, SD$y1, SD$y2, SD$y3, SD$y4), dim = c(nrow(SD), 4, 2))
-    )
+    box <- array(c(SD$x1, SD$x2, SD$x3, SD$x4, SD$y1, SD$y2, SD$y3, SD$y4), dim = c(nrow(SD), 4, 2))
+    mode(box) <- "integer"
     cv2$drawContours(
-      img, list(np$int_(box)), 0L,
-      as.integer(.shades[, (BY$id %% length(col)) + 1, drop = FALSE]),
+      img, list(reticulate::r_to_py(box)), 0L,
+      .shades[, (BY$id %% length(col)) + 1],
       as.integer(linewidth)
     )
   }
@@ -17,10 +17,11 @@
 
 .drawTracks <- function(img, SD, BY, linewidth = 1L) {
   if (nrow(SD) > 0) {
-    trace <- reticulate::r_to_py(matrix(c(SD$x, SD$y), ncol = 2))
+    trace <- matrix(c(SD$x, SD$y), ncol = 2)
+    mode(trace) <- "integer"
     cv2$polylines(
-      img, list(np$int_(trace)), 0L,
-      as.integer(.shades[, (BY$id %% length(col)) + 1, drop = FALSE]),
+      img, list(reticulate::r_to_py(trace)), 0L,
+      .shades[, (BY$id %% length(col)) + 1],
       as.integer(linewidth)
     )
   }
@@ -62,30 +63,6 @@ shiny::observeEvent(refresh_display(), {
           .drawTracks(to_display, .SD, .BY, input$line_width_x),
           by = .(id), .SDcols = c("x", "y")
         ]
-        # display_table <- the_tracks[frame <= the_frame() & frame > (the_frame() - input$track_length_x)]
-        # last <- display_table[frame == max(frame)]
-        # box <- reticulate::r_to_py(
-        #   simplify2array(
-        #     list(
-        #       as.matrix(last[, c("x1", "x2", "x3", "x4")]),
-        #       as.matrix(last[, c("y1", "y2", "y3", "y4")])
-        #     )
-        #   )
-        # )
-        # box <- np$int_(box)
-        # shades <- col[(last$id %% length(col)) + 1]
-
-        # for (i in seq_len(py_to_r(box$shape[0]))) {
-        #   to_display <<- cv2$drawContours(
-        #     to_display, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-        #     as.integer(input$line_width_x)
-        #   )
-        #   trace <- reticulate::r_to_py(as.matrix(display_table[id == last$id[i], c("x", "y")]))
-        #   to_display <<- cv2$polylines(
-        #     to_display, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-        #     as.integer(input$line_width_x)
-        #   )
-        # }
       }
     } else {
       to_display <<- black_screen$copy()
