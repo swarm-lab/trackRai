@@ -26,7 +26,6 @@ library(pals)
 # Custom functions
 #--------------------------------------------------------------
 source("HELPERS/toggler.R", local = FALSE)
-source("HELPERS/drawers.R", local = FALSE)
 
 
 #--------------------------------------------------------------

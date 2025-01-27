@@ -63,7 +63,7 @@ shiny::observeEvent(refresh_display(), {
           .drawBoxes(to_display, .SD, .BY, input$line_width_x),
           by = .(id), .SDcols = c("x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4")
         ]
-        void <- the_tracks[frame <= the_frame() & frame > (the_frame() - 30),
+        void <- the_tracks[frame %in% (the_frame() - input$track_length_x + 1):the_frame(),
           .drawTracks(to_display, .SD, .BY, input$line_width_x),
           by = .(id), .SDcols = c("x", "y")
         ]  
@@ -311,7 +311,7 @@ shiny::observeEvent(the_debounce(), {
         .drawBoxes(out, .SD, .BY, input$line_width_x),
         by = .(id), .SDcols = c("x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4")
       ]
-      void <- the_tracks[frame <= the_frame() & frame > (the_frame() - 30),
+      void <- the_tracks[frame %in% (the_frame() - input$track_length_x + 1):the_frame(), # <= the_frame() & frame > (the_frame() - 30),
         .drawTracks(out, .SD, .BY, input$line_width_x),
         by = .(id), .SDcols = c("x", "y")
       ]
