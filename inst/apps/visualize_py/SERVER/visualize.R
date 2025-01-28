@@ -8,7 +8,7 @@ mode(.shades) <- "integer"
     mode(box) <- "integer"
     cv2$drawContours(
       img, list(reticulate::r_to_py(box)), 0L,
-      .shades[, (BY$id %% length(col)) + 1],
+      .shades[, (BY$id %% ncol(.shades)) + 1],
       as.integer(linewidth)
     )
   }
@@ -21,7 +21,7 @@ mode(.shades) <- "integer"
     mode(trace) <- "integer"
     cv2$polylines(
       img, list(reticulate::r_to_py(trace)), 0L,
-      .shades[, (BY$id %% length(col)) + 1],
+      .shades[, (BY$id %% ncol(.shades)) + 1],
       as.integer(linewidth)
     )
   }

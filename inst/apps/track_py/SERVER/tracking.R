@@ -1,3 +1,17 @@
+# Display
+shiny::observeEvent(input$conf_x, {
+  refresh_display(refresh_display() + 1)
+})
+
+shiny::observeEvent(input$iou_x, {
+  refresh_display(refresh_display() + 1)
+})
+
+shiny::observeEvent(input$maxObjects_x, {
+  refresh_display(refresh_display() + 1)
+})
+
+
 # UI
 output$start_stop <- shiny::renderUI({
   if (in_progress()) {

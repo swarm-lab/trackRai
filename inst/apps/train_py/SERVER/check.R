@@ -2,7 +2,7 @@
 output$display_frame <- shiny::renderUI({
   if (refresh_frame() > 0) {
     if (trackRai::is_image(the_frame)) {
-      shiny::showNotification("Computing check image", id = "check", duration = NULL)
+      # shiny::showNotification("Computing check image", id = "check", duration = NULL)
       to_display <<- cv2$multiply(the_frame, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))
 
       pred <- the_model()(
@@ -30,7 +30,7 @@ output$display_frame <- shiny::renderUI({
         )
       }
 
-      shiny::removeNotification("check")
+      # shiny::removeNotification("check")
 
       shiny::tags$img(
         src = paste0("data:image/jpg;base64,", reticulate::py_to_r(

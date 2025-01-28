@@ -25,6 +25,35 @@ shiny::observeEvent(refresh_display(), {
     }
 
     print_display(print_display() + 1)
+  } else if (input$main == "2") {
+    to_display <<- cv2$multiply(the_image, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))
+
+    pred <- the_model(
+      source = to_display,
+      imgsz = c(trackRai::n_row(to_display), trackRai::n_col(to_display)),
+      conf = input$conf_x,
+      iou = input$iou_x,
+      max_det = as.integer(input$maxObjects_x),
+      show = FALSE,
+      verbose = FALSE,
+      device = device
+    )
+    obb <- pred[0]$obb$xyxyxyxy$cpu()$numpy()
+    obb <- np$int_(obb)
+    sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
+
+    for (i in seq_len(py_to_r(obb$shape[0]))) {
+      to_display <<- cv2$drawContours(
+        to_display, list(obb[i - 1]), 0L, c(255L, 255L, 255),
+        as.integer(max(0.5, 4 * sc))
+      )
+      to_display <<- cv2$drawContours(
+        to_display, list(obb[i - 1]), 0L, c(0L, 224L, 0L),
+        as.integer(max(0.5, 2 * sc))
+      )
+    }
+
+    print_display(print_display() + 1)
   }
 })
 
@@ -58,6 +87,10 @@ session$onFlushed(function() {
 
 shiny::observeEvent(input$win_resize, {
   js$uishape("display_img")
+})
+
+shiny::observeEvent(input$main, {
+  refresh_display(refresh_display() + 1)
 })
 
 
@@ -133,6 +166,11 @@ shiny::observeEvent(input$dataset_x, {
   }
 })
 
+shiny::observeEvent(input$model_x, {
+  if (file.exists(paste0(the_model_folder(), "/runs/obb/", input$model_x))) {
+    the_model <<- ultralytics$YOLO(normalizePath(paste0(the_model_folder(), "/runs/obb/", input$model_x)))
+  }
+})
 
 # Load video
 shinyFiles::shinyFileChoose(input, "video_file_x",
@@ -252,4 +290,3 @@ shiny::observeEvent(refresh_mask(), {
     }
   }
 })
-
