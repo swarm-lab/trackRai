@@ -58,7 +58,7 @@ shiny::observeEvent(refresh_video(), {
 shiny::observeEvent(input$video_controls, {
   if (input$video_controls[1] != video_range[1]) {
     new_values <- input$video_controls
-    new_values[2] <- new_values[1]
+    # new_values[2] <- new_values[1]
     video_range[1] <<- new_values[1]
     shinyWidgets::updateNoUiSliderInput(
       session, "video_controls",
@@ -66,7 +66,7 @@ shiny::observeEvent(input$video_controls, {
     )
   } else if (input$video_controls[3] != video_range[2]) {
     new_values <- input$video_controls
-    new_values[2] <- new_values[3]
+    # new_values[2] <- new_values[3]
     video_range[2] <<- new_values[3]
     shinyWidgets::updateNoUiSliderInput(
       session, "video_controls",
