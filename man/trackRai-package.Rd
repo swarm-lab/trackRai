@@ -12,6 +12,7 @@ What the package does (one paragraph).
 Useful links:
 \itemize{
   \item \url{https://github.com/swarm-lab/trackRai}
+  \item \url{https://swarm-lab.github.io/trackRai/}
   \item Report bugs at \url{https://github.com/swarm-lab/trackRai/issues}
 }
 

@@ -111,12 +111,15 @@ shiny::observeEvent(refresh_background(), {
 shiny::observeEvent(input$computeBackground_x, {
   if (trackRai::is_video_capture(the_video)) {
     showElement("curtain")
-    the_background <<- trackRai::backgrounder(the_video,
-      n = input$backroundImages_x,
-      method = input$backgroundType_x,
-      start = input$rangePos_x[1],
-      end = input$rangePos_x[2]
+    the_background <<- np$uint8(
+      trackRai::backgrounder(the_video,
+        n = input$backroundImages_x,
+        method = input$backgroundType_x,
+        start = input$rangePos_x[1],
+        end = input$rangePos_x[2]
+      )
     )
+
     hideElement("curtain")
     refresh_display(refresh_display() + 1)
   }
@@ -180,7 +183,7 @@ shiny::observeEvent(stop_ghost_collection(), {
       )
       cv2$fillPoly(
         roi,
-        pts = array(as.integer(ghost_coords), c(1, dim(ghost_coords))), 
+        pts = array(as.integer(ghost_coords), c(1, dim(ghost_coords))),
         color = c(255, 255, 255)
       )
       the_background <<- cv2$inpaint(the_background, roi, 5, cv2$INPAINT_TELEA)

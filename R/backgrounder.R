@@ -94,7 +94,6 @@ backgrounder <- function(video, n = 10, method = "median", prob = 0.025,
       shiny::removeNotification(id = "layer")
     }
   }
-  mode(med) <- "integer"
   out <- reticulate::r_to_py(med)
 
   if (shiny::isRunning()) {
