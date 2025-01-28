@@ -52,9 +52,9 @@ shiny::observeEvent(refresh_display(), {
               lab, cv2$FONT_HERSHEY_SIMPLEX, font_scale, font_thickness
             )[0]
           )
-          x <- reticulate::py_to_r(indices[1]$mean()) - lab_size[[1]] / 2 
+          x <- reticulate::py_to_r(indices[1]$mean()) - lab_size[[1]] / 2
           y <- reticulate::py_to_r(indices[0]$mean()) + lab_size[[2]] / 2
-  
+
           to_display <<- cv2$putText(
             to_display, lab, as.integer(c(x, y)), cv2$FONT_HERSHEY_SIMPLEX,
             font_scale, c(255L, 255L, 255L), font_thickness, cv2$LINE_AA
@@ -227,7 +227,7 @@ shiny::observeEvent(stop_mask_collection(), {
             array(0L, c(trackRai::n_row(the_mask), trackRai::n_col(the_mask), 3)),
             dtype = "uint8"
           )
-          ell <- trackRai::optimEllipse(mask_coords[, 1], mask_coords[, 2])
+          ell <- trackRai::optim_ellipse(mask_coords[, 1], mask_coords[, 2])
           ellMask <- cv2$ellipse(
             ellMask, as.integer(c(ell[1], ell[2])), as.integer(c(ell[3], ell[4]) / 2),
             ell[5], 0, 360, c(255L, 255L, 255L), -1L

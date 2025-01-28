@@ -11,6 +11,18 @@
   }
 }
 
+
+#' @title Install and Update YOLO
+#'
+#' @description This function automates the installation/updating of YOLO and 
+#'  all its Python dependencies in a dedicated Python environment for use with 
+#'  the \link{trackRai} apps.
+#'
+#' @return If the installation/update completes successfully, a data frame 
+#'  indicating the location of the YOLO installation and its version number.
+#'
+#' @author Simon Garnier, \email{garnier@@njit.edu}
+#'
 #' @export
 install_yolo <- function() {
   if (reticulate::py_discover_config()$version != "3.12.8") {

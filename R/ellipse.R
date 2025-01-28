@@ -20,15 +20,15 @@
 #'
 #' @return A vector with 5 elements: the x and y coordinated of the center of
 #'  the ellipse, the width and height of the ellipse, and the angle of the
-#'  ellipse relative to the y axis.
+#'  ellipse relative to the y axis in degrees.
 #'
 #' @author Simon Garnier, \email{garnier@@njit.edu}
 #'
 #' @examples
-#' optimEllipse(rnorm(100), rnorm(100))
+#' optim_ellipse(rnorm(5), rnorm(5))
 #'
 #' @export
-optimEllipse <- function(x, y) {
+optim_ellipse <- function(x, y) {
   md <- sqrt((max(x) - min(x))^2 + (max(y) - min(y))^2)
   start <- c(mean(x), mean(y), md, md, 0)
 
