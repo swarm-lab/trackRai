@@ -1,8 +1,6 @@
 ---
-title: "1. Install YOLO11"
-output: 
-  rmarkdown::html_vignette:
-    number_sections: true
+title: "1 - Install YOLO11"
+output: rmarkdown::html_vignette:
 vignette: >
   %\VignetteIndexEntry{Install YOLO11}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Package installation
+# 1.1 - Package installation
 
 [`trackRai`](https://swarm-lab.github.io/trackRai) is currently not available on 
 CRAN. However, you can install it directly from 
@@ -28,9 +26,9 @@ pak::pak("swarm-lab/trackRai")
 
 ---
 
-# YOLO installation
+# 1.2 - YOLO installation
 
-## Before installing YOLO
+## 1.2.1 - Before installing YOLO
 
 It is recommended to run `trackRai` on a machine equipped with an 
 [NVIDIA](https://www.nvidia.com/) graphics card and the
@@ -45,7 +43,7 @@ Note that if your computer is not equipped with an NVIDIA graphics card or if
 the CUDA toolkit is not installed on it, you can still use `trackRai` but the 
 training of the YOLO model may take a very long time (several hours).
 
-## Installing YOLO
+## 1.2.2 - Installing YOLO
 
 Once `trackRai` is installed, you will need to install 
 [YOLO](https://www.ultralytics.com/yolo) on your machine using the helper 

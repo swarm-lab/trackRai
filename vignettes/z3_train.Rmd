@@ -1,5 +1,5 @@
 ---
-title: "3. Train a YOLO model"
+title: "3 - Train a YOLO model"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Train a YOLO model}
