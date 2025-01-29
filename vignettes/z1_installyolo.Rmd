@@ -1,5 +1,5 @@
 ---
-title: "Install YOLO11"
+title: "1. Install YOLO11"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Install YOLO11}

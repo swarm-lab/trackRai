@@ -1,5 +1,5 @@
 Package: trackRai
-Title: What the Package Does (One Line, Title Case)
+Title: Multi-Object Tracking With YOLO11
 Version: 0.0.0.9000
 Authors@R: 
     person("Simon", "Garnier", , "garnier@njit.edu", role = c("aut", "cre"),
