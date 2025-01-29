@@ -1,5 +1,4 @@
-
-# trackRai
+# trackRai <img src="man/figures/logo.png" align="right" width="120" />
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/trackRai)](https://CRAN.R-project.org/package=trackRai)
