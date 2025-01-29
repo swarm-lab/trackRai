@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>1. Install YOLO11 • trackRai</title>
+<title>1 - Install YOLO11 • trackRai</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -16,7 +16,7 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="1. Install YOLO11">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="1 - Install YOLO11">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -39,11 +39,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/z1_installyolo.html">1. Install YOLO11</a></li>
-    <li><a class="dropdown-item" href="../articles/z2_prepare.html">2. Prepare dataset for training a YOLO model</a></li>
-    <li><a class="dropdown-item" href="../articles/z3_train.html">3. Train a YOLO model</a></li>
-    <li><a class="dropdown-item" href="../articles/z4_track.html">4. Track objects in a video using a trained YOLO model</a></li>
-    <li><a class="dropdown-item" href="../articles/z5_visualize.html">5. Visualize the results of tracking</a></li>
+<li><a class="dropdown-item" href="../articles/z1_installyolo.html">1 - Install YOLO11</a></li>
+    <li><a class="dropdown-item" href="../articles/z2_prepare.html">2 - Prepare dataset for training a YOLO model</a></li>
+    <li><a class="dropdown-item" href="../articles/z3_train.html">3 - Train a YOLO model</a></li>
+    <li><a class="dropdown-item" href="../articles/z4_track.html">4 - Track objects in a video using a trained YOLO model</a></li>
+    <li><a class="dropdown-item" href="../articles/z5_visualize.html">5 - Visualize the results of tracking</a></li>
   </ul>
 </li>
       </ul>
@@ -64,7 +64,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>1. Install YOLO11</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>1 - Install YOLO11</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/swarm-lab/trackRai/blob/master/vignettes/z1_installyolo.Rmd" class="external-link"><code>vignettes/z1_installyolo.Rmd</code></a></small>
@@ -74,7 +74,7 @@
     
     
 <div class="section level2">
-<h2 id="package-installation">Package installation<a class="anchor" aria-label="anchor" href="#package-installation"></a>
+<h2 id="package-installation">1.1 - Package installation<a class="anchor" aria-label="anchor" href="#package-installation"></a>
 </h2>
 <p><a href="https://swarm-lab.github.io/trackRai"><code>trackRai</code></a> is
 currently not available on CRAN. However, you can install it directly
@@ -85,10 +85,10 @@ follows:</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="yolo-installation">YOLO installation<a class="anchor" aria-label="anchor" href="#yolo-installation"></a>
+<h2 id="yolo-installation">1.2 - YOLO installation<a class="anchor" aria-label="anchor" href="#yolo-installation"></a>
 </h2>
 <div class="section level3">
-<h3 id="before-installing-yolo">Before installing YOLO<a class="anchor" aria-label="anchor" href="#before-installing-yolo"></a>
+<h3 id="before-installing-yolo">1.2.1 - Before installing YOLO<a class="anchor" aria-label="anchor" href="#before-installing-yolo"></a>
 </h3>
 <p>It is recommended to run <code>trackRai</code> on a machine equipped
 with an <a href="https://www.nvidia.com/" class="external-link">NVIDIA</a> graphics card and
@@ -107,7 +107,7 @@ card or if the CUDA toolkit is not installed on it, you can still use
 long time (several hours).</p>
 </div>
 <div class="section level3">
-<h3 id="installing-yolo">Installing YOLO<a class="anchor" aria-label="anchor" href="#installing-yolo"></a>
+<h3 id="installing-yolo">1.2.2 - Installing YOLO<a class="anchor" aria-label="anchor" href="#installing-yolo"></a>
 </h3>
 <p>Once <code>trackRai</code> is installed, you will need to install <a href="https://www.ultralytics.com/yolo" class="external-link">YOLO</a> on your machine using
 the helper function <code><a href="../reference/install_yolo.html">install_yolo()</a></code> provided with
