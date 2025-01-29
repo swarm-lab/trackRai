@@ -1,4 +1,4 @@
-# trackRai <img src="man/figures/logo.png" align="right" width="120" />
+# trackRai <a href="https://swarm-lab.github.io/trackRai/"><img src="man/figures/logo.png" align="right" height="138" alt="trackRai website" /></a>
 
 <!-- badges: start -->
 [![CRAN status](https://www.r-pkg.org/badges/version/trackRai)](https://CRAN.R-project.org/package=trackRai)

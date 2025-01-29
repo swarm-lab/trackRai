@@ -5,3 +5,5 @@
 ^pkgdown$
 ^\.github$
 ^LICENSE\.md$
+^logo\.png$
+^logo\.svg$
