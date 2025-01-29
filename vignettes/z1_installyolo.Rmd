@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 CRAN. However, you can install it directly from 
 [GitHub](https://github.com/swarm-lab/trackRai/) as follows: 
 
-```{r pgk_install}
+```{r pgk_install, eval = FALSE}
 pak::pak("swarm-lab/trackRai")
 ```
 
@@ -49,7 +49,7 @@ Once `trackRai` is installed, you will need to install
 [YOLO](https://www.ultralytics.com/yolo) on your machine using the helper 
 function `install_yolo()` provided with `trackRai`. 
 
-```{r setup}
+```{r setup, eval = FALSE}
 library(trackRai)
 install_yolo()
 ```
