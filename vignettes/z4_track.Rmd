@@ -2,7 +2,7 @@
 title: "4 - Track objects in a video using a trained YOLO model"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Track objects in a video using a trained YOLO model}
+  %\VignetteIndexEntry{4 - Track objects in a video using a trained YOLO model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

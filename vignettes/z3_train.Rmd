@@ -2,7 +2,7 @@
 title: "3 - Train a YOLO model"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Train a YOLO model}
+  %\VignetteIndexEntry{3 - Train a YOLO model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

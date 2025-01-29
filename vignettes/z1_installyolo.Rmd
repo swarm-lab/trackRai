@@ -2,7 +2,7 @@
 title: "1 - Install YOLO11"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Install YOLO11}
+  %\VignetteIndexEntry{1 - Install YOLO11}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

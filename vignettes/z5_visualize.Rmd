@@ -2,7 +2,7 @@
 title: "5 - Visualize the results of tracking"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Visualize the results of tracking}
+  %\VignetteIndexEntry{5 - Visualize the results of tracking}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
