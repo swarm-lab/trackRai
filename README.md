@@ -32,3 +32,5 @@ pak::pak("swarm-lab/trackRai")
 - 3 - Train a YOLO model
 - 4 - Track objects in a video using a trained YOLO model
 - 5 - Visualize the results of tracking
+
+---

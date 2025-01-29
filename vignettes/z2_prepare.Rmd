@@ -14,6 +14,51 @@ knitr::opts_chunk$set(
 )
 ```
 
+# 2.1 - Launch the preparation app
+
 ```{r setup}
-library(trackRai)
+library(trackRai, eval = FALSE)
+prepare()
 ```
+
+---
+
+# 2.2 - Video module
+
+![Video module](../man/figures/prepare/1_video.jpg)
+
+---
+
+# 2.3 - Background module
+
+![Background module](../man/figures/prepare/2_background.jpg)
+
+---
+
+# 2.4 - Mask module
+
+![Mask module](../man/figures/prepare/3_mask.jpg)
+
+![Mask module](../man/figures/prepare/4_mask.jpg)
+
+---
+
+# 2.5 - Segmentation module
+
+![Segmentation module](../man/figures/prepare/5_segmentation.jpg)
+
+---
+
+# 2.6 - Identification module
+
+![Identification module](../man/figures/prepare/6_identification.jpg)
+
+![Identification module](../man/figures/prepare/7_identification.jpg)
+
+---
+
+# 2.3 - Composite module
+
+![Composite module](../man/figures/prepare/8_composite.jpg)
+
+---
