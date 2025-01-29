@@ -1,8 +1,13 @@
 pandoc: 3.1.11
 pkgdown: 2.1.1
 pkgdown_sha: ~
-articles: {}
-last_built: 2025-01-28T19:03Z
+articles:
+  z1_installyolo: z1_installyolo.html
+  z2_prepare: z2_prepare.html
+  z3_train: z3_train.html
+  z4_track: z4_track.html
+  z5_visualize: z5_visualize.html
+last_built: 2025-01-29T00:16Z
 urls:
   reference: https://swarm-lab.github.io/trackRai/reference
   article: https://swarm-lab.github.io/trackRai/articles
