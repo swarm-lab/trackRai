@@ -2,7 +2,7 @@
 title: "2 - Prepare a dataset for training a YOLO model"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Prepare dataset for training a YOLO model}
+  %\VignetteIndexEntry{Prepare a dataset for training a YOLO model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
