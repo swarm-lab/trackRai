@@ -14,6 +14,23 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+# 3.1 - Launch the training app
+
+```{r setup, eval = FALSE}
 library(trackRai)
+train()
 ```
+
+---
+
+# 3.2 - Training module
+
+![](../man/figures/train/1_training.jpg)
+
+---
+
+# 3.3 - Checking module
+
+![](../man/figures/train/2_checking.jpg)
+
+---

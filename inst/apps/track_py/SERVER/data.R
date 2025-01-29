@@ -45,11 +45,11 @@ shiny::observeEvent(refresh_display(), {
     for (i in seq_len(py_to_r(obb$shape[0]))) {
       to_display <<- cv2$drawContours(
         to_display, list(obb[i - 1]), 0L, c(255L, 255L, 255),
-        as.integer(max(0.5, 4 * sc))
+        as.integer(max(0.5, 2 * sc))
       )
       to_display <<- cv2$drawContours(
         to_display, list(obb[i - 1]), 0L, c(0L, 224L, 0L),
-        as.integer(max(0.5, 2 * sc))
+        as.integer(max(0.5, sc))
       )
     }
 
