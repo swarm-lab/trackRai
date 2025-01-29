@@ -14,6 +14,25 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+# 4.1 - Launch the tracking app
+
+```{r setup, eval = FALSE}
 library(trackRai)
+track()
 ```
+
+---
+
+# 4.2 - Data module
+
+![](../man/figures/track/1_data.jpg)
+
+---
+
+# 4.3 - Tracking module
+
+![](../man/figures/track/2_tracking.jpg)
+
+![](../man/figures/track/3_tracking.jpg)
+
+---
