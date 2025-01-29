@@ -34,7 +34,7 @@ Imports:
     stringr (>= 1.5.1),
     wand (>= 0.5.0),
     yaml (>= 2.3.10)
-Suggests: 47617E
+Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
