@@ -156,7 +156,7 @@ shiny::observeEvent(stop_object_collection(), {
     if (!is.null(object_coords)) {
       if (nrow(object_coords) > 0) {
         h <- sqrt(diff(object_coords[, 1])^2 + diff(object_coords[, 2])^2)
-  
+
         obb <- data.table::as.data.table(t(c(
           the_frame(),
           id_counter,
@@ -167,9 +167,14 @@ shiny::observeEvent(stop_object_collection(), {
         names(obb) <- c("frame", "id", "p1_x", "p1_y", "p2_x", "p2_y", "x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4")
         selected(id_counter)
         id_counter <<- id_counter + 1
-  
+
         objects_obb <<- data.table::rbindlist(
           list(objects_obb, obb)
+        )
+
+        shiny::updateSelectInput(
+          session, "tagged_frame_x",
+          choices = sort(unique(objects_obb$frame)), selected = the_frame()
         )
       }
     }
@@ -211,9 +216,10 @@ shiny::observeEvent(input$height_x, {
           objects_obb[ix, ]$p2_x,
           objects_obb[ix, ]$p2_y,
           .oriented_rectangle(
-            c(objects_obb[ix, ]$p1_x, objects_obb[ix, ]$p1_y), 
+            c(objects_obb[ix, ]$p1_x, objects_obb[ix, ]$p1_y),
             c(objects_obb[ix, ]$p2_x, objects_obb[ix, ]$p2_y),
-            input$width_x, input$height_x)
+            input$width_x, input$height_x
+          )
         )
       )]
 
@@ -236,9 +242,10 @@ shiny::observeEvent(input$width_x, {
           objects_obb[ix, ]$p2_x,
           objects_obb[ix, ]$p2_y,
           .oriented_rectangle(
-            c(objects_obb[ix, ]$p1_x, objects_obb[ix, ]$p1_y), 
+            c(objects_obb[ix, ]$p1_x, objects_obb[ix, ]$p1_y),
             c(objects_obb[ix, ]$p2_x, objects_obb[ix, ]$p2_y),
-            input$width_x, input$height_x)
+            input$width_x, input$height_x
+          )
         )
       )]
 
@@ -289,4 +296,17 @@ shiny::observeEvent(input$newKey, {
 
 shiny::observeEvent(input$remKey, {
   shinyjs::click("remove_object_x")
+})
+
+shiny::observeEvent(input$tagged_frame_x, {
+  if (!is.null(the_frame())) {
+    if (input$tagged_frame_x != the_frame()) {
+      new_value <- input$video_controls
+      new_value[2] <- input$tagged_frame_x
+      shinyWidgets::updateNoUiSliderInput(
+        session, "video_controls",
+        value = new_value
+      )
+    }
+  }
 })

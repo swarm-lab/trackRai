@@ -28,6 +28,7 @@ shinyjs::disabled(
     ),
     shiny::actionButton("remove_object_x", "Remove object [R]", width = "100%"),
     shiny::hr(),
+    shiny::selectInput("tagged_frame_x", "Go to tagged frame:", NULL, width = "100%"),
     tags$table(
       tags$tr(
         tags$td(
