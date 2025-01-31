@@ -13,8 +13,12 @@
 #' prepare()
 #'
 #' @export
-prepare <- function(...) {
-  shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_py"), ...)
+prepare <- function(auto = TRUE, ...) {
+  if (auto) {
+    shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_auto_py"), ...)
+  } else {
+    shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_manual_py"), ...)
+  }
 }
 
 

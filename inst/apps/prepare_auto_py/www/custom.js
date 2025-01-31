@@ -16,12 +16,20 @@ $(window).resize(function () {
 });
 
 document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape" || event.keyCode === 27) {
+    if (event.key === "Escape") {
         Shiny.onInputChange("escKey", Math.random());
     }
 
-    if (event.key === 'Enter' || event.keyCode === 13) {
+    if (event.key === 'Enter') {
         Shiny.onInputChange("retKey", Math.random());
+    }
+
+    if (event.key === 'n') {
+        Shiny.onInputChange("newKey", Math.random());
+    }
+
+    if (event.key === 'r') {
+        Shiny.onInputChange("remKey", Math.random());
     }
 
 });

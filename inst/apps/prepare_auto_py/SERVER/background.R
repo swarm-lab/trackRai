@@ -138,6 +138,7 @@ shiny::observeEvent(input$ghostButton_x, {
       duration = NULL, type = "message"
     )
 
+    shinyjs::addClass("display", "active_display")
     collect_ghost(1)
   }
 })
@@ -192,6 +193,7 @@ shiny::observeEvent(stop_ghost_collection(), {
     shiny::removeNotification(id = "ghost_notif")
     toggleInputs(input, "ON")
     toggleTabs(1, "ON")
+    shinyjs::removeClass("display", "active_display")
     collect_ghost(0)
     ghost_coords <<- NULL
     refresh_display(refresh_display() + 1)

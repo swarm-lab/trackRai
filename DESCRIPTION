@@ -21,6 +21,7 @@ Imports:
     htmlwidgets (>= 1.6.4),
     pals (>= 1.9),
     plotly (>= 4.10.4),
+    pracma (>= 2.4.4),
     processx (>= 3.8.5),
     reticulate (>= 1.40.0),
     Rfast (>= 2.1.4),

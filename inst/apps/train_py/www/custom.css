@@ -171,6 +171,10 @@ hr.hr-text:after {
   z-index: 98;
 }
 
+.active_display {
+  cursor: crosshair;
+}
+
 /* noUiSlider */
 #control_panel {
   font-size: 12px;

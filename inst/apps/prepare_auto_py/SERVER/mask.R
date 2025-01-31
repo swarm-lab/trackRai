@@ -170,6 +170,7 @@ shiny::observeEvent(input$polyButton_x, {
       type = "message"
     )
 
+    shinyjs::addClass("display", "active_display")
     collect_mask(1)
   }
 })
@@ -184,6 +185,7 @@ shiny::observeEvent(input$ellButton_x, {
       type = "message"
     )
 
+    shinyjs::addClass("display", "active_display")
     collect_mask(2)
   }
 })
@@ -244,6 +246,7 @@ shiny::observeEvent(stop_mask_collection(), {
     removeNotification(id = "mask_notif")
     toggleInputs(input, "ON")
     toggleTabs(1:2, "ON")
+    shinyjs::removeClass("display", "active_display")
     collect_mask(0)
     mask_coords <<- NULL
     refresh_display(refresh_display() + 1)
