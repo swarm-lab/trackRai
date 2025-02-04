@@ -34,6 +34,8 @@ install_yolo <- function() {
     py_installed <- FALSE
   } else if (!grepl("3.12.8", reticulate::py_discover_config()$version_string)) {
     py_installed <- FALSE
+  } else {
+    py_installed <- TRUE
   }
    
   if (!py_installed) {
