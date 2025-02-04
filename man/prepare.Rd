@@ -4,7 +4,7 @@
 \alias{prepare}
 \title{Dataset Preparation}
 \usage{
-prepare(...)
+prepare(auto = TRUE, ...)
 }
 \arguments{
 \item{...}{Parameters to be passed to \link[shiny]{runApp}.}

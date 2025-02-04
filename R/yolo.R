@@ -47,7 +47,8 @@ install_yolo <- function() {
         "\nPython 3.12.8 will be installed.",
         "\nWould you like to continue?",
         "\n",
-        "\n------------------------------------------------------------"
+        "\n------------------------------------------------------------",
+        "\n"
       )
     )
 
@@ -58,7 +59,7 @@ install_yolo <- function() {
     if (answer) {
       reticulate::install_python(version = "3.12.8")
     } else {
-      warning("\nContinuing installation of YOLO with a non-recommended version of Python.")
+      warning("\nContinuing installation of YOLO with a non-recommended version of Python.\n")
     }
   }
 
@@ -73,7 +74,8 @@ install_yolo <- function() {
         "\nIt will be created with all the necessary packages.",
         "\nWould you like to continue?",
         "\n",
-        "\n------------------------------------------------------------"
+        "\n------------------------------------------------------------",
+        "\n"
       )
     )
 
@@ -90,7 +92,7 @@ install_yolo <- function() {
         )
       )
     } else {
-      stop("\nYOLO was not installed on this system.")
+      stop("\nYOLO was not installed on this system.\n")
     }
   } else if (!any(grepl("yolo", list.files(dirname(reticulate::virtualenv_python("trackRai")))))) {
     answer <- utils::askYesNo(
@@ -101,7 +103,8 @@ install_yolo <- function() {
         "\nIt will be installed with all the necessary dependencies.",
         "\nWould you like to continue?",
         "\n",
-        "\n------------------------------------------------------------"
+        "\n------------------------------------------------------------",
+        "\n"
       )
     )
 
@@ -117,7 +120,7 @@ install_yolo <- function() {
         )
       )
     } else {
-      stop("\nYOLO was not installed on this system.")
+      stop("\nYOLO was not installed on this system.\n")
     }
   } else {
     answer <- utils::askYesNo(
@@ -127,7 +130,8 @@ install_yolo <- function() {
         "\nYOLO is already installed on this system.",
         "\nWould you like to try updating it?",
         "\n",
-        "\n------------------------------------------------------------"
+        "\n------------------------------------------------------------",
+        "\n"
       )
     )
 

@@ -4,9 +4,11 @@
 \name{trackRai-package}
 \alias{trackRai}
 \alias{trackRai-package}
-\title{trackRai: What the Package Does (One Line, Title Case)}
+\title{trackRai: Multi-Object Tracking With YOLO11}
 \description{
-What the package does (one paragraph).
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
+trackRai is a YOLO-based multi-object tracking software for R. It provides a series of Shiny apps for automating the preparation and training of YOLO11 models, for performing the tracking of multiple objects in a video, and for visualizing the results of the tracking process.
 }
 \seealso{
 Useful links:
@@ -18,7 +20,7 @@ Useful links:
 
 }
 \author{
-\strong{Maintainer}: First Last \email{first.last@example.com} (\href{https://orcid.org/YOUR-ORCID-ID}{ORCID})
+\strong{Maintainer}: Simon Garnier \email{garnier@njit.edu} (\href{https://orcid.org/0000-0002-3886-3974}{ORCID})
 
 }
 \keyword{internal}
