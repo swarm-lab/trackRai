@@ -143,7 +143,7 @@ install_yolo <- function() {
       reticulate::virtualenv_install(
         envname = "trackRai",
         packages = c(
-          "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+          "pip", "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
         ),
         pip_options = "--upgrade"
       )
