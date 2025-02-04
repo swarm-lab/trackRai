@@ -25,7 +25,13 @@
 #'
 #' @export
 install_yolo <- function() {
-  if (reticulate::py_discover_config()$version != "3.12.8") {
+  if (!is.null(reticulate::py_discover_config())) {
+    py_installed <- FALSE
+  } else if (reticulate::py_discover_config()$version != "3.12.8") {
+    py_installed <- FALSE
+  }
+   
+  if (!py_installed) {
     answer <- utils::askYesNo(
       paste0(
         "\n------------------------------------------------------------",
