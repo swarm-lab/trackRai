@@ -1,6 +1,6 @@
 .yolo_path <- function() {
   if (reticulate::virtualenv_exists("trackRai")) {
-    if (Sys.info()["sysname"] == "windows") {
+    if (Sys.info()["sysname"] == "Windows") {
       yolo_path <- paste0(dirname(reticulate::virtualenv_python("trackRai")), "/yolo.exe")
     } else {
       yolo_path <- paste0(dirname(reticulate::virtualenv_python("trackRai")), "/yolo")
