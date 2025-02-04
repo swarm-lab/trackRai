@@ -1,13 +1,13 @@
 .yolo_path <- function() {
   if (reticulate::virtualenv_exists("trackRai")) {
-    if (Sys.info()["sysname"] == "Windows") {
-      yolo_path <- paste0(dirname(reticulate::virtualenv_python("trackRai")), "/yolo.exe")
-    } else {
-      yolo_path <- paste0(dirname(reticulate::virtualenv_python("trackRai")), "/yolo")
-    }
+    paths <- list.files(
+      dirname(reticulate::virtualenv_python("trackRai")),
+      full.names = TRUE
+    )
+    test <- grepl("yolo", paths)
 
-    if (file.exists(yolo_path)) {
-      yolo_path
+    if (any(test)) {
+      paths[test]
     } else {
       NA
     }
@@ -19,11 +19,11 @@
 
 #' @title Install and Update YOLO
 #'
-#' @description This function automates the installation/updating of YOLO and 
-#'  all its Python dependencies in a dedicated Python environment for use with 
+#' @description This function automates the installation/updating of YOLO and
+#'  all its Python dependencies in a dedicated Python environment for use with
 #'  the \link{trackRai} apps.
 #'
-#' @return If the installation/update completes successfully, a data frame 
+#' @return If the installation/update completes successfully, a data frame
 #'  indicating the location of the YOLO installation and its version number.
 #'
 #' @author Simon Garnier, \email{garnier@@njit.edu}
@@ -37,7 +37,7 @@ install_yolo <- function() {
   } else {
     py_installed <- TRUE
   }
-   
+
   if (!py_installed) {
     answer <- utils::askYesNo(
       paste0(
@@ -92,7 +92,7 @@ install_yolo <- function() {
     } else {
       stop("\nYOLO was not installed on this system.")
     }
-  } else if (!file.exists(paste0(dirname(reticulate::virtualenv_python("trackRai")), "/yolo"))) {
+  } else if (!any(grepl("yolo", list.files(dirname(reticulate::virtualenv_python("trackRai")))))) {
     answer <- utils::askYesNo(
       paste0(
         "\n------------------------------------------------------------",
