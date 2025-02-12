@@ -212,8 +212,7 @@ shiny::observeEvent(input$start_train_x, {
             paste0("imgsz=", imgsz),
             "batch=8",
             "single_cls=True",
-            paste0("device=", paste0((1:n_gpus) - 1, collapse = ",")),
-            "verbose=False"
+            paste0("device=", paste0((1:n_gpus) - 1, collapse = ","))
           ),
           stdout = the_temp_file,
           stderr = "2>&1",
@@ -231,8 +230,7 @@ shiny::observeEvent(input$start_train_x, {
             paste0("imgsz=", imgsz),
             "batch=-1",
             "single_cls=True",
-            "device=mps",
-            "verbose=False"
+            "device=mps"
           ),
           stdout = the_temp_file,
           stderr = "2>&1",
@@ -249,8 +247,7 @@ shiny::observeEvent(input$start_train_x, {
             paste0("epochs=", epochs),
             paste0("imgsz=", imgsz),
             "batch=-1",
-            "single_cls=True",
-            "verbose=False"
+            "single_cls=True"
           ),
           stdout = the_temp_file,
           stderr = "2>&1",
