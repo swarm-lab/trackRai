@@ -29,11 +29,10 @@
 #' @author Simon Garnier, \email{garnier@@njit.edu}
 #'
 #' @export
-install_yolo <- function() {
+install_yolo <- function(python_version = "3.12.8") {
   if (is.null(reticulate::py_discover_config())) {
     py_installed <- FALSE
-  # } else if (!grepl("3.12.8", reticulate::py_discover_config()$version_string)) {
-  } else if (!grepl("3.11.11", reticulate::py_discover_config()$version_string)) {
+  } else if (!grepl(python_version, reticulate::py_discover_config()$version_string)) {
     py_installed <- FALSE
   } else {
     py_installed <- TRUE
@@ -44,9 +43,8 @@ install_yolo <- function() {
       paste0(
         "\n------------------------------------------------------------",
         "\n",
-        "\nThe Python version found on this system is not the recommended one.",
-        # "\nPython 3.12.8 will be installed.",
-        "\nPython 3.11.11 will be installed.",
+        "\nThe Python version found on this system is not the requested one.",
+        "\nPython ", python_version, " will be installed.",
         "\nWould you like to continue?",
         "\n",
         "\n------------------------------------------------------------",
@@ -59,8 +57,7 @@ install_yolo <- function() {
     }
 
     if (answer) {
-      # reticulate::install_python(version = "3.12.8")
-      reticulate::install_python(version = "3.11.11")
+      reticulate::install_python(version = python_version)
     } else {
       warning("\nContinuing installation of YOLO with a non-recommended version of Python.\n")
     }
@@ -89,8 +86,7 @@ install_yolo <- function() {
     if (answer) {
       reticulate::virtualenv_create(
         envname = "trackRai",
-        # version = "3.12.8",
-        version = "3.11.11",
+        version = python_version,
         packages = c(
           "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
         )
