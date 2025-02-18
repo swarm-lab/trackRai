@@ -283,10 +283,13 @@ shiny::observeEvent(refresh_mask(), {
         )
       )
       volume <- volumes[ix]
-      dir <- dirname(mask_path())
-      default_root(names(volumes)[ix])
-      # default_path(gsub(volume, "", dir))
-      default_path(gsub(paste0(".*", volume), "", dir))
+
+      if (length(volume) > 0) {
+        dir <- dirname(mask_path())
+        default_root(names(volumes)[ix])
+        # default_path(gsub(volume, "", dir))
+        default_path(gsub(paste0(".*", volume), "", dir))
+      }
 
       refresh_display(refresh_display() + 1)
     }
