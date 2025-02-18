@@ -29,7 +29,7 @@
 #' @author Simon Garnier, \email{garnier@@njit.edu}
 #'
 #' @export
-install_yolo <- function(python_version = "3.12.8") {
+install_yolo <- function(python_version = "3.12.5") {
   if (is.null(reticulate::py_discover_config())) {
     py_installed <- FALSE
   } else if (!grepl(python_version, reticulate::py_discover_config()$version_string)) {
