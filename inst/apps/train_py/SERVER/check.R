@@ -114,7 +114,8 @@ shiny::observeEvent(video_path(), {
   if (length(volume) > 0) {
     dir <- dirname(video_path())
     default_root(names(volumes)[ix])
-    default_path(gsub(volume, "", dir))
+    # default_path(gsub(volume, "", dir))
+    default_path(gsub(paste0(".*", volume), "", dir))
   }
 })
 
@@ -195,7 +196,8 @@ shiny::observeEvent(refresh_mask(), {
       volume <- volumes[ix]
       dir <- dirname(mask_path())
       default_root(names(volumes)[ix])
-      default_path(gsub(volume, "", dir))
+      # default_path(gsub(volume, "", dir))
+      default_path(gsub(paste0(".*", volume), "", dir))
 
       refresh_frame(refresh_frame() + 1)
     }

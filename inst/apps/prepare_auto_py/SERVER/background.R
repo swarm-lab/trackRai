@@ -99,7 +99,8 @@ shiny::observeEvent(refresh_background(), {
       volume <- volumes[ix]
       dir <- dirname(background_path())
       default_root(names(volumes)[ix])
-      default_path(gsub(volume, "", dir))
+      # default_path(gsub(volume, "", dir))
+      default_path(gsub(paste0(".*", volume), "", dir))
 
       refresh_display(refresh_display() + 1)
     }
