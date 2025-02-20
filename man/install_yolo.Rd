@@ -4,7 +4,7 @@
 \alias{install_yolo}
 \title{Install and Update YOLO}
 \usage{
-install_yolo()
+install_yolo(python_version = "3.12.5")
 }
 \value{
 If the installation/update completes successfully, a data frame

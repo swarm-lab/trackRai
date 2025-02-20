@@ -59,7 +59,7 @@ install_yolo <- function(python_version = "3.12.5") {
     if (answer) {
       reticulate::install_python(version = python_version)
     } else {
-      warning("\nContinuing installation of YOLO with a non-recommended version of Python.\n")
+      warning("\nContinuing installation of YOLO with a non-requested version of Python.\n")
     }
   }
 
