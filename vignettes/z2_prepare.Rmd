@@ -38,10 +38,17 @@ results are not guaranteed otherwise.
 
 # 2.1 - Launch the preparation app
 
+To launch the dataset preparation app, run the following in the R console:
+
 ```{r setup, eval = FALSE}
 library(trackRai)
 prepare()
 ```
+
+This will open the app either in the viewer panel of RStudio and Positron, or in
+your default internet browser. You can control where the app is opened using the
+`launch.browser` parameter (see the documentation of [shiny::runApp()] for more
+information).
 
 ---
 
