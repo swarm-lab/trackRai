@@ -47,18 +47,35 @@ prepare()
 
 This will open the app either in the viewer panel of RStudio and Positron, or in
 your default internet browser. You can control where the app is opened using the
-`launch.browser` parameter (see the documentation of [shiny::runApp()] for more
+`launch.browser` parameter (see the documentation of shiny::runApp() for more
 information).
 
 ---
 
-# 2.2 - Video module
+# 2.2 - Tab 1: video module
+
+Once the app opens, you will be presented with the "Video" tab. Click on the 
+`Select video` button and navigate to the video that you would like to use for 
+preparing the YOLO dataset. Once the video is selected, it will appear in the 
+left panel of the app. 
 
 ![](../man/figures/prepare/1_video.jpg)
 
+Below the video is a slider that you can use to control the video stream. The 
+slider has three handles: 
+
++ the green handle allows you to navigate through the video to display a frame 
+of your choice; 
++ the two grey handles allow you to restrict the processing of the video to a 
+range of frames in the video. This can be convenient when only a portion of the 
+video is usable, for instance. 
+
+Once the video is loaded, the second tab of the app will become available and 
+you can click on it to navigate there. 
+
 ---
 
-# 2.3 - Background module
+# 2.3 - Tab 2: background module
 
 ![](../man/figures/prepare/2_background.jpg)
 
