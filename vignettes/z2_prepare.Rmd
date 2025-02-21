@@ -14,6 +14,28 @@ knitr::opts_chunk$set(
 )
 ```
 
+`trackRai` provides four apps to: 
+
+1. generate a training dataset suitable for training a YOLO model (this tutorial);
+2. [train a YOLO model using that dataset](https://swarm-lab.github.io/trackRai/articles/z3_train.html);
+3. [use the trained model to track objects in a video](https://swarm-lab.github.io/trackRai/articles/z4_track.html);
+4. [visualize the results of the tracking](https://swarm-lab.github.io/trackRai/articles/z5_visualize.html). 
+
+In this tutorial, we will discuss how to use the first app to automatically 
+generate a dataset that you can then use to train a YOLO model. The idea here is
+to use traditional computer vision techniques to isolate single instances of the 
+objects that you would like to track, as well as the background over which these 
+objects are moving. We will then use them to create composite images with random
+arrangements of an arbitrary large number of these isolated objects. Using that 
+approach, we can generate automatically a large number of training images for 
+YOLO, without requiring any manual labelling.  
+
+**Note:** this approach only works well if the background of the video is stable, 
+with, ideally, no camera movement and no lighting variations. Good tracking 
+results are not guaranteed otherwise. 
+
+---
+
 # 2.1 - Launch the preparation app
 
 ```{r setup, eval = FALSE}

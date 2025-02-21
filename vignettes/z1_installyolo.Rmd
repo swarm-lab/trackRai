@@ -56,7 +56,7 @@ install_yolo()
 
 The installer will prompt you with a series of questions. Answer "Yes" every 
 time if you want YOLO and its dependencies to be installed on your machine. 
-Answering "No" will stop the installation process and `trackRai` will not be 
+Answering "No" may stop the installation process and `trackRai` may not be 
 usable. 
 
 ---

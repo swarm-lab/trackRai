@@ -20,13 +20,26 @@
 #' @title Install and Update YOLO
 #'
 #' @description This function automates the installation/updating of YOLO and
-#'  all its Python dependencies in a dedicated Python environment for use with
-#'  the \link{trackRai} apps.
+#'  all its Python dependencies in a dedicated Python virtual environment for 
+#'  use with the \link{trackRai} apps.
+#' 
+#' @param python_version A character string indicating the version of Python you
+#'  would like YOLO to run on (default: "3.12.5"). YOLO is currently compatible
+#'  with Python 3.8.0 to 3.12.8. Not all versions of Python will necessarily 
+#'  work on your system, but the chosen default works on most systems that 
+#'  we tested so far. 
 #'
 #' @return If the installation/update completes successfully, a data frame
 #'  indicating the location of the YOLO installation and its version number.
+#' 
+#' @note
+#' If the requested version of Python is not activated on your system, this 
+#'  function will attempt to install it first before creating the dedicated 
+#'  Python virtual environment. 
 #'
 #' @author Simon Garnier, \email{garnier@@njit.edu}
+#' 
+#' @seealso [remove_yolo()]
 #'
 #' @export
 install_yolo <- function(python_version = "3.12.5") {
@@ -160,4 +173,26 @@ install_yolo <- function(python_version = "3.12.5") {
     install_path = .yolo_path(),
     version = system(paste0(.yolo_path(), " version"), intern = TRUE)
   )
+}
+
+
+#' @title Remove YOLO
+#'
+#' @description This function automates the removal of YOLO and all its Python 
+#'  dependencies from your system.
+#'
+#' @return Nothing.
+#' 
+#' @note
+#' The function will only remove the dedicated Python virtual environment from 
+#'  your system. If Python was installed during the execution of 
+#'  [install_yolo()], it will not be removed. 
+#'
+#' @author Simon Garnier, \email{garnier@@njit.edu}
+#' 
+#' @seealso [install_yolo()]
+#'
+#' @export
+remove_yolo <- function() {
+  reticulate::virtualenv_remove(envname = "trackRai")
 }
