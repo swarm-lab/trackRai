@@ -1,3 +1,15 @@
+#' @importFrom autothresholdr auto_thresh
+#' @importFrom data.table fread
+#' @importFrom pals alphabet
+#' @importFrom plotly plot_ly 
+#' @importFrom pracma inpolygon
+#' @importFrom processx process
+#' @importFrom shinyFiles parseFilePaths
+#' @importFrom shinyWidgets verticalTabsetPanel
+#' @importFrom shinyalert shinyalert
+#' @importFrom shinyjs useShinyjs
+#' @importFrom stringr str_locate_all
+
 local <- new.env()
 
 .onLoad <- function(libname, pkgname) {

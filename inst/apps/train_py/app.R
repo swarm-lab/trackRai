@@ -18,13 +18,10 @@ library(shinyWidgets)
 library(shinyFiles)
 library(shinyjs)
 library(shinyalert)
-library(htmlwidgets)
 library(trackRai)
 library(data.table)
 library(plotly)
-library(yaml)
 library(processx)
-library(cli)
 
 
 #--------------------------------------------------------------

@@ -17,7 +17,9 @@ This function launches a Shiny app to help with the
 visualization the tracking results obtained with \link{track}.
 }
 \examples{
+\dontrun{
 visualize()
+}
 
 }
 \author{

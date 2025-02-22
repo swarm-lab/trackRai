@@ -121,7 +121,7 @@ instance, Photoshop's `Remove tool` can give much better results).
 
 ---
 
-# 2.4 - Mask module
+# 2.4 - Tab 3: mask module
 
 The second step of the process is to load or create an optional mask. A mask can
 help restrict the area in which the app should look for objects and, therefore, 
@@ -162,7 +162,7 @@ available and you can click on it to navigate there.
 
 ---
 
-# 2.5 - Segmentation module
+# 2.5 - Tab 4: segmentation module
 
 The third step of the process is to determine a threshold that differentiate the
 objects from the background. In this tab, what you are seeing is the difference
@@ -187,7 +187,7 @@ and you can click on it to navigate there.
 
 ---
 
-# 2.6 - Identification module
+# 2.6 - Tab 5: identification module
 
 The fourth step of the process is to isolate single instances of the objects in 
 the video frames. 
@@ -228,7 +228,7 @@ new buffer size.
 
 ---
 
-# 2.7 - Composite module
+# 2.7 - Tab 6: composite module
 
 The final step of the process is to generate the training dataset itself. This 
 will create composite images in which a set number of objects will be printed 

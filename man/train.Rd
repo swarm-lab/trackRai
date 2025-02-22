@@ -17,7 +17,9 @@ This function launches a Shiny app to help with the training of
 a YOLO model.
 }
 \examples{
+\dontrun{
 train()
+}
 
 }
 \author{

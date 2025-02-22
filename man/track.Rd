@@ -17,7 +17,9 @@ This function launches a Shiny app to help with the tracking of
 objects in a video using a trained YOLO model.
 }
 \examples{
+\dontrun{
 track()
+}
 
 }
 \author{

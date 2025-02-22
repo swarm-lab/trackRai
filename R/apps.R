@@ -10,16 +10,21 @@
 #' @author Simon Garnier, \email{garnier@@njit.edu}
 #'
 #' @examples
+#' \dontrun{
 #' prepare()
+#' }
 #'
 #' @export
-prepare <- function(auto = TRUE, ...) {
-  if (auto) {
-    shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_auto_py"), ...)
-  } else {
-    shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_manual_py"), ...)
-  }
+prepare <- function(...) {
+  shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_auto_py"), ...)
 }
+# prepare <- function(auto = TRUE, ...) {
+#   if (auto) {
+#     shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_auto_py"), ...)
+#   } else {
+#     shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_manual_py"), ...)
+#   }
+# }
 
 
 #' @title Model Training
@@ -34,7 +39,9 @@ prepare <- function(auto = TRUE, ...) {
 #' @author Simon Garnier, \email{garnier@@njit.edu}
 #'
 #' @examples
+#' \dontrun{
 #' train()
+#' }
 #'
 #' @export
 train <- function(...) {
@@ -54,7 +61,9 @@ train <- function(...) {
 #' @author Simon Garnier, \email{garnier@@njit.edu}
 #'
 #' @examples
+#' \dontrun{
 #' track()
+#' }
 #'
 #' @export
 track <- function(...) {
@@ -74,7 +83,9 @@ track <- function(...) {
 #' @author Simon Garnier, \email{garnier@@njit.edu}
 #'
 #' @examples
+#' \dontrun{
 #' visualize()
+#' }
 #'
 #' @export
 visualize <- function(...) {

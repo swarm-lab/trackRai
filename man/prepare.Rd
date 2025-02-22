@@ -4,7 +4,7 @@
 \alias{prepare}
 \title{Dataset Preparation}
 \usage{
-prepare(auto = TRUE, ...)
+prepare(...)
 }
 \arguments{
 \item{...}{Parameters to be passed to \link[shiny]{runApp}.}
@@ -17,7 +17,9 @@ This function launches a Shiny app to help with the preparation
 of a training dataset for YOLO.
 }
 \examples{
+\dontrun{
 prepare()
+}
 
 }
 \author{
