@@ -77,34 +77,202 @@ you can click on it to navigate there.
 
 # 2.3 - Tab 2: background module
 
+Once the video is loaded in memory, the first step of the process is to load or 
+reconstruct the background over which the objects are moving. 
+
+If you already have an image of the background without the objects in it, you 
+can load it using the `Select existing background` button. If not, you can 
+attempt to reconstruct it by clicking on the `Automatically estimate background`
+button. 
+
 ![](../man/figures/prepare/2_background.jpg)
+
+If you choose to reconstruct the background, you can select one of the methods
+of reconstruction using the `Background type` dropwdown menu: 
+
++ "mean" uses the average value of each pixel as background
++ "median" uses the median value of each pixel as background 
++ "min" uses the minimum value of each pixel as background
++ "max" uses the maximum value of each pixel as background
+
+These statistics will be computed using several equally-spaced frames of the
+video. You can choose the number of frames used for this process with the 
+`Number of frames for estimating background` slider. More frames tend to yield a
+better result at the expense of a longer computation time. 
+
+If objects are still present in the reconstructed background image (for instance,
+because they did not move during the recording), you can attempt to remove them
+by clicking on the `Select ghost for removal` button. Once you have activated 
+the ghost removal mode, you can draw a polygon around the object to remove (just
+click around the object to create the corners of the polygon). Once you are done 
+drawing the polygon, hit the `return` key on your keyboard and the app will try
+to replace the object with its best estimate of the local background. 
+
+Finally, you can save the background picture for later use by clicking on the 
+`Save background file` button. 
+
+Once a background image is created/loaded, the third tab of the app will become 
+available and you can click on it to navigate there. 
+
+**Note:** the ghost removal mode is very basic and may not yield good results 
+with complex backgrounds. Another option is to save the background file with the
+ghosts and use a more advanced image editing software to remove them (for 
+instance, Photoshop's `Remove tool` can give much better results). 
 
 ---
 
 # 2.4 - Mask module
 
+The second step of the process is to load or create an optional mask. A mask can
+help restrict the area in which the app should look for objects and, therefore, 
+make the final results more accurate. By default, the whole image is taken into 
+account in the analyis.
+
+If you already have a mask image, you can load it using the `Select existing 
+mask` button. If not, you can create one as follows. 
+
+First, click on the `Exclude all` button to exclude the entirety of the image 
+from the analysis. Then, click on either the `Add polygon ROI` or `Add ellipse ROI` 
+buttons, making sure that the `Including` tick box is selected. 
+
+If you clicked the `Add polygon ROI` button, you will be able to draw a polygon
+that encloses the region of the image you would like to include in the analysis 
+(just click in the image to create the corners of the polygon). Once you are 
+done drawing the polygon, hit the `return` key on your keyboard to set the 
+region of interest. 
+
+If you clicked the `Add ellipse ROI` button, you will need to select five points
+that will define the periphery of the ellipse. 
+
 ![](../man/figures/prepare/3_mask.jpg)
 
 ![](../man/figures/prepare/4_mask.jpg)
+
+You can also define multiple regions of interests by incrementing the `ROI id` 
+counter before creating a new region. 
+
+You can create more complex masks by excluding parts of the image selectively if
+you tick the `Excluding` tick box. 
+
+Finally, you can save the mask picture for later use by clicking on the 
+`Save mask file` button. 
+
+Once a mask image is created/loaded, the fourth tab of the app will become 
+available and you can click on it to navigate there. 
 
 ---
 
 # 2.5 - Segmentation module
 
+The third step of the process is to determine a threshold that differentiate the
+objects from the background. In this tab, what you are seeing is the difference
+between a given frame of the video and the background image loaded/created 
+earlier. 
+
+By default, the app considers that the objects to detect appear darker than the 
+background in the video frames. If that is not the case, you can tick the 
+`Ligther` tick box if the objects appear lighter than the background in the 
+video frames, or the `A bit of both` tick box if the objects have parts that are
+darker than the background and others that are lighter. 
+
 ![](../man/figures/prepare/5_segmentation.jpg)
+
+You can then manually select a difference threshold by using the slider at the 
+bottom of the tab, or let the app decide for you by clicking the `Autothreshold`
+button and selecting one of the automatic threshold detection methods provided
+under the dropdown menu on the right of the button. 
+
+Once a threshold has been set, the fifth tab of the app will become available 
+and you can click on it to navigate there. 
 
 ---
 
 # 2.6 - Identification module
 
+The fourth step of the process is to isolate single instances of the objects in 
+the video frames. 
+
+First, you will need to set a buffer around each of the detected objects. The 
+buffer should be large enough so that each object is completely enclosed in its
+corresponding rectangle. Do not worry if several objects are enclosed in the 
+same rectangle; what matters is that enough single instances are clearly 
+separated from the others. You can navigate through the video to check whether 
+the selected buffer size works well in multiple frames. 
+
 ![](../man/figures/prepare/6_identification.jpg)
+
+Once the buffer size is set, you will click on the `Compute object stats` button
+and the app will compute the widths and heights of all the detected objects 
+across a given number of equally spaced frames in the video. You can choose the 
+number of frames to be used yourself; more frames will provide better statistics
+at the expense of longer computation time. Once the statistics are computed, 
+their distribution will be plotted in the sidebar. 
 
 ![](../man/figures/prepare/7_identification.jpg)
 
+By default, the app will attempt to determine the best statistics that 
+corresponds to single instances of the objects. The single instances detected 
+that way will appear as green rectangles in the video frame, the others will 
+appear as red/orange rectangles. You can navigate through the video to check 
+whether the selected statistic ranges work across the whole video. In particular,
+you should make sure that no selected instance contains more than one object. If
+that happens, you can untick the `Automatic object selection` tick box and 
+manually change the ranges to eliminate these instances. 
+
+Once the statistics have been set, the last tab of the app will become available 
+and you can click on it to navigate there. 
+
+**Note:** If you modify the buffer size after computing the object statistics,
+you will need to compute the object statistics again to take into account the 
+new buffer size. 
+
 ---
 
-# 2.3 - Composite module
+# 2.7 - Composite module
+
+The final step of the process is to generate the training dataset itself. This 
+will create composite images in which a set number of objects will be printed 
+over the background image, at random locations and orientations within the 
+boundary of the mask loaded/created earlier. This will also create the bounding
+boxes of the objects that YOLO needs to learn what the objects look like. 
+
+First, you will set the number of objects that will be included in each of the
+composite images. The number of objects should be high enough to result in a lot
+of random arrangements and overlaps so that YOLO can generalize better to 
+situations where objects touch or overlap in the real video frames. You can also 
+set a buffer zone to ensure that the printed objects do not overlap too much 
+with your mask boundaries. 
+
+Next, you can add random noise to the composite images in order to increase the 
+generalizability of the YOLO training. You can also add random gain and bias to 
+change the contrast and luminosity of the the composite images for ever more 
+generalizability. 
+
+To check the effect of each parameter on the resulting composite images, you can
+click on the `Generate test composite` button to generate one or more sample 
+composite images. 
+
+Once you are satisfied with the results, you can set the number of images that 
+will be used for training, validating, and testing the YOLO model that you will 
+train in a separate app. A recommend breakdown is to reserve 70% of the images 
+for training, and 15% for validating and testing, respectively. 
+
+You can then generate the training dataset by clicking on the `Generate YOLO dataset`
+button. This will bring up a file manager and you can select the location where
+you would like the dataset to be saved (a folder named `YOLO` will be created 
+at that location). Once the process terminates, you are done and you can close 
+the app. The next step will be 
+[training a YOLO model](https://swarm-lab.github.io/trackRai/articles/z3_train.html).  
 
 ![](../man/figures/prepare/8_composite.jpg)
+
+**Note:** When generating the training dataset, you can also ask the app to 
+create a reframed video by ticking the tick box at the bottom of the sidebar. 
+This will prepare a video file in which everything outside the mask will be 
+removed and the dimensions of the image will be set to optimize the video 
+processing done by YOLO during the tracking phase. This is completely optional 
+and will add some processing time, but performing the tracking on the reframed
+video can be up to twice as fast as on the original video, depending on the 
+number of objects to track. 
 
 ---
