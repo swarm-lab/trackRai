@@ -22,6 +22,7 @@ library(trackRai)
 library(data.table)
 library(plotly)
 library(processx)
+library(cli)
 
 
 #--------------------------------------------------------------

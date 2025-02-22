@@ -302,7 +302,7 @@ shiny::observeEvent(monitor_tick(), {
       if (length(stop) > 0) {
         model_folder <- paste0(
           yolo_path(), "/",
-          gsub("Results saved to ", "", ansi_strip(the_raw_progress()[stop]))
+          gsub("Results saved to ", "", cli::ansi_strip(the_raw_progress()[stop]))
         )
         the_model_folder(model_folder)
         shiny::showNotification(

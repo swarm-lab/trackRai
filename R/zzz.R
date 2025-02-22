@@ -1,4 +1,5 @@
 #' @importFrom autothresholdr auto_thresh
+#' @importFrom cli ansi_strip
 #' @importFrom data.table fread
 #' @importFrom pals alphabet
 #' @importFrom plotly plot_ly 
