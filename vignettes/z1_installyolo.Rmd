@@ -59,4 +59,10 @@ time if you want YOLO and its dependencies to be installed on your machine.
 Answering "No" may stop the installation process and `trackRai` may not be 
 usable. 
 
+**Note:** by default, install_yolo() will attempt to install Python 3.12.5 on 
+your system if it is not already present. If errors happen during the 
+installation of Python, or if you prefer installing another version, you can do
+so using the `python_version` parameter of install_yolo(). YOLO is currently 
+compatible with Python 3.8.0 to 3.12.8, so any of these versions should work.
+
 ---
