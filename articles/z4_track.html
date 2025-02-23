@@ -73,24 +73,118 @@
 
     
     
+<p>In this tutorial, we will discuss how to use the third app provided
+with <code>trackRai</code> to track objects in a video using a trained
+YOLO11 model, as explained in the <a href="https://swarm-lab.github.io/trackRai/articles/z3_train.html">previous
+tutorial</a>. While it recommended to train the model on a machine with
+an NVIDIA graphics card and the CUDA framework installed, tracking can
+be done with reasonable performance on machines without these
+specifications.</p>
+<hr>
 <div class="section level2">
 <h2 id="launch-the-tracking-app">4.1 - Launch the tracking app<a class="anchor" aria-label="anchor" href="#launch-the-tracking-app"></a>
 </h2>
+<p>To launch the tracking app, run the following in the R console:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/swarm-lab/trackRai" class="external-link">trackRai</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/track.html">track</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>This will open the app either in the viewer panel of RStudio and
+Positron, or in your default internet browser. You can control where the
+app is opened using the <code>launch.browser</code> parameter (see the
+documentation of shiny::runApp() for more information).</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="data-module">4.2 - Data module<a class="anchor" aria-label="anchor" href="#data-module"></a>
+<h2 id="tab-1-data-module">4.2 - Tab 1: data module<a class="anchor" aria-label="anchor" href="#tab-1-data-module"></a>
 </h2>
+<p>Once the app opens, you will be presented with the “Data” tab. First,
+you need to select a video by clicking the <code>Select video</code>
+button. You can also select an optional mask by clicking the
+<code>Select mask (optional)</code> button. This will load the video in
+the app and you can navigate it using the slider under the display
+panel. The slider has three handles:</p>
+<ul>
+<li>the green handle allows you to navigate through the video to display
+a frame of your choice;</li>
+<li>the two grey handles allow you to restrict the processing of the
+video to a range of frames in the video. This can be convenient when
+only a portion of the video is usable, for instance.</li>
+</ul>
+<p>Finally, you will need to select a trained YOLO dataset by clicking
+the <code>Select trained dataset</code> button and navigate to a folder
+containing a trained YOLO dataset (it should a folder named
+<code>YOLO</code>). Select this folder. If the folder contains multiple
+trained models, you can select the one of your choice using the dropdown
+menu at the bottom of the sidebar.</p>
 <p><img src="../reference/figures/track/1_data.jpg"></p>
+<p>Once the video and trained dataset are loaded in the app, the second
+tab of the app will become available and you can click on it to navigate
+there.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="tracking-module">4.3 - Tracking module<a class="anchor" aria-label="anchor" href="#tracking-module"></a>
+<h2 id="tab-2-tracking-module">4.3 - Tab 2: tracking module<a class="anchor" aria-label="anchor" href="#tab-2-tracking-module"></a>
 </h2>
+<p>In the second tab of the tracking app, you can set the parameters for
+the object detection and tracking. The detection parameters are used by
+YOLO to decide which parts of the image contains an object of interest.
+These parameters are:</p>
+<ul>
+<li>
+<strong>Maximum number of objects to detect:</strong> Maximum number
+of detections allowed per frame. Limits the total number of objects the
+model can detect in a single inference, preventing excessive outputs in
+dense scenes.</li>
+<li>
+<strong>Minimum confidence threshold:</strong> the minimum
+confidence threshold for detections. Objects detected with confidence
+below this threshold will be disregarded. Adjusting this value can help
+reduce false positives.</li>
+<li>
+<strong>Intersection over union threshold:</strong> threshold for
+non-maximum suppression. Lower values result in fewer detections by
+eliminating overlapping boxes, which can be useful for reducing
+duplicates.</li>
+</ul>
+<p>The effect of these parameters on the detection quality can be seen
+directly in display panel.</p>
 <p><img src="../reference/figures/track/2_tracking.jpg"></p>
+<p>The tracking parameters are used by YOLO to decide which object in a
+given frame corresponds to which object in the following frame. These
+parameters are:</p>
+<ul>
+<li>
+<strong>Association thresholds:</strong> The highest value is the
+threshold used for initial association of a detection with a track. If
+the detection’s score is above this threshold, it could be associated in
+the first round. The lowest value is the threshold used for secondary
+association. If a detection wasn’t associated in the first round and its
+score is higher than this, it might still be associated in a second
+round.</li>
+<li>
+<strong>New track threshold:</strong> This is the threshold used for
+starting a new track. If a detection doesn’t match any existing tracks
+and its score is above this threshold, a new track will be
+initialized.</li>
+<li>
+<strong>Old track buffer:</strong> This is the number of frames
+allowed to pass without receiving updates from a track before it will be
+removed. Higher values allow tracks to remain active longer without
+updates, which might help with intermittent detections but could
+increase the risk of tracking errors.</li>
+<li>
+<strong>Track matching threshold:</strong> This threshold is used
+for matching tracks between consecutive frames. Only tracks with a score
+above this threshold are considered for matching.</li>
+</ul>
+<p>You cannot directly observe the effect of this parameters in the
+display panel. However, you can run the tracking on a small portion of
+the video and use the <code>Show preview</code> mode to evaluate the
+quality of the resulting tracks.</p>
+<p>Once you are satisfied with the selected parameters, you can start
+the tracking by clicking the <code>Start tracking</code> button. If you
+would like to see a preview of the tracks while the tracking is running,
+tick the <code>Show preview</code> tick box.</p>
 <p><img src="../reference/figures/track/3_tracking.jpg"></p>
 <hr>
 </div>
