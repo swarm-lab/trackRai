@@ -112,9 +112,14 @@ However, you can run the tracking on a small portion of the video and use the
 `Show preview` mode to evaluate the quality of the resulting tracks. 
 
 Once you are satisfied with the selected parameters, you can start the tracking
-by clicking the `Start tracking` button. If you would like to see a preview of 
-the tracks while the tracking is running, tick the `Show preview` tick box. 
+by clicking the `Start tracking` button. It will open a file browser where you 
+can select where to save the results of the tracking. If you would like to see a 
+preview of the tracks while the tracking is running, tick the `Show preview` 
+tick box. 
 
 ![](../man/figures/track/3_tracking.jpg)
+
+Once the tracking has completed, you can visualize the results using the 
+[visualization app](https://swarm-lab.github.io/trackRai/articles/z5_visualize.html). 
 
 ---
