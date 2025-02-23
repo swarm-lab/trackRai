@@ -73,24 +73,93 @@
 
     
     
+<p>In this tutorial, we will discuss how to use the second app provided
+with <code>trackRai</code> to train a YOLO11 model using the dataset
+created in the <a href="https://swarm-lab.github.io/trackRai/articles/z2_prepare.html">previous
+tutorial</a>. The process is straightforward, however, it might take
+some time depending on the configuration of your system. A machine with
+an NVIDIA graphics card and the CUDA framework installed is highly
+recommended.</p>
+<hr>
 <div class="section level2">
 <h2 id="launch-the-training-app">3.1 - Launch the training app<a class="anchor" aria-label="anchor" href="#launch-the-training-app"></a>
 </h2>
+<p>To launch the training app, run the following in the R console:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/swarm-lab/trackRai" class="external-link">trackRai</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/train.html">train</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>This will open the app either in the viewer panel of RStudio and
+Positron, or in your default internet browser. You can control where the
+app is opened using the <code>launch.browser</code> parameter (see the
+documentation of shiny::runApp() for more information).</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="training-module">3.2 - Training module<a class="anchor" aria-label="anchor" href="#training-module"></a>
+<h2 id="tab-1-training-module">3.2 - Tab 1: training module<a class="anchor" aria-label="anchor" href="#tab-1-training-module"></a>
 </h2>
+<p>Once the app opens, you will be presented with the “Training” tab.
+Click on the <code>Select training dataset</code> button and navigate to
+a folder containing a YOLO dataset (it should a folder named
+<code>YOLO</code>). Select this folder.</p>
+<p>Then, select a model size. Smaller models take less time and memory
+to train, larger models may yield better results for complex
+arrangements of objects. We find that the smaller (“nano”) model size
+does a really good job in most situations.</p>
+<p>Finally, you can set the maximum number of training epochs you would
+like to run and the “patience” of the training process. This last
+paramater allows the training to stop automatically if the training
+performance does not improve after a set number of epochs. This helps
+prevent overfitting by stopping training when performance plateaus; it
+also saves computing time. If you do not want training to stop early,
+set the patience to the maximum number of epochs.</p>
 <p><img src="../reference/figures/train/1_training.jpg"></p>
+<p>After setting all the training parameters, click the
+<code>Start training</code> button and wait until it completes.
+Performance metrics will be displayed in the graph on the left of the
+window, and in the log panel below the graph.</p>
+<p>Once the training has completed successfully, the second tab of the
+app will become available and you can click on it to navigate there.</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="checking-module">3.3 - Checking module<a class="anchor" aria-label="anchor" href="#checking-module"></a>
+<h2 id="tab-2-checking-module">3.3 - Tab 2: checking module<a class="anchor" aria-label="anchor" href="#tab-2-checking-module"></a>
 </h2>
+<p>In the second tab of the training app, you can check the quality of
+the training and the effect of the inference paramaters on the detection
+of the objects of interest in a video.</p>
+<p>First, you need to select a video by clicking the
+<code>Select video</code> button. You can also select an optional mask
+by clicking the <code>Select mask (optional)</code> button. This will
+load the video in the app and you can navigate it using the slider under
+the display panel. Detected objects will be automatically enclosed in a
+green rectangle.</p>
 <p><img src="../reference/figures/train/2_checking.jpg"></p>
+<p>You can check the effect of the following paramters on the quality of
+the object detection:</p>
+<ul>
+<li>
+<strong>Minimum confidence threshold:</strong> the minimum
+confidence threshold for detections. Objects detected with confidence
+below this threshold will be disregarded. Adjusting this value can help
+reduce false positives.</li>
+<li>
+<strong>Intersection over union threshold:</strong> threshold for
+non-maximum suppression. Lower values result in fewer detections by
+eliminating overlapping boxes, which can be useful for reducing
+duplicates.</li>
+<li>
+<strong>Maximum number of objects to detect:</strong> Maximum number
+of detections allowed per frame. Limits the total number of objects the
+model can detect in a single inference, preventing excessive outputs in
+dense scenes.</li>
+</ul>
+<p>If you are not satisfied with the detection results, you can return
+to the first tab and increase the number of training epochs and the
+patience of the training, or select a larger model size, before running
+another round of training.</p>
+<p>If you are satisfied with the results, you are done and you can close
+the app. The next step will be using the trained model to <a href="https://swarm-lab.github.io/trackRai/articles/z4_track.html">track
+objects in a video</a>.</p>
 <hr>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
