@@ -32,7 +32,7 @@ toggled_tabs <- data.frame(
 )
 
 # Video
-the_video <- shiny::reactiveVal()
+the_video <- NULL
 refresh_video <- shiny::reactiveVal(0)
 refresh_frame <- shiny::reactiveVal(0)
 the_frame <- NULL

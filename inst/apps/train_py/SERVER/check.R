@@ -2,7 +2,6 @@
 output$display_frame <- shiny::renderUI({
   if (refresh_frame() > 0) {
     if (trackRai::is_image(the_frame)) {
-      # shiny::showNotification("Computing check image", id = "check", duration = NULL)
       to_display <<- cv2$multiply(the_frame, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))
 
       pred <- the_model()(
@@ -29,8 +28,6 @@ output$display_frame <- shiny::renderUI({
           as.integer(max(0.5, sc))
         )
       }
-
-      # shiny::removeNotification("check")
 
       shiny::tags$img(
         src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
@@ -65,23 +62,15 @@ output$display_frame <- shiny::renderUI({
 
 # Status
 output$video_status <- shiny::renderUI({
-  if (refresh_frame() > -1 & !trackRai::is_video_capture(the_video())) {
+  if (refresh_frame() > -1 & !trackRai::is_video_capture(the_video)) {
     p("Video missing (and required).", class = "bad")
-  } else if (!trackRai::is_video_capture(the_video())) {
+  } else if (!trackRai::is_video_capture(the_video)) {
     p("Incompatible videos.", class = "bad")
   }
 })
 
 
 # UI
-shiny::observeEvent(the_video(), {
-  if (trackRai::is_video_capture(the_video())) {
-    shiny::updateSliderInput(session, "frame_x", min = 1, max = trackRai::n_frames(the_video()), value = 1)
-  } else {
-    shiny::updateSliderInput(session, "frame_x", min = 0, max = 1, value = 0)
-  }
-})
-
 
 # Load video
 shinyFiles::shinyFileChoose(input, "video_file_x",
@@ -114,7 +103,6 @@ shiny::observeEvent(video_path(), {
   if (length(volume) > 0) {
     dir <- dirname(video_path())
     default_root(names(volumes)[ix])
-    # default_path(gsub(volume, "", dir))
     default_path(gsub(paste0(".*", volume), "", dir))
   }
 })
@@ -124,7 +112,7 @@ shiny::observeEvent(video_path(), {
 
   if (reticulate::py_to_r(to_check$isOpened())) {
     if (!is.na(trackRai::n_frames(to_check))) {
-      the_video(to_check)
+      the_video <<- to_check
       the_frame <<- to_check$read()[1]
 
       if (!trackRai::is_image(the_mask)) {
@@ -196,7 +184,6 @@ shiny::observeEvent(refresh_mask(), {
       volume <- volumes[ix]
       dir <- dirname(mask_path())
       default_root(names(volumes)[ix])
-      # default_path(gsub(volume, "", dir))
       default_path(gsub(paste0(".*", volume), "", dir))
 
       refresh_frame(refresh_frame() + 1)
@@ -214,9 +201,9 @@ shiny::observeEvent(the_model_folder(), {
   }
 })
 
-shiny::observeEvent(input$frame_x, {
-  if (trackRai::is_video_capture(the_video())) {
-    the_frame <<- trackRai::read_frame(the_video(), input$frame_x)
+shiny::observeEvent(input$video_controls, {
+  if (trackRai::is_video_capture(the_video)) {
+    the_frame <<- trackRai::read_frame(the_video, input$video_controls[1])
     refresh_frame(refresh_frame() + 1)
   }
 })

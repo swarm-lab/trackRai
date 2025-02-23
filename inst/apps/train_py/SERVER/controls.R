@@ -5,7 +5,7 @@ output$control_panel <- shiny::renderUI({
       id = "controls",
       style = "width: 90%; margin: 0 auto; padding-bottom: 0px;",
       shinyWidgets::noUiSliderInput(
-        "video_controls", NULL, 0, 0, c(0, 0, 0),
+        "video_controls", NULL, 0, 0, c(0),
         step = 1,
         width = "100%",
         color = "#2b4e8d",
@@ -19,7 +19,7 @@ output$control_panel <- shiny::renderUI({
 
 shiny::observeEvent(refresh_video(), {
   test_1 <- refresh_video() > 0
-  test_2 <- input$main %in% c("1", "4", "5")
+  test_2 <- input$main %in% c("2")
   test_3 <- trackRai::is_video_capture(the_video)
 
   if (test_1 & test_2 & test_3) {
@@ -36,41 +36,18 @@ shiny::observeEvent(refresh_video(), {
   test_2 <- trackRai::is_video_capture(the_video)
 
   if (test_1 & test_2) {
-    min_val <- 1
-    max_val <- trackRai::n_frames(the_video)
     val <- 1
-    video_range <<- c(1, trackRai::n_frames(the_video))
 
     shinyWidgets::updateNoUiSliderInput(
       session, "video_controls",
       range = c(1, trackRai::n_frames(the_video)),
-      value = c(min_val, val, max_val)
+      value = c(val)
     )
   } else {
     shinyWidgets::updateNoUiSliderInput(
       session, "video_controls",
       range = c(0, 0),
-      value = c(0, 0, 0)
-    )
-  }
-})
-
-shiny::observeEvent(input$video_controls, {
-  if (input$video_controls[1] != video_range[1]) {
-    new_values <- input$video_controls
-    # new_values[2] <- new_values[1]
-    video_range[1] <<- new_values[1]
-    shinyWidgets::updateNoUiSliderInput(
-      session, "video_controls",
-      value = new_values
-    )
-  } else if (input$video_controls[3] != video_range[2]) {
-    new_values <- input$video_controls
-    # new_values[2] <- new_values[3]
-    video_range[2] <<- new_values[3]
-    shinyWidgets::updateNoUiSliderInput(
-      session, "video_controls",
-      value = new_values
+      value = c(0)
     )
   }
 })

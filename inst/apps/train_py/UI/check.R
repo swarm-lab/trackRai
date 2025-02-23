@@ -12,8 +12,6 @@ shinyWidgets::verticalTabPanel(
     "Please select an optional mask file", FALSE, class = "fullWidth"
   ),
   shiny::hr(),
-  shiny::sliderInput("frame_x", "Frame", 0, 1, 0, 1),
-  shiny::hr(),
   shiny::sliderInput(
     "conf_x", "Minimum confidence threshold:",
     0, 1, 0.25, 0.01, width = "100%"

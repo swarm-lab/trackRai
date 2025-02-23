@@ -73,6 +73,7 @@ server <- function(input, output, session) {
   source("SERVER/global.R", local = TRUE)
   source("SERVER/train.R", local = TRUE)
   source("SERVER/check.R", local = TRUE)
+  source("SERVER/controls.R", local = TRUE)
   session$onSessionEnded(function() {
     if (!is.null(yolo_proc)) {
       yolo_proc$kill_tree()

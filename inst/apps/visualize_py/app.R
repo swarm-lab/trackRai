@@ -42,7 +42,6 @@ ui <- function(request) {
     shiny::div(
       style = "width: 100%;",
       shiny::div(
-
         class = "vrtc-tab-panel-container display-panel",
         shiny::uiOutput("display"),
         source("UI/controls.R", local = TRUE)$value
@@ -54,7 +53,7 @@ ui <- function(request) {
           contentWidth = 11,
           menuSide = "right",
           selected = "1",
-          source("UI/visualize.R", local = TRUE)$value # ,
+          source("UI/visualize.R", local = TRUE)$value
         )
       )
     )
