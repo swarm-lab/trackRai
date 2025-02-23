@@ -17,6 +17,8 @@ shinyWidgets::verticalTabPanel(
   shiny::hr(),
   shiny::numericInput("epochs_x", "Set the number of training epochs", 100, 1, NA, 1, "100%"),
   shiny::hr(),
+  shiny::numericInput("patience_x", "Set the training patience", 100, 1, NA, 1, "100%"),
+  shiny::hr(),
   shiny::htmlOutput("nvidia_status"),
   shiny::uiOutput("start_stop"),
   shiny::hr()

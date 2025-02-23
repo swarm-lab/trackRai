@@ -200,6 +200,7 @@ shiny::observeEvent(input$start_train_x, {
       the_temp_file <<- tempfile(fileext = ".txt")
       model <- paste0("yolo11", input$yolo_x, "-obb.pt")
       epochs <- input$epochs_x
+      patience <- input$patience_x
       if (n_gpus > 1) {
         yolo_proc <<- processx::process$new(
           trackRai:::.yolo_path(),
@@ -209,6 +210,7 @@ shiny::observeEvent(input$start_train_x, {
             "data=dataset.yaml",
             paste0("model=", model),
             paste0("epochs=", epochs),
+            paste0("patience=", patience),
             paste0("imgsz=", imgsz),
             "batch=8",
             "single_cls=True",
@@ -227,6 +229,7 @@ shiny::observeEvent(input$start_train_x, {
             "data=dataset.yaml",
             paste0("model=", model),
             paste0("epochs=", epochs),
+            paste0("patience=", patience),
             paste0("imgsz=", imgsz),
             "batch=-1",
             "single_cls=True",
@@ -245,6 +248,7 @@ shiny::observeEvent(input$start_train_x, {
             "data=dataset.yaml",
             paste0("model=", model),
             paste0("epochs=", epochs),
+            paste0("patience=", patience),
             paste0("imgsz=", imgsz),
             "batch=-1",
             "single_cls=True"
@@ -257,6 +261,7 @@ shiny::observeEvent(input$start_train_x, {
 
       monitor_progress(TRUE)
       shinyjs::disable("epochs_x")
+      shinyjs::disable("patience_x")
       shinyjs::disable("dataset_x")
     }
   }
@@ -265,6 +270,7 @@ shiny::observeEvent(input$start_train_x, {
 shiny::observeEvent(input$stop_train_x, {
   monitor_progress(FALSE)
   shinyjs::enable("epochs_x")
+  shinyjs::enable("patience_x")
   shinyjs::enable("dataset_x")
   yolo_proc$kill_tree()
 })
