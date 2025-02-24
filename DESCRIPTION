@@ -3,7 +3,9 @@ Title: Multi-Object Tracking With YOLO11
 Version: 0.0.0.9000
 Authors@R: 
     person("Simon", "Garnier", , "garnier@njit.edu", role = c("aut", "cre"),
-           comment = c(ORCID = "0000-0002-3886-3974"))
+        comment = c(ORCID = "0000-0002-3886-3974")),
+    person("National Science Foundation, Award ID 2222418", role = c("fnd"),
+        comment = c())
 Description: trackRai is a YOLO-based multi-object tracking software for R. It 
  provides a series of Shiny apps for automating the preparation and training of 
  YOLO11 models, for performing the tracking of multiple objects in a video, and 
