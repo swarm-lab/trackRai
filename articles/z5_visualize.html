@@ -73,18 +73,50 @@
 
     
     
+<p>In this tutorial, we will discuss how to use the fourth app provided
+with <code>trackRai</code> to visualize the output of the tracking app,
+as explained in the <a href="https://swarm-lab.github.io/trackRai/articles/z4_track.html">previous
+tutorial</a>.</p>
+<hr>
 <div class="section level2">
 <h2 id="launch-the-visualization-app">5.1 - Launch the visualization app<a class="anchor" aria-label="anchor" href="#launch-the-visualization-app"></a>
 </h2>
+<p>To launch the visualization app, run the following in the R
+console:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/swarm-lab/trackRai" class="external-link">trackRai</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/visualize.html">visualize</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p>This will open the app either in the viewer panel of RStudio and
+Positron, or in your default internet browser. You can control where the
+app is opened using the <code>launch.browser</code> parameter (see the
+documentation of shiny::runApp() for more information).</p>
 <hr>
 </div>
 <div class="section level2">
-<h2 id="data-module">5.2 - Data module<a class="anchor" aria-label="anchor" href="#data-module"></a>
+<h2 id="tab-1-visualization-module">5.2 - Tab 1: visualization module<a class="anchor" aria-label="anchor" href="#tab-1-visualization-module"></a>
 </h2>
+<p>Once the app opens, you will be presented with the “Visualization”
+tab. First, you need to select a video by clicking the
+<code>Select video</code> button. You will also select a CSV file
+containing the tracks obtained using the tracking app by clicking the
+<code>Select tracks</code> button. These steps will load the video and
+tracks in the app. You can navigate through the video using the slider
+under the display panel. The slider has three handles:</p>
+<ul>
+<li>the green handle allows you to navigate through the video to display
+a frame of your choice;</li>
+<li>the two grey handles allow you to restrict the processing of the
+video to a range of frames in the video. This can be convenient when
+only a portion of the video is usable, for instance.</li>
+</ul>
 <p><img src="../reference/figures/visualize/1_visualization.jpg"></p>
+<p>You can adjust the width of the border of the rectangle enclosing
+each track object. You also adjust the length (in frames) of the track
+left behind each moving object.</p>
+<p>Finally, you can export a video showing the rectangles and tracks by
+clicking the <code>Export video with tracks</code> button. This will
+bring up a file browser where you can select where to save the
+video.</p>
 <hr>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
