@@ -57,7 +57,8 @@ install_yolo()
 The installer will prompt you with a series of questions. Answer "Yes" every 
 time if you want YOLO and its dependencies to be installed on your machine. 
 Answering "No" may stop the installation process and `trackRai` may not be 
-usable. 
+usable. You may also need to restart your R session before being able to use the
+apps provided with `trackRai`. 
 
 **Note:** by default, install_yolo() will attempt to install Python 3.12.5 on 
 your system if it is not already present. If errors happen during the 

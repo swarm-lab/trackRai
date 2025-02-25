@@ -19,8 +19,8 @@ shiny::observeEvent(refresh_display(), {
 
       sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
       r <- 0.01 * min(trackRai::n_row(to_display), trackRai::n_col(to_display))
-      font_scale <- as.integer(sc)
-      font_thickness <- as.integer(max(1, 1.5 * sc))
+      font_scale <- as.integer(max(1, round(sc)))
+      font_thickness <- as.integer(max(2, round(1.5 * sc)))
 
       k1 <- cv2$getStructuringElement(cv2$MORPH_CROSS, c(5L, 5L))
       k2 <- cv2$getStructuringElement(
@@ -151,7 +151,6 @@ shiny::observeEvent(refresh_mask(), {
       volume <- volumes[ix]
       dir <- dirname(mask_path())
       default_root(names(volumes)[ix])
-      # default_path(gsub(volume, "", dir))
       default_path(gsub(paste0(".*", volume), "", dir))
 
       refresh_display(refresh_display() + 1)

@@ -22,5 +22,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Simon Garnier \email{garnier@njit.edu} (\href{https://orcid.org/0000-0002-3886-3974}{ORCID})
 
+Other contributors:
+\itemize{
+  \item National Science Foundation, Award ID 2222418 [funder]
+}
+
 }
 \keyword{internal}
