@@ -51,6 +51,7 @@ shiny::observeEvent(refresh_display(), {
     )
 
     bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
+    bw <- cv2$medianBlur(bw, 3L)
     bw <- cv2$dilate(bw, k)
 
     cc <- cv2$connectedComponentsWithStats(bw)
@@ -173,6 +174,7 @@ shiny::observeEvent(input$computeStats_x, {
       )
 
       bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
+      bw <- cv2$medianBlur(bw, 3L)
       bw <- cv2$dilate(bw, k)
 
       cc <- cv2$connectedComponentsWithStats(bw)
