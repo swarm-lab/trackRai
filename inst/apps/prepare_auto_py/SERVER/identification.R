@@ -41,7 +41,13 @@ shiny::observeEvent(refresh_display(), {
 
     dif <- cv2$multiply(dif, mask)
     dif_gray <- cv2$cvtColor(dif, cv2$COLOR_BGR2GRAY)
-
+    bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
+    k <- np$ones(c(3L, 3L), dtype = np$uint8)
+    k[1, 1] <- 0L
+    neighbors <- cv2$filter2D(bw, -1L, k)
+    bw <- np$where((bw == 255) & (neighbors > 0), 255, 0)$astype(np$uint8)
+    # bw <- cv2$medianBlur(bw, 3L)
+    bw <- cv2$Canny(bw, 100, 200)
     k <- cv2$getStructuringElement(
       cv2$MORPH_RECT,
       as.integer(c(
@@ -49,9 +55,6 @@ shiny::observeEvent(refresh_display(), {
         input$shapeBuffer_x * 2
       )) + 1L
     )
-
-    bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
-    bw <- cv2$medianBlur(bw, 3L)
     bw <- cv2$dilate(bw, k)
 
     cc <- cv2$connectedComponentsWithStats(bw)
@@ -164,7 +167,13 @@ shiny::observeEvent(input$computeStats_x, {
 
       dif <- cv2$multiply(dif, mask)
       dif_gray <- cv2$cvtColor(dif, cv2$COLOR_BGR2GRAY)
-
+      bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
+      k <- np$ones(c(3L, 3L), dtype = np$uint8)
+      k[1, 1] <- 0L
+      neighbors <- cv2$filter2D(bw, -1L, k)
+      bw <- np$where((bw == 255) & (neighbors > 0), 255, 0)$astype(np$uint8)
+      # bw <- cv2$medianBlur(bw, 3L)
+      bw <- cv2$Canny(bw, 100, 200)
       k <- cv2$getStructuringElement(
         cv2$MORPH_RECT,
         as.integer(c(
@@ -172,9 +181,6 @@ shiny::observeEvent(input$computeStats_x, {
           input$shapeBuffer_x * 2
         )) + 1L
       )
-
-      bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
-      bw <- cv2$medianBlur(bw, 3L)
       bw <- cv2$dilate(bw, k)
 
       cc <- cv2$connectedComponentsWithStats(bw)
