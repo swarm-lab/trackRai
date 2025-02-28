@@ -194,7 +194,8 @@ shiny::observeEvent(yolo_path(), {
       w <- diff(range(roi[, 1])) + 1
       h <- diff(range(roi[, 2])) + 1
 
-      sub <- cv2$multiply(the_background, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))[y:(y + h), x:(x + w)]
+      # sub <- cv2$multiply(the_background, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))[y:(y + h), x:(x + w)]
+      sub <- the_background[y:(y + h), x:(x + w)]
 
       top <- ceiling((ceiling(h / 32) * 32 - h) / 2)
       bottom <- floor((ceiling(h / 32) * 32 - h) / 2)
@@ -245,7 +246,7 @@ shiny::observeEvent(yolo_path(), {
             sub, as.integer(top), as.integer(bottom),
             as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
           )
-          prepped <- cv2$multiply(prepped, prepped_mask)
+          # prepped <- cv2$multiply(prepped, prepped_mask)
           vw$write(prepped)
   
           new_check <- floor(100 * i / n)
