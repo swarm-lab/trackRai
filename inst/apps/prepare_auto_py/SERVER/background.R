@@ -116,8 +116,8 @@ shiny::observeEvent(input$computeBackground_x, {
       trackRai::backgrounder(the_video,
         n = input$backroundImages_x,
         method = input$backgroundType_x,
-        start = input$rangePos_x[1],
-        end = input$rangePos_x[2]
+        start = input$video_controls[1],
+        end = input$video_controls[3]
       )
     )
 
