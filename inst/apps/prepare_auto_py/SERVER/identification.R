@@ -14,6 +14,24 @@ shiny::observeEvent(input$rangeHeight_x, {
 })
 
 shiny::observeEvent(input$shapeBuffer_x, {
+  the_stats(NULL)
+  shinyWidgets::updateNumericRangeInput(session, "rangeWidth_x",
+    value = c(0, 0)
+  )
+  shinyWidgets::updateNumericRangeInput(session, "rangeHeight_x",
+    value = c(0, 0)
+  )
+  refresh_display(refresh_display() + 1)
+})
+
+shiny::observeEvent(input$nIDFrames_x, {
+  the_stats(NULL)
+  shinyWidgets::updateNumericRangeInput(session, "rangeWidth_x",
+    value = c(0, 0)
+  )
+  shinyWidgets::updateNumericRangeInput(session, "rangeHeight_x",
+    value = c(0, 0)
+  )
   refresh_display(refresh_display() + 1)
 })
 
@@ -286,3 +304,19 @@ output$stats <- plotly::renderPlotly(
       plotly::config(displayModeBar = FALSE)
   }
 )
+
+output$blob_stats <- shiny::renderUI({
+  if (!is.null(the_stats())) {
+    dt <- the_stats()
+    rw <- input$rangeWidth_x
+    rh <- input$rangeHeight_x
+    dt[, select := (width >= rw[1]) & (width <= rw[2]) &
+      (height >= rh[1]) & (height <= rh[2])]
+
+    shiny::tagList(
+      shiny::hr(),
+      shiny::p("Number of detected objects: ", shiny::strong(nrow(dt))),
+      shiny::p("Number of selected objects: ", shiny::strong(sum(dt$select)))
+    )
+  }
+})

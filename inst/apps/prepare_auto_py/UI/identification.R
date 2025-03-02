@@ -28,6 +28,7 @@ shinyjs::disabled(
     ),
     shiny::hr(),
     plotly::plotlyOutput("stats", width = "308px", height = "308px"),
+    shiny::htmlOutput("blob_stats"),
     shiny::hr(),
     shiny::div(
       style = "text-align: center;",
@@ -35,11 +36,11 @@ shinyjs::disabled(
     ),
     shinyWidgets::numericRangeInput("rangeWidth_x", "Width range",
       width = "100%", min = 0, max = NA,
-      value = c(0, 1), step = 1
+      value = c(0, 0), step = 1
     ),
     shinyWidgets::numericRangeInput("rangeHeight_x", "Height range",
       width = "100%", min = 0, max = NA,
-      value = c(0, 1), step = 1
+      value = c(0, 0), step = 1
     ),
     shiny::hr()
   )
