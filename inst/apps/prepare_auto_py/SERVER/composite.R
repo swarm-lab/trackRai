@@ -42,6 +42,7 @@ shiny::observeEvent(input$test_composite_x, {
     roi <- cbind(reticulate::py_to_r(nz[, , 0]), trackRai::n_row(mask) - reticulate::py_to_r(nz[, , 1]))
 
     the_composite <<- the_background$copy()
+
     stamp <- reticulate::np_array(
       array(0L, c(trackRai::n_row(the_composite), trackRai::n_col(the_composite), 3)),
       dtype = "uint8"
@@ -96,6 +97,9 @@ shiny::observeEvent(input$test_composite_x, {
         sub, as.integer(top), as.integer(bottom),
         as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
       )
+      if (input$dark_button_x != "Darker") {
+        stamp <- cv2$bitwise_not(stamp)
+      }
       the_composite <<- cv2$subtract(the_composite, stamp)
 
       nz <- cv2$findNonZero(cv2$cvtColor(submask, cv2$COLOR_BGR2GRAY))
