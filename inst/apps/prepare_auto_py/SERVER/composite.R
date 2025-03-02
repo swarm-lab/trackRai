@@ -97,10 +97,11 @@ shiny::observeEvent(input$test_composite_x, {
         sub, as.integer(top), as.integer(bottom),
         as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
       )
-      if (input$dark_button_x != "Darker") {
-        stamp <- cv2$bitwise_not(stamp)
+      if (input$dark_button_x == "Darker") {
+        the_composite <<- cv2$subtract(the_composite, stamp)
+      } else {
+        the_composite <<- cv2$add(the_composite, stamp)
       }
-      the_composite <<- cv2$subtract(the_composite, stamp)
 
       nz <- cv2$findNonZero(cv2$cvtColor(submask, cv2$COLOR_BGR2GRAY))
       ell <- cv2$fitEllipse(nz)
@@ -370,7 +371,11 @@ shiny::observeEvent(yolo_path(), {
               sub, as.integer(top), as.integer(bottom),
               as.integer(left), as.integer(right), cv2$BORDER_CONSTANT, NULL, 0L
             )
-            composite <- cv2$subtract(composite, stamp)
+            if (input$dark_button_x == "Darker") {
+              composite <- cv2$subtract(composite, stamp)
+            } else {
+              composite <- cv2$add(composite, stamp)
+            }
 
             nz <- cv2$findNonZero(cv2$cvtColor(submask, cv2$COLOR_BGR2GRAY))
             ell <- cv2$fitEllipse(nz)
