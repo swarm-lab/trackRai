@@ -198,6 +198,10 @@ hr.hr-text:after {
   background-color: #c8c8c8 !important;
 }
 
+#id_controls > div.noUi-base > div.noUi-origin > div {
+  background-color: #66A61E !important;
+}
+
 .noUi-horizontal .noUi-handle {
   height: 20px !important;
 }

@@ -10,7 +10,7 @@ shinyjs::disabled(
       shiny::tags$tr(
         shiny::tags$td(
           shiny::actionButton(
-            "computeStats_x", "Compute object stats",
+            "computeStats_x", "Detect objects",
             width = "100%"
           ),
           style = "width: 54%; vertical-align: top; padding: 0px;"
@@ -20,7 +20,7 @@ shinyjs::disabled(
           shinyWidgets::autonumericInput(
             "nIDFrames_x", NULL, 100, "100%",
             decimalPlaces = 0, currencySymbol = " frames", currencySymbolPlacement = "s",
-            minimumValue = 1
+            minimumValue = 1, wheelStep = 1
           ),
           style = "width: 36%; padding-top: 0px; "
         )

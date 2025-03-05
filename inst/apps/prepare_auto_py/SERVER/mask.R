@@ -1,9 +1,9 @@
 # Display
 shiny::observeEvent(refresh_display(), {
   if (input$main == "3") {
-    if (!trackRai::is_image(the_mask) & trackRai::is_image(the_image)) {
+    if (!trackRai::is_image(the_mask) & trackRai::is_image(the_background)) {
       the_mask <<- reticulate::np_array(
-        array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
+        array(1L, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 3)),
         dtype = "uint8"
       )
     }
@@ -13,9 +13,9 @@ shiny::observeEvent(refresh_display(), {
       green <- gray$copy()
       green[green > 0] <- 255L
       red <- cv2$bitwise_not(green)
-      blue <- np_array(array(0, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 1)), "uint8")
+      blue <- np_array(array(0, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 1)), "uint8")
 
-      to_display <<- cv2$addWeighted(cv2$merge(c(blue, green, red)), 0.25, the_image, 0.75, 0.0)
+      to_display <<- cv2$addWeighted(cv2$merge(c(blue, green, red)), 0.25, the_background, 0.75, 0.0)
 
       sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
       r <- 0.01 * min(trackRai::n_row(to_display), trackRai::n_col(to_display))
@@ -125,7 +125,7 @@ shiny::observeEvent(refresh_mask(), {
     to_check <- cv2$imread(mask_path())
 
     if (trackRai::is_image(to_check)) {
-      if (!all(unlist(reticulate::py_to_r(to_check$shape)) == unlist(reticulate::py_to_r(the_image$shape)))) {
+      if (!all(unlist(reticulate::py_to_r(to_check$shape)) == unlist(reticulate::py_to_r(the_background$shape)))) {
         shinyalert::shinyalert("Error:",
           "The video and mask do not have the same dimensions.",
           type = "error", animation = FALSE,
@@ -264,7 +264,7 @@ shiny::observeEvent(input$incButton_x, {
 shiny::observeEvent(input$includeAll_x, {
   if (trackRai::is_image(the_mask)) {
     the_mask <<- reticulate::np_array(
-      array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
+      array(1L, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 3)),
       dtype = "uint8"
     )
     refresh_display(refresh_display() + 1)
@@ -274,7 +274,7 @@ shiny::observeEvent(input$includeAll_x, {
 shiny::observeEvent(input$excludeAll_x, {
   if (trackRai::is_image(the_mask)) {
     the_mask <<- reticulate::np_array(
-      array(0L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
+      array(0L, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 3)),
       dtype = "uint8"
     )
     refresh_display(refresh_display() + 1)

@@ -160,7 +160,7 @@ shinyjs::onevent("click", "display_img", function(props) {
     }
 
     refresh_display(refresh_display() + 1)
-  }
+  } 
 })
 
 shiny::observeEvent(input$retKey, {

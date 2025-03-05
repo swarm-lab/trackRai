@@ -22,10 +22,11 @@ shiny::observeEvent(input$test_composite_x, {
     )
 
     dt <- the_stats()
-    rw <- input$rangeWidth_x
-    rh <- input$rangeHeight_x
-    dt[, select := (width >= rw[1]) & (width <= rw[2]) &
-      (height >= rh[1]) & (height <= rh[2])]
+    # rw <- input$rangeWidth_x
+    # rh <- input$rangeHeight_x
+    # dt[, select := (width >= rw[1]) & (width <= rw[2]) &
+    #   (height >= rh[1]) & (height <= rh[2])]
+    dt[, select := (select_h & select_w & mod != 2) | (mod == 1)]
 
     mask <- cv2$cvtColor(the_mask, cv2$COLOR_BGR2GRAY)
     tmp <- cv2$copyMakeBorder(mask, 1L, 1L, 1L, 1L, cv2$BORDER_CONSTANT, NULL, 0L)
@@ -284,10 +285,11 @@ shiny::observeEvent(yolo_path(), {
       dir.create(paste0(yolo_path(), "/YOLO/images"))
 
       dt <- the_stats()
-      rw <- input$rangeWidth_x
-      rh <- input$rangeHeight_x
-      dt[, select := (width >= rw[1]) & (width <= rw[2]) &
-        (height >= rh[1]) & (height <= rh[2])]
+      # rw <- input$rangeWidth_x
+      # rh <- input$rangeHeight_x
+      # dt[, select := (width >= rw[1]) & (width <= rw[2]) &
+      #   (height >= rh[1]) & (height <= rh[2])]
+      dt[, select := (select_h & select_w & mod != 2) | (mod == 1)]
 
       tmp <- cv2$cvtColor(prepped_mask, cv2$COLOR_BGR2GRAY)
       k <- cv2$getStructuringElement(

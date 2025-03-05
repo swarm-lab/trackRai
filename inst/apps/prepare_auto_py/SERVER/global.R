@@ -55,6 +55,7 @@ stop_mask_collection <- shiny::reactiveVal(0)
 mask_coords <- NULL
 
 # Objects
+id_frames <- shiny::reactiveVal()
 the_stats <- shiny::reactiveVal()
 refresh_stats <- shiny::reactiveVal(0)
 the_subs <- list()

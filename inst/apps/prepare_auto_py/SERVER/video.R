@@ -126,6 +126,22 @@ shiny::observeEvent(input$video_controls, {
   }
 })
 
+shiny::observeEvent(input$id_controls, {
+  if (trackRai::is_video_capture(the_video)) {
+    the_frame(id_frames()[input$id_controls[1]])
+  }
+})
+
+shiny::observeEvent(input$main, {
+  if (trackRai::is_video_capture(the_video)) {
+    if (input$main %in% c("1", "4")) {
+      the_frame(input$video_controls[2])
+    } else if (input$main %in% c("5") & input$id_controls[1] > 0) {
+      the_frame(id_frames()[input$id_controls[1]])
+    }
+  }
+})
+
 shiny::observeEvent(the_frame(), {
   if (!is.null(the_frame())) {
     the_image <<- trackRai::read_frame(the_video, the_frame())
