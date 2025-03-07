@@ -160,7 +160,40 @@ shinyjs::onevent("click", "display_img", function(props) {
     }
 
     refresh_display(refresh_display() + 1)
-  } 
+  } else if (input$main == "5" & !is.null(the_stats())) {
+    px <- trackRai::n_col(to_display) * (props$offsetX / input$display_img_width)
+    py <- trackRai::n_row(to_display) * (props$offsetY / input$display_img_height)
+
+    dt <- the_stats()
+    in_rect <- dt[frame == the_frame(),
+      .(test = .point_in_rectangle(px, py, unlist(.SD))),
+      by = .I, .SDcols = c("x", "y", "width", "height", "angle")
+    ]
+
+    if (any(in_rect$test)) {
+      ix <- which(in_rect$test)
+
+      for (i in ix) {
+        mod <- dt[frame == the_frame()]$mod[i]
+        if (mod == 0) {
+          if (dt[frame == the_frame()]$select_w[i] & dt[frame == the_frame()]$select_h[i]) {
+            dt[frame == the_frame()]$mod[i] <- 2
+          } else {
+            dt[frame == the_frame()]$mod[i] <- 1
+          }
+        } else {
+          if (mod == 1) {
+            dt[frame == the_frame()]$mod[i] <- 2
+          } else {
+            dt[frame == the_frame()]$mod[i] <- 1
+          }
+        }
+      }
+    }
+
+    the_stats(dt)
+    refresh_display(refresh_display() + 1)
+  }
 })
 
 shiny::observeEvent(input$retKey, {

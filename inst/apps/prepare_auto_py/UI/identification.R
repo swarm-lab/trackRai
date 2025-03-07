@@ -15,7 +15,7 @@ shinyjs::disabled(
           ),
           style = "width: 54%; vertical-align: top; padding: 0px;"
         ),
-        shiny::tags$td(HTML("&nbsp;with&nbsp;"), style = "vertical-align: top; padding-top: 7px"),
+        shiny::tags$td(HTML("&nbsp;in&nbsp;"), style = "vertical-align: top; padding-top: 7px; text-align: center;"),
         shiny::tags$td(
           shinyWidgets::autonumericInput(
             "nIDFrames_x", NULL, 100, "100%",

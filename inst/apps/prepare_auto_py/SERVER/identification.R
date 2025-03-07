@@ -71,7 +71,7 @@ shiny::observeEvent(refresh_display(), {
         good <- dt[j, ]$select # & !dt[j, ]$ignore
         l <- list(
           c(dt[j, ]$x, dt[j, ]$y),
-          c(dt[j, ]$width, dt[j, ]$height), 
+          c(dt[j, ]$width, dt[j, ]$height),
           dt[j, ]$angle
         )
         box <- cv2$boxPoints(reticulate::r_to_py(l))
@@ -89,6 +89,71 @@ shiny::observeEvent(refresh_display(), {
 
       shinyjs::addClass("display", "active_display")
     } else {
+      background <- the_background$copy()
+      if (input$dark_button_x == "Darker") {
+        background <- cv2$bitwise_not(background)
+      }
+
+      mask <- cv2$compare(the_mask, 0, 1L)
+      mask <- cv2$divide(mask, 255)
+
+      frame <- the_image$copy()
+
+      if (input$dark_button_x == "Darker") {
+        frame <- cv2$bitwise_not(frame)
+      }
+
+      if (input$dark_button_x == "A bit of both") {
+        dif <- cv2$absdiff(frame, background)
+      } else {
+        dif <- cv2$subtract(frame, background)
+      }
+
+      dif <- cv2$multiply(dif, mask)
+      dif_gray <- cv2$cvtColor(dif, cv2$COLOR_BGR2GRAY)
+      bw <- cv2$compare(dif_gray, input$threshold_x, 2L)
+      k <- np$ones(c(3L, 3L), dtype = np$uint8)
+      k[1, 1] <- 0L
+      neighbors <- cv2$filter2D(bw, -1L, k)
+      bw <- np$where((bw == 255) & (neighbors > 0), 255, 0)$astype(np$uint8)
+      bw <- cv2$Canny(bw, 100, 200)
+      k <- cv2$getStructuringElement(
+        cv2$MORPH_RECT,
+        as.integer(c(
+          input$shapeBuffer_x * 2,
+          input$shapeBuffer_x * 2
+        )) + 1L
+      )
+      bw <- cv2$dilate(bw, k)
+
+      cc <- cv2$connectedComponentsWithStats(bw)
+      nz <- cv2$findNonZero(cc[1])
+      labs <- cc[1][cc[1]$nonzero()]
+      ulabs <- np$unique(labs)
+
+      to_display <<- the_image$copy()
+      sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
+
+      for (j in seq_along(ulabs)) {
+        bb <- reticulate::py_to_r(cc[2][j])
+        valid <- bb[5] > 4
+
+        if (valid) {
+          ell_py <- cv2$fitEllipse(nz[labs == ulabs[j - 1]])
+          box <- cv2$boxPoints(ell_py)
+          box <- np$int_(box)
+          cv2$drawContours(
+            to_display, list(box), 0L, c(255L, 255L, 255),
+            as.integer(max(1, round(2 * sc)))
+          )
+          cv2$drawContours(
+            to_display, list(box), 0L,
+            c(5L, 80L, 255L),
+            as.integer(max(1, round(sc)))
+          )
+        }
+      }
+      
       shinyjs::removeClass("display", "active_display")
     }
 
@@ -278,6 +343,49 @@ shiny::observeEvent(refresh_stats(), {
   }
 })
 
+.point_in_rectangle <- function(x, y, rect) {
+  l <- list(c(rect[1], rect[2]), c(rect[3], rect[4]), rect[5])
+  box <- reticulate::py_to_r(cv2$boxPoints(reticulate::r_to_py(l)))
+  pracma::inpolygon(x, y, box[, 1], box[, 2], TRUE)
+}
+
+# shinyjs::onevent("click", "display_img", function(props) {
+#   if (input$main == "5" & !is.null(the_stats())) {
+#     px <- trackRai::n_col(to_display) * (props$offsetX / input$display_img_width)
+#     py <- trackRai::n_row(to_display) * (props$offsetY / input$display_img_height)
+
+#     dt <- the_stats()
+#     in_rect <- dt[frame == the_frame(),
+#       .(test = .point_in_rectangle(px, py, unlist(.SD))),
+#       by = .I, .SDcols = c("x", "y", "width", "height", "angle")
+#     ]
+
+#     if (any(in_rect$test)) {
+#       ix <- which(in_rect$test)
+
+#       for (i in ix) {
+#         mod <- dt[frame == the_frame()]$mod[i]
+#         if (mod == 0) {
+#           if (dt[frame == the_frame()]$select_w[i] & dt[frame == the_frame()]$select_h[i]) {
+#             dt[frame == the_frame()]$mod[i] <- 2
+#           } else {
+#             dt[frame == the_frame()]$mod[i] <- 1
+#           }
+#         } else {
+#           if (mod == 1) {
+#             dt[frame == the_frame()]$mod[i] <- 2
+#           } else {
+#             dt[frame == the_frame()]$mod[i] <- 1
+#           }
+#         }
+#       }
+#     }
+
+#     the_stats(dt)
+#     refresh_display(refresh_display() + 1)
+#   }
+# })
+
 
 # Display statistics
 output$stats <- plotly::renderPlotly(
@@ -316,46 +424,3 @@ output$blob_stats <- shiny::renderUI({
     )
   }
 })
-
-.point_in_rectangle <- function(x, y, rect) {
-  l <- list(c(rect[1], rect[2]), c(rect[3], rect[4]), rect[5])
-  box <- reticulate::py_to_r(cv2$boxPoints(reticulate::r_to_py(l)))
-  pracma::inpolygon(x, y, box[, 1], box[, 2], TRUE)
-}
-
-shinyjs::onevent("click", "display_img", function(props) {
-  if (input$main == "5" & !is.null(the_stats())) {
-    px <- trackRai::n_col(to_display) * (props$offsetX / input$display_img_width)
-    py <- trackRai::n_row(to_display) * (props$offsetY / input$display_img_height)
-    
-    dt <- the_stats()
-    in_rect <- dt[frame == the_frame(),
-      .(test = .point_in_rectangle(px, py, unlist(.SD))),
-      by = .I, .SDcols = c("x", "y", "width", "height", "angle")
-    ]
-
-    if (any(in_rect$test)) {
-      ix <- which(in_rect$test)
-
-      for (i in ix) {
-        mod <- dt[frame == the_frame()]$mod[i]
-        if (mod == 0) {
-          if (dt[frame == the_frame()]$select_w[i] & dt[frame == the_frame()]$select_h[i]) {
-            dt[frame == the_frame()]$mod[i] <- 2
-          } else {
-            dt[frame == the_frame()]$mod[i] <- 1
-          }
-        } else {
-          if (mod == 1) {
-            dt[frame == the_frame()]$mod[i] <- 2
-          } else {
-            dt[frame == the_frame()]$mod[i] <- 1
-          }
-        }
-      }
-    }
-    
-    the_stats(dt)    
-    refresh_display(refresh_display() + 1)
-  }
-}, properties = "dblclick")
