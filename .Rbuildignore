@@ -8,3 +8,4 @@
 ^logo\.png$
 ^logo\.svg$
 ^test$
+^codecov\.yml$
