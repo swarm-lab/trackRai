@@ -242,37 +242,40 @@ available and you can click on it to navigate there.</p>
 <h2 id="tab-5-identification-module">2.6 - Tab 5: identification module<a class="anchor" aria-label="anchor" href="#tab-5-identification-module"></a>
 </h2>
 <p>The fourth step of the process is to isolate single instances of the
-objects in the video frames.</p>
+objects in a subset of equally spaced frames in the video.</p>
 <p>First, you will need to set a buffer around each of the detected
 objects. The buffer should be large enough so that each object is
 completely enclosed in its corresponding rectangle. Do not worry if
 several objects are enclosed in the same rectangle; what matters is that
 enough single instances are clearly separated from the others. You can
-navigate through the video to check whether the selected buffer size
-works well in multiple frames.</p>
+navigate through the subset of frames to check whether the selected
+buffer size works well across all of them.</p>
 <p><img src="../reference/figures/prepare/6_identification.jpg"></p>
 <p>Once the buffer size is set, you will click on the
-<code>Compute object stats</code> button and the app will compute the
-widths and heights of all the detected objects across a given number of
-equally spaced frames in the video. You can choose the number of frames
-to be used yourself; more frames will provide better statistics at the
-expense of longer computation time. Once the statistics are computed,
-their distribution will be plotted in the sidebar.</p>
+<code>Detect objects</code> button and the app will compute the widths
+and heights of all the detected objects across the subset of frames. You
+can choose the number of frames to be used yourself; more frames will
+provide better statistics at the expense of longer computation time.
+Once the statistics are computed, their distribution will be plotted in
+the sidebar.</p>
 <p><img src="../reference/figures/prepare/7_identification.jpg"></p>
 <p>By default, the app will attempt to determine the best statistics
 that corresponds to single instances of the objects. The single
 instances detected that way will appear as green rectangles in the video
 frame, the others will appear as red/orange rectangles. You can navigate
-through the video to check whether the selected statistic ranges work
-across the whole video. In particular, you should make sure that no
-selected instance contains more than one object. If that happens, you
-can untick the <code>Automatic object selection</code> tick box and
-manually change the ranges to eliminate these instances.</p>
-<p>Once the statistics have been set, the last tab of the app will
+through the subset of frames to check whether the selected statistic
+ranges work across the whole video. In particular, you should make sure
+that all selected instances contain one, and only one object. If that is
+not the case, you can untick the <code>Automatic object selection</code>
+tick box and manually change the ranges to eliminate these instances.
+You can also manually change the status of an instance (selected or
+unselected) by directly clicking on it with your mouse cursor.</p>
+<p>Once the objects have been selected, the last tab of the app will
 become available and you can click on it to navigate there.</p>
-<p><strong>Note:</strong> If you modify the buffer size after computing
-the object statistics, you will need to compute the object statistics
-again to take into account the new buffer size.</p>
+<p><strong>Note:</strong> If you modify the buffer size or the number of
+images used to detect the objects after computing the object statistics,
+you will need to run the object detection again to take into account the
+new parameters.</p>
 <hr>
 </div>
 <div class="section level2">
