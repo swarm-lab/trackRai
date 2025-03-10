@@ -10,7 +10,6 @@ shiny::observeEvent(input$rangeWidth_x, {
     dt <- the_stats()
     rw <- input$rangeWidth_x
     dt[, select_w := (width >= rw[1]) & (width <= rw[2])]
-    # dt[, select := select_w & select_h]
     the_stats(dt)
   }
 
@@ -22,7 +21,6 @@ shiny::observeEvent(input$rangeHeight_x, {
     dt <- the_stats()
     rh <- input$rangeHeight_x
     dt[, select_h := (height >= rh[1]) & (height <= rh[2])]
-    # dt[, select := select_w & select_h]
     the_stats(dt)
   }
 
@@ -68,7 +66,7 @@ shiny::observeEvent(refresh_display(), {
       dt[, select := (select_h & select_w & mod != 2) | (mod == 1)]
 
       for (j in 1:nrow(dt)) {
-        good <- dt[j, ]$select # & !dt[j, ]$ignore
+        good <- dt[j, ]$select
         l <- list(
           c(dt[j, ]$x, dt[j, ]$y),
           c(dt[j, ]$width, dt[j, ]$height),
@@ -313,8 +311,6 @@ shiny::observeEvent(input$computeStats_x, {
       dt[, select_h := (height >= rh[1]) & (height <= rh[2])]
     }
 
-    # dt[, select := select_w & select_h]
-    # dt[, ignore := FALSE]
     dt[, mod := 0]
     the_stats(dt)
 
@@ -342,49 +338,6 @@ shiny::observeEvent(refresh_stats(), {
     }
   }
 })
-
-.point_in_rectangle <- function(x, y, rect) {
-  l <- list(c(rect[1], rect[2]), c(rect[3], rect[4]), rect[5])
-  box <- reticulate::py_to_r(cv2$boxPoints(reticulate::r_to_py(l)))
-  pracma::inpolygon(x, y, box[, 1], box[, 2], TRUE)
-}
-
-# shinyjs::onevent("click", "display_img", function(props) {
-#   if (input$main == "5" & !is.null(the_stats())) {
-#     px <- trackRai::n_col(to_display) * (props$offsetX / input$display_img_width)
-#     py <- trackRai::n_row(to_display) * (props$offsetY / input$display_img_height)
-
-#     dt <- the_stats()
-#     in_rect <- dt[frame == the_frame(),
-#       .(test = .point_in_rectangle(px, py, unlist(.SD))),
-#       by = .I, .SDcols = c("x", "y", "width", "height", "angle")
-#     ]
-
-#     if (any(in_rect$test)) {
-#       ix <- which(in_rect$test)
-
-#       for (i in ix) {
-#         mod <- dt[frame == the_frame()]$mod[i]
-#         if (mod == 0) {
-#           if (dt[frame == the_frame()]$select_w[i] & dt[frame == the_frame()]$select_h[i]) {
-#             dt[frame == the_frame()]$mod[i] <- 2
-#           } else {
-#             dt[frame == the_frame()]$mod[i] <- 1
-#           }
-#         } else {
-#           if (mod == 1) {
-#             dt[frame == the_frame()]$mod[i] <- 2
-#           } else {
-#             dt[frame == the_frame()]$mod[i] <- 1
-#           }
-#         }
-#       }
-#     }
-
-#     the_stats(dt)
-#     refresh_display(refresh_display() + 1)
-#   }
-# })
 
 
 # Display statistics
