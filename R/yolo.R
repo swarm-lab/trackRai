@@ -106,8 +106,17 @@ install_yolo <- function(python_version = "3.12.5") {
       reticulate::virtualenv_create(
         envname = "trackRai",
         version = python_version,
+      )
+      reticulate::virtualenv_install(
+        envname = "trackRai",
         packages = c(
-          "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+          "torch", "torchvision", "torchaudio"
+        )
+      )
+      reticulate::virtualenv_install(
+        envname = "trackRai",
+        packages = c(
+          "opencv-python", "ultralytics", "lap"
         )
       )
     } else {
@@ -135,7 +144,13 @@ install_yolo <- function(python_version = "3.12.5") {
       reticulate::virtualenv_install(
         envname = "trackRai",
         packages = c(
-          "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+          "torch", "torchvision", "torchaudio"
+        )
+      )
+      reticulate::virtualenv_install(
+        envname = "trackRai",
+        packages = c(
+          "opencv-python", "ultralytics", "lap"
         )
       )
     } else {
@@ -162,7 +177,21 @@ install_yolo <- function(python_version = "3.12.5") {
       reticulate::virtualenv_install(
         envname = "trackRai",
         packages = c(
-          "pip", "numpy", "opencv-python", "torch", "torchvision", "torchaudio", "ultralytics", "lap"
+          "pip"
+        ),
+        pip_options = "--upgrade"
+      )
+      reticulate::virtualenv_install(
+        envname = "trackRai",
+        packages = c(
+          "torch", "torchvision", "torchaudio"
+        ),
+        pip_options = "--upgrade"
+      )
+      reticulate::virtualenv_install(
+        envname = "trackRai",
+        packages = c(
+          "opencv-python", "ultralytics", "lap"
         ),
         pip_options = "--upgrade"
       )
