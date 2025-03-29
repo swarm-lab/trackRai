@@ -28,12 +28,12 @@
 #'  with Python 3.8.0 to 3.12.8. Not all versions of Python will necessarily
 #'  work on your system, but the chosen default works on most systems that
 #'  we tested so far.
-#' 
-#' @param cuda_win_version Windows-only. A character string indicating the 
-#'  version of CUDA installed on the computer. Valid values are: auto (the 
-#'  function tries to determine automatically the version of CUDA, the default), 
-#'  NA (YOLO will be installed without CUDA support), 11.8, 12.4, and 12.6. All 
-#'  other values will throw an error. Ignored on Mac and Linux computers 
+#'
+#' @param cuda_win_version Windows-only. A character string indicating the
+#'  version of CUDA installed on the computer. Valid values are: auto (the
+#'  function tries to determine automatically the version of CUDA, the default),
+#'  NA (YOLO will be installed without CUDA support), 11.8, 12.4, and 12.6. All
+#'  other values will throw an error. Ignored on Mac and Linux computers
 #'
 #' @return If the installation/update completes successfully, a data frame
 #'  indicating the location of the YOLO installation and its version number.
@@ -93,12 +93,14 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
   if (Sys.info()[["sysname"]] == "Windows") {
     if (!is.na(cuda_win_version)) {
       if (cuda_win_version == "auto") {
-        smi <- system("nvidia-smi --version", intern = TRUE)
-        cuda_win_version <- gsub("[^0-9]", "", smi[grepl("CUDA Version", smi)])
+        nvcc <- system("nvcc --version", intern = TRUE)
+        cuda_win_version <- substr(
+          gsub("[^0-9]", "", nvcc[grepl("Cuda compilation tools", nvcc)]), 1, 3
+        )
       } else {
         cuda_win_version <- gsub("\\.", "", cuda_win_version)
       }
-      
+
       if (cuda_win_version %in% c("118", "124", "126")) {
         pip_options <- paste0("--index-url https://download.pytorch.org/whl/cu", cuda_win_version)
       } else {
