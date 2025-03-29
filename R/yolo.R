@@ -20,35 +20,41 @@
 #' @title Install and Update YOLO
 #'
 #' @description This function automates the installation/updating of YOLO and
-#'  all its Python dependencies in a dedicated Python virtual environment for 
+#'  all its Python dependencies in a dedicated Python virtual environment for
 #'  use with the \link{trackRai} apps.
-#' 
+#'
 #' @param python_version A character string indicating the version of Python you
 #'  would like YOLO to run on (default: "3.12.5"). YOLO is currently compatible
-#'  with Python 3.8.0 to 3.12.8. Not all versions of Python will necessarily 
-#'  work on your system, but the chosen default works on most systems that 
-#'  we tested so far. 
+#'  with Python 3.8.0 to 3.12.8. Not all versions of Python will necessarily
+#'  work on your system, but the chosen default works on most systems that
+#'  we tested so far.
+#' 
+#' @param cuda_win_version Windows-only. A character string indicating the 
+#'  version of CUDA installed on the computer. Valid values are: auto (the 
+#'  function tries to determine automatically the version of CUDA, the default), 
+#'  NA (YOLO will be installed without CUDA support), 11.8, 12.4, and 12.6. All 
+#'  other values will throw an error. Ignored on Mac and Linux computers 
 #'
 #' @return If the installation/update completes successfully, a data frame
 #'  indicating the location of the YOLO installation and its version number.
-#' 
+#'
 #' @note
-#' If the requested version of Python is not activated on your system, this 
-#'  function will attempt to install it first before creating the dedicated 
-#'  Python virtual environment. 
+#' If the requested version of Python is not activated on your system, this
+#'  function will attempt to install it first before creating the dedicated
+#'  Python virtual environment.
 #'
 #' @author Simon Garnier, \email{garnier@@njit.edu}
-#' 
+#'
 #' @seealso [remove_yolo()]
 #'
 #' @export
-install_yolo <- function(python_version = "3.12.5") {
+install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
   if (reticulate::virtualenv_exists("trackRai")) {
     reticulate::use_virtualenv("trackRai", required = TRUE)
   } else if (reticulate::virtualenv_exists("r-reticulate")) {
     reticulate::use_virtualenv("r-reticulate", required = TRUE)
   }
-  
+
   reticulate::py_available(TRUE)
 
   if (is.null(reticulate::py_discover_config())) {
@@ -84,6 +90,27 @@ install_yolo <- function(python_version = "3.12.5") {
     }
   }
 
+  if (Sys.info()[["sysname"]] == "Windows") {
+    if (!is.na(cuda_win_version)) {
+      if (cuda_win_version == "auto") {
+        smi <- system("nvidia-smi --version", intern = TRUE)
+        cuda_win_version <- gsub("[^0-9]", "", smi[grepl("CUDA Version", smi)])
+      } else {
+        cuda_win_version <- gsub("\\.", "", cuda_win_version)
+      }
+      
+      if (cuda_win_version %in% c("118", "124", "126")) {
+        pip_options <- paste0("--index-url https://download.pytorch.org/whl/cu", cuda_win_version)
+      } else {
+        stop("Incompatible CUDA version.")
+      }
+    } else {
+      pip_options <- character()
+    }
+  } else {
+    pip_options <- character()
+  }
+
   if (!reticulate::virtualenv_exists("trackRai")) {
     answer <- utils::askYesNo(
       paste0(
@@ -111,7 +138,8 @@ install_yolo <- function(python_version = "3.12.5") {
         envname = "trackRai",
         packages = c(
           "torch", "torchvision", "torchaudio"
-        )
+        ),
+        pip_options = pip_options
       )
       reticulate::virtualenv_install(
         envname = "trackRai",
@@ -145,7 +173,8 @@ install_yolo <- function(python_version = "3.12.5") {
         envname = "trackRai",
         packages = c(
           "torch", "torchvision", "torchaudio"
-        )
+        ),
+        pip_options = pip_options
       )
       reticulate::virtualenv_install(
         envname = "trackRai",
@@ -186,7 +215,7 @@ install_yolo <- function(python_version = "3.12.5") {
         packages = c(
           "torch", "torchvision", "torchaudio"
         ),
-        pip_options = "--upgrade"
+        pip_options = paste0("--upgrade ", pip_options)
       )
       reticulate::virtualenv_install(
         envname = "trackRai",
@@ -207,18 +236,18 @@ install_yolo <- function(python_version = "3.12.5") {
 
 #' @title Remove YOLO
 #'
-#' @description This function automates the removal of YOLO and all its Python 
+#' @description This function automates the removal of YOLO and all its Python
 #'  dependencies from your system.
 #'
 #' @return Nothing.
-#' 
+#'
 #' @note
-#' The function will only remove the dedicated Python virtual environment from 
-#'  your system. If Python was installed during the execution of 
-#'  [install_yolo()], it will not be removed. 
+#' The function will only remove the dedicated Python virtual environment from
+#'  your system. If Python was installed during the execution of
+#'  [install_yolo()], it will not be removed.
 #'
 #' @author Simon Garnier, \email{garnier@@njit.edu}
-#' 
+#'
 #' @seealso [install_yolo()]
 #'
 #' @export
