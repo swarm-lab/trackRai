@@ -4,7 +4,7 @@
 \alias{install_yolo}
 \title{Install and Update YOLO}
 \usage{
-install_yolo(python_version = "3.12.5")
+install_yolo(python_version = "3.12.5", cuda_win_version = "auto")
 }
 \arguments{
 \item{python_version}{A character string indicating the version of Python you
@@ -12,6 +12,12 @@ would like YOLO to run on (default: "3.12.5"). YOLO is currently compatible
 with Python 3.8.0 to 3.12.8. Not all versions of Python will necessarily
 work on your system, but the chosen default works on most systems that
 we tested so far.}
+
+\item{cuda_win_version}{Windows-only. A character string indicating the
+version of CUDA installed on the computer. Valid values are: auto (the
+function tries to determine automatically the version of CUDA, the default),
+NA (YOLO will be installed without CUDA support), 11.8, 12.4, and 12.6. All
+other values will throw an error. Ignored on Mac and Linux computers}
 }
 \value{
 If the installation/update completes successfully, a data frame
