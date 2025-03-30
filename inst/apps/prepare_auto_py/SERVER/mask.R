@@ -138,7 +138,7 @@ shiny::observeEvent(refresh_mask(), {
 
       ix <- which.max(
         sapply(
-          stringr::str_locate_all(mask_path(), volumes),
+          stringr::str_locate_all(mask_path(), fixed(sapply(volumes, normalizePath))),
           function(l) {
             if (nrow(l) > 0) {
               diff(l[1, ])

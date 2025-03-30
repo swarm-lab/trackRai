@@ -88,7 +88,7 @@ shiny::observeEvent(input$video_file_x, {
 shiny::observeEvent(video_path(), {
   ix <- which.max(
     sapply(
-      stringr::str_locate_all(video_path(), volumes),
+      stringr::str_locate_all(video_path(), fixed(sapply(volumes, normalizePath))),
       function(l) {
         if (nrow(l) > 0) {
           diff(l[1, ])
@@ -171,7 +171,7 @@ shiny::observeEvent(refresh_mask(), {
 
       ix <- which.max(
         sapply(
-          stringr::str_locate_all(mask_path(), volumes),
+          stringr::str_locate_all(mask_path(), fixed(sapply(volumes, normalizePath))),
           function(l) {
             if (nrow(l) > 0) {
               diff(l[1, ])

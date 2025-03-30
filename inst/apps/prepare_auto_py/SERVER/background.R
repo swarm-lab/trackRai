@@ -85,7 +85,7 @@ shiny::observeEvent(refresh_background(), {
 
       ix <- which.max(
         sapply(
-          stringr::str_locate_all(background_path(), volumes),
+          stringr::str_locate_all(background_path(), fixed(sapply(volumes, normalizePath))),
           function(l) {
             if (nrow(l) > 0) {
               diff(l[1, ])
