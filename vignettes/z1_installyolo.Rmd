@@ -39,9 +39,12 @@ here:
 - For Windows computers: https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/
 - For Linux computers: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/
 
-Note that if your computer is not equipped with an NVIDIA graphics card or if 
-the CUDA toolkit is not installed on it, you can still use `trackRai` but the 
-training of the YOLO model may take a very long time (several hours).
+If your computer is not equipped with an NVIDIA graphics card or if the CUDA 
+toolkit is not installed on it, you can still use `trackRai` but the training of 
+the YOLO model may take a very long time (several hours).
+
+**Note:** at the time of writing, YOLO (and therefore, `trackRai`) is compatible
+with CUDA versions 11.8, 12.4, and 12.6. 
 
 ## 1.2.2 - Installing YOLO
 
@@ -65,5 +68,9 @@ your system if it is not already present. If errors happen during the
 installation of Python, or if you prefer installing another version, you can do
 so using the `python_version` parameter of install_yolo(). YOLO is currently 
 compatible with Python 3.8.0 to 3.12.8, so any of these versions should work.
+
+**Note:** on a Windows computer, install_yolo() will attempt to automatically 
+detect the version of CUDA that is installed on the machine. You can override 
+this using the `cuda_win_version` parameter. 
 
 ---
