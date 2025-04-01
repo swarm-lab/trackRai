@@ -16,7 +16,11 @@
 #'
 #' @export
 prepare <- function(...) {
-  shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_auto_py"), ...)
+  if (yolo_installed()) {
+    shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_auto_py"), ...)
+  } else {
+    stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
+  }  
 }
 # prepare <- function(auto = TRUE, ...) {
 #   if (auto) {
@@ -45,7 +49,11 @@ prepare <- function(...) {
 #'
 #' @export
 train <- function(...) {
-  shiny::runApp(paste0(find.package("trackRai"), "/apps/train_py"), ...)
+  if (yolo_installed()) {
+    shiny::runApp(paste0(find.package("trackRai"), "/apps/train_py"), ...)
+  } else {
+    stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
+  }  
 }
 
 
@@ -67,7 +75,11 @@ train <- function(...) {
 #'
 #' @export
 track <- function(...) {
-  shiny::runApp(paste0(find.package("trackRai"), "/apps/track_py"), ...)
+  if (yolo_installed()) {
+    shiny::runApp(paste0(find.package("trackRai"), "/apps/track_py"), ...)
+  } else {
+    stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
+  }  
 }
 
 
@@ -89,5 +101,9 @@ track <- function(...) {
 #'
 #' @export
 visualize <- function(...) {
-  shiny::runApp(paste0(find.package("trackRai"), "/apps/visualize_py"), ...)
+  if (yolo_installed()) {
+    shiny::runApp(paste0(find.package("trackRai"), "/apps/visualize_py"), ...)
+  } else {
+    stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
+  }  
 }

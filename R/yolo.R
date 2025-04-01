@@ -256,3 +256,20 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
 remove_yolo <- function() {
   reticulate::virtualenv_remove(envname = "trackRai")
 }
+
+
+#' @title Detect YOLO Installation
+#'
+#' @description This function detects whether YOLO is correctly installed on the
+#'  system.
+#'
+#' @return A logical indicating the presence or absence of YOLO.
+#'
+#' @author Simon Garnier, \email{garnier@@njit.edu}
+#'
+#' @seealso [install_yolo()]
+#'
+#' @export
+yolo_installed <- function() {
+  !is.na(.yolo_path())
+}
