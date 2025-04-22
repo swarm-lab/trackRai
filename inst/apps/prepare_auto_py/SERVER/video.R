@@ -85,7 +85,7 @@ shiny::observeEvent(input$video_file_x, {
 shiny::observeEvent(video_path(), {
   ix <- which.max(
     sapply(
-      stringr::str_locate_all(video_path(), fixed(sapply(volumes, normalizePath))),
+      stringr::str_locate_all(video_path(), stringr::fixed(sapply(volumes, normalizePath))),
       function(l) {
         if (nrow(l) > 0) {
           diff(l[1, ])

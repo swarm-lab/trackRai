@@ -19,6 +19,7 @@ library(shinyalert)
 library(trackRai)
 library(data.table)
 library(pals)
+library(stringr)
 
 
 #--------------------------------------------------------------
