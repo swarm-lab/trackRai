@@ -29,7 +29,7 @@ mode(.shades) <- "integer"
 }
 
 shiny::observeEvent(input$video_controls, {
-  if (trackRai::is_video_capture(the_video)) {
+  if (is_video_capture(the_video)) {
     the_frame(input$video_controls[2])
   }
 })
@@ -44,14 +44,14 @@ shiny::observeEvent(input$track_length_x, {
 
 shiny::observeEvent(the_frame(), {
   if (!is.null(the_frame())) {
-    the_image <<- trackRai::read_frame(the_video, the_frame())
+    the_image <<- read_frame(the_video, the_frame())
     refresh_display(refresh_display() + 1)
   }
 })
 
 shiny::observeEvent(refresh_display(), {
   if (input$main == "1") {
-    if (trackRai::is_image(the_image)) {
+    if (is_image(the_image)) {
       to_display <<- the_image$copy()
 
       if (data.table::is.data.table(the_tracks)) {
@@ -74,7 +74,7 @@ shiny::observeEvent(refresh_display(), {
 
 output$display <- shiny::renderUI({
   if (print_display() > 0) {
-    if (trackRai::is_image(to_display)) {
+    if (is_image(to_display)) {
       shiny::tags$img(
         src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
           base64$b64encode(cv2$imencode(".jpg", to_display)[1])$decode("utf-8")
@@ -107,9 +107,9 @@ shiny::observeEvent(input$win_resize, {
 
 # Status
 output$video_status <- shiny::renderUI({
-  if (refresh_display() > -1 & !trackRai::is_video_capture(the_video)) {
+  if (refresh_display() > -1 & !is_video_capture(the_video)) {
     shiny::p("Video missing (and required).", class = "bad")
-  } else if (!trackRai::is_video_capture(the_video)) {
+  } else if (!is_video_capture(the_video)) {
     shiny::p("Incompatible videos.", class = "bad")
   }
 })
@@ -125,7 +125,7 @@ output$track_status <- shiny::renderUI({
 
 # UI
 output$export_controls <- shiny::renderUI({
-  if (refresh_display() > -1 & trackRai::is_video_capture(the_video) &
+  if (refresh_display() > -1 & is_video_capture(the_video) &
     data.table::is.data.table(the_tracks)) {
     shiny::tagList(
       shinyFiles::shinySaveButton(
@@ -180,7 +180,7 @@ shiny::observeEvent(video_path(), {
   to_check <- cv2$VideoCapture(video_path())
 
   if (reticulate::py_to_r(to_check$isOpened())) {
-    if (!is.na(trackRai::n_frames(to_check))) {
+    if (!is.na(n_frames(to_check))) {
       the_video <<- to_check
       the_image <<- the_video$read()[1]
       refresh_video(refresh_video() + 1)
@@ -261,7 +261,7 @@ shiny::observeEvent(the_export_path(), {
     normalizePath(the_export_path(), mustWork = FALSE),
     codec,
     the_video$get(cv2$CAP_PROP_FPS),
-    as.integer(c(trackRai::n_col(the_image), trackRai::n_row(the_image)))
+    as.integer(c(n_col(the_image), n_row(the_image)))
   )
   the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls[1] - 1)
   pb <<- Progress$new()

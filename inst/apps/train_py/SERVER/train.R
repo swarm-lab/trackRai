@@ -196,7 +196,7 @@ shiny::observeEvent(input$start_train_x, {
     if (retrain()) {
       unlink(paste0(yolo_path(), "/runs/obb/train*"), recursive = TRUE)
       background <- cv2$imread(normalizePath(paste0(yolo_path(), "/background.png"), mustWork = FALSE))
-      imgsz <- trackRai::n_col(background)
+      imgsz <- n_col(background)
       the_temp_file <<- tempfile(fileext = ".txt")
       model <- paste0("yolo11", input$yolo_x, "-obb.pt")
       epochs <- input$epochs_x

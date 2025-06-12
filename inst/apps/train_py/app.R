@@ -6,7 +6,7 @@ if (Sys.info()["sysname"] == "Darwin") {
 }
 
 library(reticulate)
-reticulate::use_virtualenv("trackRai")
+reticulate::use_virtualenv("trackR")
 torch <- reticulate::import("torch", convert = FALSE)
 ultralytics <- reticulate::import("ultralytics", convert = FALSE)
 cv2 <- reticulate::import("cv2", convert = FALSE)

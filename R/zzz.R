@@ -31,3 +31,12 @@ local <- new.env()
   base64 <- reticulate::import("base64", convert = FALSE, delay_load = TRUE)
   assign("base64", value = base64, envir = parent.env(local))
 }
+
+.onAttach <- function(lib, pkg) {
+  if (!yolo_installed()) {
+    if (interactive()) {
+      msg <- install_yolo()
+      print.table(msg)
+    }
+  }
+}

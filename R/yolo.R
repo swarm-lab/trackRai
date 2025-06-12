@@ -1,7 +1,7 @@
 .yolo_path <- function() {
-  if (reticulate::virtualenv_exists("trackRai")) {
+  if (reticulate::virtualenv_exists("trackR")) {
     paths <- list.files(
-      dirname(reticulate::virtualenv_python("trackRai")),
+      dirname(reticulate::virtualenv_python("trackR")),
       full.names = TRUE
     )
     test <- grepl("yolo", paths)
@@ -49,8 +49,8 @@
 #'
 #' @export
 install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
-  if (reticulate::virtualenv_exists("trackRai")) {
-    reticulate::use_virtualenv("trackRai", required = TRUE)
+  if (reticulate::virtualenv_exists("trackR")) {
+    reticulate::use_virtualenv("trackR", required = TRUE)
   } else if (reticulate::virtualenv_exists("r-reticulate")) {
     reticulate::use_virtualenv("r-reticulate", required = TRUE)
   }
@@ -113,12 +113,12 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
     pip_options <- character()
   }
 
-  if (!reticulate::virtualenv_exists("trackRai")) {
+  if (!reticulate::virtualenv_exists("trackR")) {
     answer <- utils::askYesNo(
       paste0(
         "\n------------------------------------------------------------",
         "\n",
-        "\nNo trackRai environment was found on this system.",
+        "\nNo trackR environment was found on this system.",
         "\nIt will be created with all the necessary packages.",
         "\nWould you like to continue?",
         "\n",
@@ -133,18 +133,18 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
 
     if (answer) {
       reticulate::virtualenv_create(
-        envname = "trackRai",
+        envname = "trackR",
         version = python_version,
       )
       reticulate::virtualenv_install(
-        envname = "trackRai",
+        envname = "trackR",
         packages = c(
           "torch", "torchvision", "torchaudio"
         ),
         pip_options = pip_options
       )
       reticulate::virtualenv_install(
-        envname = "trackRai",
+        envname = "trackR",
         packages = c(
           "opencv-python", "ultralytics", "lap"
         )
@@ -152,7 +152,7 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
     } else {
       stop("\nYOLO was not installed on this system.\n")
     }
-  } else if (!any(grepl("yolo", list.files(dirname(reticulate::virtualenv_python("trackRai")))))) {
+  } else if (!any(grepl("yolo", list.files(dirname(reticulate::virtualenv_python("trackR")))))) {
     answer <- utils::askYesNo(
       paste0(
         "\n------------------------------------------------------------",
@@ -172,14 +172,14 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
 
     if (answer) {
       reticulate::virtualenv_install(
-        envname = "trackRai",
+        envname = "trackR",
         packages = c(
           "torch", "torchvision", "torchaudio"
         ),
         pip_options = pip_options
       )
       reticulate::virtualenv_install(
-        envname = "trackRai",
+        envname = "trackR",
         packages = c(
           "opencv-python", "ultralytics", "lap"
         )
@@ -206,21 +206,21 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
 
     if (answer) {
       reticulate::virtualenv_install(
-        envname = "trackRai",
+        envname = "trackR",
         packages = c(
           "pip"
         ),
         pip_options = "--upgrade"
       )
       reticulate::virtualenv_install(
-        envname = "trackRai",
+        envname = "trackR",
         packages = c(
           "torch", "torchvision", "torchaudio"
         ),
         pip_options = paste0("--upgrade ", pip_options)
       )
       reticulate::virtualenv_install(
-        envname = "trackRai",
+        envname = "trackR",
         packages = c(
           "opencv-python", "ultralytics", "lap"
         ),
@@ -254,7 +254,7 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
 #'
 #' @export
 remove_yolo <- function() {
-  reticulate::virtualenv_remove(envname = "trackRai")
+  reticulate::virtualenv_remove(envname = "trackR")
 }
 
 

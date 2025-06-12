@@ -16,7 +16,6 @@ library(shinyWidgets)
 library(shinyFiles)
 library(shinyjs)
 library(shinyalert)
-library(htmlwidgets)
 library(trackRai)
 library(autothresholdr)
 library(stringr)
@@ -57,7 +56,8 @@ ui <- function(request) {
           menuSide = "right",
           selected = "1",
           source("UI/video.R", local = TRUE)$value,
-          source("UI/tags.R")$value
+          source("UI/tags.R")$value,
+          source("UI/export.R")$value
         )
       )
     )
@@ -72,6 +72,7 @@ server <- function(input, output, session) {
   source("SERVER/global.R", local = TRUE)
   source("SERVER/video.R", local = TRUE)
   source("SERVER/tags.R", local = TRUE)
+  source("SERVER/export.R", local = TRUE)
   source("SERVER/controls.R", local = TRUE)
   session$onSessionEnded(function() { })
 }

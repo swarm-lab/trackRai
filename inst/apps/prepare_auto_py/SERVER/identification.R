@@ -41,7 +41,7 @@ shiny::observeEvent(input$shapeBuffer_x, {
 shiny::observeEvent(input$nIDFrames_x, {
   the_stats(NULL)
 
-  if (trackRai::is_video_capture(the_video)) {
+  if (is_video_capture(the_video)) {
     n <- input$video_controls[3] - input$video_controls[1] + 1
     step <- floor(n / input$nIDFrames_x)
     id_frames(seq.int(input$video_controls[1], input$video_controls[3], step)[1:input$nIDFrames_x])
@@ -59,7 +59,7 @@ shiny::observeEvent(input$nIDFrames_x, {
 shiny::observeEvent(refresh_display(), {
   if (input$main == "5") {
     to_display <<- the_image$copy()
-    sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
+    sc <- max(c(n_row(to_display), n_col(to_display)) / 720)
 
     if (!is.null(the_stats())) {
       dt <- the_stats()[frame == the_frame()]
@@ -130,7 +130,7 @@ shiny::observeEvent(refresh_display(), {
       ulabs <- np$unique(labs)
 
       to_display <<- the_image$copy()
-      sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
+      sc <- max(c(n_row(to_display), n_col(to_display)) / 720)
 
       for (j in seq_along(ulabs)) {
         bb <- reticulate::py_to_r(cc[2][j])
@@ -187,7 +187,7 @@ shiny::observeEvent(input$autoSelect_x, {
 
 # Compute object statistics
 shiny::observeEvent(input$computeStats_x, {
-  if (trackRai::is_video_capture(the_video) & trackRai::is_image(the_background) & trackRai::is_image(the_mask)) {
+  if (is_video_capture(the_video) & is_image(the_background) & is_image(the_mask)) {
     shinyjs::showElement("curtain")
     shiny::showNotification("Detecting objects.",
       id = "stats",

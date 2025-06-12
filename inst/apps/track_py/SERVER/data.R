@@ -1,23 +1,23 @@
 # Display
 shiny::observeEvent(input$video_controls, {
-  if (trackRai::is_video_capture(the_video)) {
+  if (is_video_capture(the_video)) {
     the_frame(input$video_controls[2])
   }
 })
 
 shiny::observeEvent(the_frame(), {
   if (!is.null(the_frame())) {
-    the_image <<- trackRai::read_frame(the_video, the_frame())
+    the_image <<- read_frame(the_video, the_frame())
     refresh_display(refresh_display() + 1)
   }
 })
 
 shiny::observeEvent(refresh_display(), {
   if (input$main == "1") {
-    if (trackRai::is_image(the_image)) {
+    if (is_image(the_image)) {
       to_display <<- the_image$copy()
 
-      if (trackRai::is_image(the_mask)) {
+      if (is_image(the_mask)) {
         to_display <<- cv2$multiply(to_display, cv2$divide(cv2$compare(the_mask, 0, 1L), 255L))
       }
     } else {
@@ -30,7 +30,7 @@ shiny::observeEvent(refresh_display(), {
 
     pred <- the_model(
       source = to_display,
-      imgsz = c(trackRai::n_row(to_display), trackRai::n_col(to_display)),
+      imgsz = c(n_row(to_display), n_col(to_display)),
       conf = input$conf_x,
       iou = input$iou_x,
       max_det = as.integer(input$maxObjects_x),
@@ -40,7 +40,7 @@ shiny::observeEvent(refresh_display(), {
     )
     obb <- pred[0]$obb$xyxyxyxy$cpu()$numpy()
     obb <- np$int_(obb)
-    sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
+    sc <- max(c(n_row(to_display), n_col(to_display)) / 720)
 
     for (i in seq_len(py_to_r(obb$shape[0]))) {
       to_display <<- cv2$drawContours(
@@ -59,7 +59,7 @@ shiny::observeEvent(refresh_display(), {
 
 output$display <- shiny::renderUI({
   if (print_display() > 0) {
-    if (trackRai::is_image(to_display)) {
+    if (is_image(to_display)) {
       shiny::tags$img(
         src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
           base64$b64encode(cv2$imencode(".jpg", to_display)[1])$decode("utf-8")
@@ -109,9 +109,9 @@ output$yolo_status <- shiny::renderUI({
 })
 
 output$video_status <- shiny::renderUI({
-  if (refresh_display() > -1 & !trackRai::is_video_capture(the_video)) {
+  if (refresh_display() > -1 & !is_video_capture(the_video)) {
     p("Video missing (and required).", class = "bad")
-  } else if (!trackRai::is_video_capture(the_video)) {
+  } else if (!is_video_capture(the_video)) {
     p("Incompatible videos.", class = "bad")
   }
 })
@@ -119,7 +119,7 @@ output$video_status <- shiny::renderUI({
 
 # UI
 shiny::observe({
-  if (!is.null(the_model_folder()) & !is.null(video_path()) & trackRai::is_video_capture(the_video)) {
+  if (!is.null(the_model_folder()) & !is.null(video_path()) & is_video_capture(the_video)) {
     if (toggled_tabs$toggled[2] == FALSE) {
       toggleTabs(2, "ON")
       toggled_tabs$toggled[2] <<- TRUE
@@ -212,20 +212,20 @@ shiny::observeEvent(video_path(), {
   to_check <- cv2$VideoCapture(video_path())
 
   if (reticulate::py_to_r(to_check$isOpened())) {
-    if (!is.na(trackRai::n_frames(to_check))) {
+    if (!is.na(n_frames(to_check))) {
       the_video <<- to_check
       the_image <<- the_video$read()[1]
 
-      if (!trackRai::is_image(the_mask)) {
+      if (!is_image(the_mask)) {
         the_mask <<- reticulate::np_array(
-          array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
+          array(1L, c(n_row(the_image), n_col(the_image), 3)),
           dtype = "uint8"
         )
       }
 
       if (!all(unlist(reticulate::py_to_r(the_mask$shape)) == unlist(reticulate::py_to_r(the_image$shape)))) {
         the_mask <<- reticulate::np_array(
-          array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
+          array(1L, c(n_row(the_image), n_col(the_image), 3)),
           dtype = "uint8"
         )
       }
@@ -255,7 +255,7 @@ shiny::observeEvent(refresh_mask(), {
   if (refresh_mask() > 0) {
     to_check <- cv2$imread(mask_path())
 
-    if (trackRai::is_image(to_check)) {
+    if (is_image(to_check)) {
       if (!all(unlist(reticulate::py_to_r(to_check$shape)) == unlist(reticulate::py_to_r(the_image$shape)))) {
         shinyalert::shinyalert("Error:",
           "The video and mask do not have the same dimensions.",
@@ -263,7 +263,7 @@ shiny::observeEvent(refresh_mask(), {
           closeOnClickOutside = TRUE
         )
         the_mask <<- reticulate::np_array(
-          array(1L, c(trackRai::n_row(the_image), trackRai::n_col(the_image), 3)),
+          array(1L, c(n_row(the_image), n_col(the_image), 3)),
           dtype = "uint8"
         )
       } else {

@@ -85,7 +85,7 @@ shiny::observeEvent(input$video_file_x, {
 shiny::observeEvent(video_path(), {
   ix <- which.max(
     sapply(
-      stringr::str_locate_all(video_path(), volumes),
+      stringr::str_locate_all(video_path(), stringr::fixed(sapply(volumes, normalizePath))),
       function(l) {
         if (nrow(l) > 0) {
           diff(l[1, ])
@@ -100,7 +100,8 @@ shiny::observeEvent(video_path(), {
   if (length(volume) > 0) {
     dir <- dirname(video_path())
     default_root(names(volumes)[ix])
-    default_path(gsub(volume, "", dir))
+    # default_path(gsub(volume, "", dir))
+    default_path(gsub(paste0(".*", volume), "", dir))
   }
 })
 

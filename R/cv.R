@@ -74,7 +74,7 @@ read_frame <- function(x, i) {
 #'
 #' @export 
 is_image <- function(x) {
-  inherits(x, c("numpy.ndarray", "python.builtin.object"))
+  all(inherits(x, c("numpy.ndarray", "python.builtin.object"), which = TRUE) != 0)
 }
 
 

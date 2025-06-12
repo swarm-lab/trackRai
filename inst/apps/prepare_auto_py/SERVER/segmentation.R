@@ -1,8 +1,8 @@
 # Display 
 shiny::observeEvent(refresh_display(), {
   if (input$main == "4") {
-    if (trackRai::n_row(the_image) != trackRai::n_row(the_background) |
-      trackRai::n_col(the_image) != trackRai::n_col(the_background)) {
+    if (n_row(the_image) != n_row(the_background) |
+      n_col(the_image) != n_col(the_background)) {
       to_display <<- black_screen$copy()
     } else {
       background <- the_background$copy()
@@ -10,10 +10,10 @@ shiny::observeEvent(refresh_display(), {
         background <- cv2$bitwise_not(background)
       }
 
-      if (!trackRai::is_image(the_mask) | trackRai::n_row(the_image) != trackRai::n_row(the_mask) |
-        trackRai::n_col(the_image) != trackRai::n_col(the_mask)) {
+      if (!is_image(the_mask) | n_row(the_image) != n_row(the_mask) |
+        n_col(the_image) != n_col(the_mask)) {
         mask <- reticulate::np_array(
-          array(1L, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 3)),
+          array(1L, c(n_row(the_background), n_col(the_background), 3)),
           dtype = "uint8"
         )
       } else {
@@ -41,7 +41,7 @@ shiny::observeEvent(refresh_display(), {
       bw <- cv2$compare(gray, input$threshold_x, 2L)
       ct <- cv2$findContours(bw, cv2$RETR_EXTERNAL, cv2$CHAIN_APPROX_NONE)[0]
 
-      sc <- max(c(trackRai::n_row(frame), trackRai::n_col(frame)) / 720)
+      sc <- max(c(n_row(frame), n_col(frame)) / 720)
       cv2$drawContours(to_display, ct, -1L, c(0L, 224L, 0L), as.integer(max(1, 1.5 * sc)))
     }
 
@@ -67,9 +67,9 @@ shiny::observe({
 
 # Optimize segmentation threshold
 shiny::observeEvent(input$optimize_thresholds_x, {
-  if (trackRai::is_video_capture(the_video) & trackRai::is_image(the_background) &
-    trackRai::n_row(the_image) == trackRai::n_row(the_background) &
-    trackRai::n_col(the_image) == trackRai::n_col(the_background)) {
+  if (is_video_capture(the_video) & is_image(the_background) &
+    n_row(the_image) == n_row(the_background) &
+    n_col(the_image) == n_col(the_background)) {
     shinyjs::showElement("curtain")
     shiny::showNotification("Loading images in memory.", id = "load", duration = NULL)
 
@@ -82,10 +82,10 @@ shiny::observeEvent(input$optimize_thresholds_x, {
       background <- cv2$bitwise_not(background)
     }
 
-    if (!trackRai::is_image(the_mask) | trackRai::n_row(the_image) != trackRai::n_row(the_mask) |
-      trackRai::n_col(the_image) != trackRai::n_col(the_mask)) {
+    if (!is_image(the_mask) | n_row(the_image) != n_row(the_mask) |
+      n_col(the_image) != n_col(the_mask)) {
       mask <- reticulate::np_array(
-        array(1L, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 3)),
+        array(1L, c(n_row(the_background), n_col(the_background), 3)),
         dtype = "uint8"
       )
     } else {

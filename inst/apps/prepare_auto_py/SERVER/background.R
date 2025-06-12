@@ -1,7 +1,7 @@
 # Status
 output$background_status <- shiny::renderUI({
   if ((refresh_display() > -1 | input$computeBackground_x > -1) &
-    !trackRai::is_image(the_background)) {
+    !is_image(the_background)) {
     toggleTabs(3:6, "OFF")
     toggled_tabs$toggled[3:6] <<- FALSE
     p("Background missing (and required).", class = "bad")
@@ -18,10 +18,10 @@ output$background_status <- shiny::renderUI({
 # Display
 shiny::observeEvent(refresh_display(), {
   if (input$main == "2") {
-    if (trackRai::is_image(the_background)) {
+    if (is_image(the_background)) {
       to_display <<- the_background$copy()
-      sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
-      r <- 0.01 * min(trackRai::n_row(to_display), trackRai::n_col(to_display))
+      sc <- max(c(n_row(to_display), n_col(to_display)) / 720)
+      r <- 0.01 * min(n_row(to_display), n_col(to_display))
 
       if (collect_ghost() > 0) {
         if (nrow(ghost_coords) > 1) {
@@ -71,7 +71,7 @@ shiny::observeEvent(refresh_background(), {
   if (refresh_background() > 0) {
     to_check <- cv2$imread(background_path())
 
-    if (trackRai::is_image(to_check)) {
+    if (is_image(to_check)) {
       if (!all(unlist(reticulate::py_to_r(to_check$shape)) == unlist(reticulate::py_to_r(the_image$shape)))) {
         shinyalert::shinyalert("Error:",
           "The video and background do not have the same shape.",
@@ -109,10 +109,10 @@ shiny::observeEvent(refresh_background(), {
 
 # Compute background estimate
 shiny::observeEvent(input$computeBackground_x, {
-  if (trackRai::is_video_capture(the_video)) {
+  if (is_video_capture(the_video)) {
     showElement("curtain")
     the_background <<- np$uint8(
-      trackRai::backgrounder(the_video,
+      backgrounder(the_video,
         n = input$backroundImages_x,
         method = input$backgroundType_x,
         start = input$video_controls[1],
@@ -128,7 +128,7 @@ shiny::observeEvent(input$computeBackground_x, {
 
 # Remove ghosts
 shiny::observeEvent(input$ghostButton_x, {
-  if (trackRai::is_image(the_background)) {
+  if (is_image(the_background)) {
     toggleInputs(input, "OFF")
     toggleTabs(1, "OFF")
 
@@ -151,13 +151,13 @@ shiny::observeEvent(input$ghostButton_x, {
 
 shinyjs::onevent("click", "display_img", function(props) {
   if (collect_ghost() > 0) {
-    x <- trackRai::n_col(to_display) * (props$offsetX / input$display_img_width)
-    y <- trackRai::n_row(to_display) * (props$offsetY / input$display_img_height)
+    x <- n_col(to_display) * (props$offsetX / input$display_img_width)
+    y <- n_row(to_display) * (props$offsetY / input$display_img_height)
     ghost_coords <<- rbind(ghost_coords, c(x, y))
     refresh_display(refresh_display() + 1)
   } else if (collect_mask() > 0) {
-    x <- trackRai::n_col(to_display) * (props$offsetX / input$display_img_width)
-    y <- trackRai::n_row(to_display) * (props$offsetY / input$display_img_height)
+    x <- n_col(to_display) * (props$offsetX / input$display_img_width)
+    y <- n_row(to_display) * (props$offsetY / input$display_img_height)
     mask_coords <<- rbind(mask_coords, c(x, y))
 
     if (collect_mask() == 2 & nrow(mask_coords) >= 5) {
@@ -166,8 +166,8 @@ shinyjs::onevent("click", "display_img", function(props) {
 
     refresh_display(refresh_display() + 1)
   } else if (input$main == "5" & !is.null(the_stats())) {
-    px <- trackRai::n_col(to_display) * (props$offsetX / input$display_img_width)
-    py <- trackRai::n_row(to_display) * (props$offsetY / input$display_img_height)
+    px <- n_col(to_display) * (props$offsetX / input$display_img_width)
+    py <- n_row(to_display) * (props$offsetY / input$display_img_height)
 
     dt <- the_stats()
     in_rect <- dt[frame == the_frame(),
@@ -218,7 +218,7 @@ shiny::observeEvent(stop_ghost_collection(), {
   if (collect_ghost() > 0) {
     if (nrow(ghost_coords) > 0) {
       roi <- reticulate::np_array(
-        array(0L, c(trackRai::n_row(the_background), trackRai::n_col(the_background), 1)),
+        array(0L, c(n_row(the_background), n_col(the_background), 1)),
         dtype = "uint8"
       )
       cv2$fillPoly(
@@ -249,7 +249,7 @@ shinyFiles::shinyFileSave(input, "save_background_x",
 shiny::observeEvent(input$save_background_x, {
   path <- shinyFiles::parseSavePath(volumes, input$save_background_x)
 
-  if (trackRai::is_image(the_background) & nrow(path) > 0) {
+  if (is_image(the_background) & nrow(path) > 0) {
     path <- normalizePath(path$datapath, mustWork = FALSE)
     cv2$imwrite(path, the_background)
     background_path(path)

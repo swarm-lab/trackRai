@@ -1,7 +1,7 @@
 # Display
 shiny::observeEvent(refresh_display(), {
   if (input$main == "6") {
-    if (!trackRai::is_image(the_composite)) {
+    if (!is_image(the_composite)) {
       to_display <<- the_background
     } else {
       to_display <<- the_composite
@@ -38,14 +38,14 @@ shiny::observeEvent(input$test_composite_x, {
       )) + 1L
     )
     tmp <- cv2$erode(tmp, k)
-    mask <- tmp[1:(1 + trackRai::n_row(mask)), 1:(1 + trackRai::n_col(mask))]
+    mask <- tmp[1:(1 + n_row(mask)), 1:(1 + n_col(mask))]
     nz <- cv2$findNonZero(mask)
-    roi <- cbind(reticulate::py_to_r(nz[, , 0]), trackRai::n_row(mask) - reticulate::py_to_r(nz[, , 1]))
+    roi <- cbind(reticulate::py_to_r(nz[, , 0]), n_row(mask) - reticulate::py_to_r(nz[, , 1]))
 
     the_composite <<- the_background$copy()
 
     stamp <- reticulate::np_array(
-      array(0L, c(trackRai::n_row(the_composite), trackRai::n_col(the_composite), 3)),
+      array(0L, c(n_row(the_composite), n_col(the_composite), 3)),
       dtype = "uint8"
     )
 
@@ -69,10 +69,10 @@ shiny::observeEvent(input$test_composite_x, {
         submask <- cv2$rotate(the_submasks[[rnd_blob[i]]], rnd_rot[i])
       }
 
-      bottom <- roi[rnd_loc[i], 2] - round(trackRai::n_row(sub) / 2)
-      left <- roi[rnd_loc[i], 1] - round(trackRai::n_col(sub) / 2)
-      top <- trackRai::n_row(stamp) - bottom - trackRai::n_row(sub)
-      right <- trackRai::n_col(stamp) - left - trackRai::n_col(sub)
+      bottom <- roi[rnd_loc[i], 2] - round(n_row(sub) / 2)
+      left <- roi[rnd_loc[i], 1] - round(n_col(sub) / 2)
+      top <- n_row(stamp) - bottom - n_row(sub)
+      right <- n_col(stamp) - left - n_col(sub)
 
       if (bottom < 0) {
         top <- top + bottom
@@ -110,7 +110,7 @@ shiny::observeEvent(input$test_composite_x, {
       box[, 0] <- box[, 0] + left
       box[, 1] <- box[, 1] + top
       box <- np$int_(box)
-      sc <- max(c(trackRai::n_row(the_composite), trackRai::n_col(the_composite)) / 720)
+      sc <- max(c(n_row(the_composite), n_col(the_composite)) / 720)
       cv2$drawContours(
         the_composite, list(box), 0L, c(255L, 255L, 255),
         as.integer(max(0.5, 2 * sc))
@@ -146,8 +146,8 @@ shiny::observeEvent(input$test_composite_x, {
       r <- sample(0:input$saltpepper_x, 1)
       sp <- reticulate::np_array(
         array(
-          sample(-r:r, trackRai::n_row(the_composite) * trackRai::n_col(the_composite) * 3, replace = TRUE),
-          c(trackRai::n_row(the_composite), trackRai::n_col(the_composite), 3)
+          sample(-r:r, n_row(the_composite) * n_col(the_composite) * 3, replace = TRUE),
+          c(n_row(the_composite), n_col(the_composite), 3)
         ),
         dtype = "int_"
       )
@@ -235,7 +235,7 @@ shiny::observeEvent(yolo_path(), {
           normalizePath(paste0(yolo_path(), "/YOLO/video.mp4"), mustWork = FALSE),
           codec,
           the_video$get(cv2$CAP_PROP_FPS),
-          as.integer(c(trackRai::n_col(prepped), trackRai::n_row(prepped)))
+          as.integer(c(n_col(prepped), n_row(prepped)))
         )
   
         pb <- shiny::Progress$new()
@@ -305,7 +305,7 @@ shiny::observeEvent(yolo_path(), {
 
       composite <- prepped_background$copy()
       stamp <- reticulate::np_array(
-        array(0L, c(trackRai::n_row(prepped_background), trackRai::n_col(prepped_background), 3)),
+        array(0L, c(n_row(prepped_background), n_col(prepped_background), 3)),
         dtype = "uint8"
       )
 
@@ -344,10 +344,10 @@ shiny::observeEvent(yolo_path(), {
               submask <- cv2$rotate(the_submasks[[rnd_blob[iii]]], rnd_rot[iii])
             }
 
-            bottom <- roi[rnd_loc[iii], 2] - round(trackRai::n_row(sub) / 2)
-            left <- roi[rnd_loc[iii], 1] - round(trackRai::n_col(sub) / 2)
-            top <- trackRai::n_row(stamp) - bottom - trackRai::n_row(sub)
-            right <- trackRai::n_col(stamp) - left - trackRai::n_col(sub)
+            bottom <- roi[rnd_loc[iii], 2] - round(n_row(sub) / 2)
+            left <- roi[rnd_loc[iii], 1] - round(n_col(sub) / 2)
+            top <- n_row(stamp) - bottom - n_row(sub)
+            right <- n_col(stamp) - left - n_col(sub)
 
             if (bottom < 0) {
               top <- top + bottom
@@ -382,8 +382,8 @@ shiny::observeEvent(yolo_path(), {
             nz <- cv2$findNonZero(cv2$cvtColor(submask, cv2$COLOR_BGR2GRAY))
             ell <- cv2$fitEllipse(nz)
             box <- cv2$boxPoints(ell)
-            box[, 0] <- (box[, 0] + left) / trackRai::n_col(stamp)
-            box[, 1] <- (box[, 1] + top) / trackRai::n_row(stamp)
+            box[, 0] <- (box[, 0] + left) / n_col(stamp)
+            box[, 1] <- (box[, 1] + top) / n_row(stamp)
 
             annotations[iii, ] <- c(0, c(t(reticulate::py_to_r(box))))
           }
@@ -395,8 +395,8 @@ shiny::observeEvent(yolo_path(), {
             r <- sample(0:input$saltpepper_x, 1)
             sp <- reticulate::np_array(
               array(
-                sample(-r:r, trackRai::n_row(composite) * trackRai::n_col(composite) * 3, replace = TRUE),
-                c(trackRai::n_row(composite), trackRai::n_col(composite), 3)
+                sample(-r:r, n_row(composite) * n_col(composite) * 3, replace = TRUE),
+                c(n_row(composite), n_col(composite), 3)
               ),
               dtype = "int_"
             )

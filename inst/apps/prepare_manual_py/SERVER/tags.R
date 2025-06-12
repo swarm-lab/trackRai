@@ -32,7 +32,7 @@ shiny::observeEvent(refresh_display(), {
   if (input$main == "2") {
     if (trackRai::is_image(the_image)) {
       to_display <<- the_image$copy()
-      r <- 0.0075 * min(trackRai::n_row(to_display), trackRai::n_col(to_display))
+      r <- 0.005 * min(c(trackRai::n_row(to_display), trackRai::n_col(to_display)))
       sc <- max(c(trackRai::n_row(to_display), trackRai::n_col(to_display)) / 720)
 
       if (!is.null(objects_obb)) {
@@ -76,7 +76,8 @@ shiny::observeEvent(input$new_object_x, {
     toggleTabs(1, "OFF")
     shinyjs::addClass("display", "active_display")
 
-    shiny::showNotification("Click at the head and tail of an object to create.
+    shiny::showNotification("First, click at the head and tail of an object.
+                              Then, click on the left and right of the object.
                               Esc to cancel.",
       id = "object_notif",
       duration = NULL, type = "message"
@@ -100,7 +101,7 @@ shinyjs::onevent("click", "display_img", function(props) {
     y <- trackRai::n_row(to_display) * (props$offsetY / input$display_img_height)
     object_coords <<- rbind(object_coords, c(x, y))
 
-    if (nrow(object_coords) >= 2) {
+    if (nrow(object_coords) >= 4) {
       stop_object_collection(stop_object_collection() + 1)
     } else {
       refresh_display(refresh_display() + 1)
@@ -133,23 +134,51 @@ shiny::observeEvent(input$escKey, {
   }
 })
 
-.oriented_rectangle <- function(p1, p2, width, height) {
-  com <- (p1 + p2) / 2
-  dx <- p2[1] - p1[1]
-  dy <- p2[2] - p1[2]
-  length <- sqrt(dx^2 + dy^2)
-  ux <- dx / length
-  uy <- dy / length
-  vx <- -uy
-  vy <- ux
-  half_width_vec <- (width / 2) * c(vx, vy)
-  half_height_vec <- (height / 2) * c(ux, uy)
-  corner1 <- com - half_width_vec - half_height_vec
-  corner2 <- com + half_width_vec - half_height_vec
-  corner3 <- com + half_width_vec + half_height_vec
-  corner4 <- com - half_width_vec + half_height_vec
+# .oriented_rectangle <- function(p1, p2, width, height) {
+#   com <- (p1 + p2) / 2
+#   dx <- p2[1] - p1[1]
+#   dy <- p2[2] - p1[2]
+#   length <- sqrt(dx^2 + dy^2)
+#   ux <- dx / length
+#   uy <- dy / length
+#   vx <- -uy
+#   vy <- ux
+#   half_width_vec <- (width / 2) * c(vx, vy)
+#   half_height_vec <- (height / 2) * c(ux, uy)
+#   corner1 <- com - half_width_vec - half_height_vec
+#   corner2 <- com + half_width_vec - half_height_vec
+#   corner3 <- com + half_width_vec + half_height_vec
+#   corner4 <- com - half_width_vec + half_height_vec
+#   c(corner1, corner2, corner3, corner4)
+# }
+
+.oriented_rectangle <- function(p) {
+  u <- p[2, ] - p[1, ]
+  height <- sqrt(u[1]^2 + u[2]^2)
+  v_norm <- u[2:1] * c(-1, 1) / height
+
+  v1 <- p[3, ] - p[2, ]
+  m1 <- cbind(u, v1)
+  d1 <- abs(det(m1)) / sqrt(sum(u * u))
+
+  v2 <- p[4, ] - p[2, ]
+  m2 <- cbind(u, v2)
+  d2 <- abs(det(m2)) / sqrt(sum(u * u))
+
+  corner1 <- p[1, ] + v_norm * d1
+  corner2 <- p[1, ] - v_norm * d2
+  corner3 <- p[2, ] - v_norm * d2
+  corner4 <- p[2, ] + v_norm * d1
   c(corner1, corner2, corner3, corner4)
 }
+
+
+dist2d <- function(a,b,c) {
+  v1 <- b - c
+  v2 <- a - b
+  m <- cbind(v1,v2)
+  d <- abs(det(m))/sqrt(sum(v1*v1))
+ } 
 
 shiny::observeEvent(stop_object_collection(), {
   if (collect_object() > 0) {
@@ -162,7 +191,8 @@ shiny::observeEvent(stop_object_collection(), {
           id_counter,
           object_coords[1, ],
           object_coords[2, ],
-          .oriented_rectangle(object_coords[1, ], object_coords[2, ], round(h / input$hw_ratio_x), round(h))
+          # .oriented_rectangle(object_coords[1, ], object_coords[2, ], round(h / input$hw_ratio_x), round(h))
+          .oriented_rectangle(object_coords)
         )))
         names(obb) <- c("frame", "id", "p1_x", "p1_y", "p2_x", "p2_y", "x1", "y1", "x2", "y2", "x3", "y3", "x4", "y4")
         selected(id_counter)
@@ -202,57 +232,57 @@ shiny::observeEvent(selected(), {
   }
 })
 
-shiny::observeEvent(input$height_x, {
-  if (!is.null(objects_obb)) {
-    ix <- which(objects_obb$frame == the_frame() & objects_obb$id == selected())
+# shiny::observeEvent(input$height_x, {
+#   if (!is.null(objects_obb)) {
+#     ix <- which(objects_obb$frame == the_frame() & objects_obb$id == selected())
 
-    if (length(ix) > 0) {
-      objects_obb[ix, names(objects_obb) := as.list(
-        c(
-          the_frame(),
-          objects_obb[ix, ]$id,
-          objects_obb[ix, ]$p1_x,
-          objects_obb[ix, ]$p1_y,
-          objects_obb[ix, ]$p2_x,
-          objects_obb[ix, ]$p2_y,
-          .oriented_rectangle(
-            c(objects_obb[ix, ]$p1_x, objects_obb[ix, ]$p1_y),
-            c(objects_obb[ix, ]$p2_x, objects_obb[ix, ]$p2_y),
-            input$width_x, input$height_x
-          )
-        )
-      )]
+#     if (length(ix) > 0) {
+#       objects_obb[ix, names(objects_obb) := as.list(
+#         c(
+#           the_frame(),
+#           objects_obb[ix, ]$id,
+#           objects_obb[ix, ]$p1_x,
+#           objects_obb[ix, ]$p1_y,
+#           objects_obb[ix, ]$p2_x,
+#           objects_obb[ix, ]$p2_y,
+#           .oriented_rectangle(
+#             c(objects_obb[ix, ]$p1_x, objects_obb[ix, ]$p1_y),
+#             c(objects_obb[ix, ]$p2_x, objects_obb[ix, ]$p2_y),
+#             input$width_x, input$height_x
+#           )
+#         )
+#       )]
 
-      refresh_display(refresh_display() + 1)
-    }
-  }
-})
+#       refresh_display(refresh_display() + 1)
+#     }
+#   }
+# })
 
-shiny::observeEvent(input$width_x, {
-  if (!is.null(objects_obb)) {
-    ix <- which(objects_obb$frame == the_frame() & objects_obb$id == selected())
+# shiny::observeEvent(input$width_x, {
+#   if (!is.null(objects_obb)) {
+#     ix <- which(objects_obb$frame == the_frame() & objects_obb$id == selected())
 
-    if (length(ix) > 0) {
-      objects_obb[ix, names(objects_obb) := as.list(
-        c(
-          the_frame(),
-          objects_obb[ix, ]$id,
-          objects_obb[ix, ]$p1_x,
-          objects_obb[ix, ]$p1_y,
-          objects_obb[ix, ]$p2_x,
-          objects_obb[ix, ]$p2_y,
-          .oriented_rectangle(
-            c(objects_obb[ix, ]$p1_x, objects_obb[ix, ]$p1_y),
-            c(objects_obb[ix, ]$p2_x, objects_obb[ix, ]$p2_y),
-            input$width_x, input$height_x
-          )
-        )
-      )]
+#     if (length(ix) > 0) {
+#       objects_obb[ix, names(objects_obb) := as.list(
+#         c(
+#           the_frame(),
+#           objects_obb[ix, ]$id,
+#           objects_obb[ix, ]$p1_x,
+#           objects_obb[ix, ]$p1_y,
+#           objects_obb[ix, ]$p2_x,
+#           objects_obb[ix, ]$p2_y,
+#           .oriented_rectangle(
+#             c(objects_obb[ix, ]$p1_x, objects_obb[ix, ]$p1_y),
+#             c(objects_obb[ix, ]$p2_x, objects_obb[ix, ]$p2_y),
+#             input$width_x, input$height_x
+#           )
+#         )
+#       )]
 
-      refresh_display(refresh_display() + 1)
-    }
-  }
-})
+#       refresh_display(refresh_display() + 1)
+#     }
+#   }
+# })
 
 shiny::observeEvent(input$remove_object_x, {
   if (!is.null(objects_obb)) {
@@ -266,7 +296,7 @@ shiny::observeEvent(input$remove_object_x, {
   }
 })
 
-output$frame_count <- renderText({
+output$frame_count <- shiny::renderText({
   if (refresh_display() > 0) {
     if (!is.null(objects_obb)) {
       as.character(length(unique(objects_obb$frame)))
@@ -278,7 +308,7 @@ output$frame_count <- renderText({
   }
 })
 
-output$object_count <- renderText({
+output$object_count <- shiny::renderText({
   if (refresh_display() > 0) {
     if (!is.null(objects_obb)) {
       as.character(nrow(objects_obb))

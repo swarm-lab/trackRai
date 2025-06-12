@@ -1,10 +1,10 @@
 # Status
 output$video_status <- shiny::renderUI({
-  if (refresh_display() > -1 & !trackRai::is_video_capture(the_video)) {
+  if (refresh_display() > -1 & !is_video_capture(the_video)) {
     toggleTabs(2:6, "OFF")
     toggled_tabs$toggled[2:6] <<- FALSE
     p("Video missing (and required).", class = "bad")
-  } else if (!trackRai::is_video_capture(the_video)) {
+  } else if (!is_video_capture(the_video)) {
     toggleTabs(2:6, "OFF")
     toggled_tabs$toggled[2:6] <<- FALSE
     p("Incompatible videos.", class = "bad")
@@ -25,7 +25,7 @@ shiny::observeEvent(input$main, {
 
 shiny::observeEvent(refresh_display(), {
   if (input$main == "1") {
-    if (trackRai::is_image(the_image)) {
+    if (is_image(the_image)) {
       to_display <<- the_image$copy()
     } else {
       to_display <<- black_screen$copy()
@@ -38,7 +38,7 @@ shiny::observeEvent(refresh_display(), {
 
 output$display <- shiny::renderUI({
   if (print_display() > 0) {
-    if (trackRai::is_image(to_display)) {
+    if (is_image(to_display)) {
       shiny::tags$img(
         src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
           base64$b64encode(cv2$imencode(".jpg", to_display)[1])$decode("utf-8")
@@ -109,7 +109,7 @@ shiny::observeEvent(video_path(), {
   to_check <- cv2$VideoCapture(video_path())
 
   if (reticulate::py_to_r(to_check$isOpened())) {
-    if (!is.na(trackRai::n_frames(to_check))) {
+    if (!is.na(n_frames(to_check))) {
       the_video <<- to_check
       the_image <<- the_video$read()[1]
       refresh_video(refresh_video() + 1)
@@ -121,19 +121,19 @@ shiny::observeEvent(video_path(), {
 
 # Read frame
 shiny::observeEvent(input$video_controls, {
-  if (trackRai::is_video_capture(the_video)) {
+  if (is_video_capture(the_video)) {
     the_frame(input$video_controls[2])
   }
 })
 
 shiny::observeEvent(input$id_controls, {
-  if (trackRai::is_video_capture(the_video)) {
+  if (is_video_capture(the_video)) {
     the_frame(id_frames()[input$id_controls[1]])
   }
 })
 
 shiny::observeEvent(input$main, {
-  if (trackRai::is_video_capture(the_video)) {
+  if (is_video_capture(the_video)) {
     if (input$main %in% c("1", "4")) {
       the_frame(input$video_controls[2])
     } else if (input$main %in% c("5") & input$id_controls[1] > 0) {
@@ -144,7 +144,7 @@ shiny::observeEvent(input$main, {
 
 shiny::observeEvent(the_frame(), {
   if (!is.null(the_frame())) {
-    the_image <<- trackRai::read_frame(the_video, the_frame())
+    the_image <<- read_frame(the_video, the_frame())
     refresh_display(refresh_display() + 1)
   }
 })

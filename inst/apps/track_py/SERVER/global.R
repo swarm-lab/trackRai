@@ -1,5 +1,5 @@
 # YOLO
-yolo_installed <- !is.na(trackRai:::.yolo_path())
+yolo_installed <- yolo_installed()
 n_gpus <- reticulate::py_to_r(torch$cuda$device_count())
 mps <- reticulate::py_to_r(torch$backends$mps$is_available())
 device <- if (n_gpus > 0) "cuda:0" else if (mps) "mps" else "cpu"

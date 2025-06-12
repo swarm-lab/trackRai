@@ -36,7 +36,7 @@ output$control_panel <- shiny::renderUI({
 
 shiny::observeEvent(input$main, {
   test_1 <- input$main %in% c("1", "4")
-  test_2 <- trackRai::is_video_capture(the_video)
+  test_2 <- is_video_capture(the_video)
   test_3 <- input$main %in% c("5")
 
   if (test_1 & test_2) {
@@ -59,7 +59,7 @@ shiny::observeEvent(input$main, {
 shiny::observeEvent(refresh_video(), {
   test_1 <- refresh_video() > 0
   test_2 <- input$main %in% c("1", "4")
-  test_3 <- trackRai::is_video_capture(the_video)
+  test_3 <- is_video_capture(the_video)
 
   if (test_1 & test_2 & test_3) {
     shinyjs::show("controls")
@@ -72,16 +72,16 @@ shiny::observeEvent(refresh_video(), {
 # Update control sliders
 shiny::observeEvent(refresh_video(), {
   test_1 <- refresh_video() > 0
-  test_2 <- trackRai::is_video_capture(the_video)
+  test_2 <- is_video_capture(the_video)
 
   if (test_1 & test_2) {
     min_val <- 1
-    max_val <- trackRai::n_frames(the_video)
+    max_val <- n_frames(the_video)
     val <- 1
-    video_range <<- c(1, trackRai::n_frames(the_video))
+    video_range <<- c(1, n_frames(the_video))
     shinyWidgets::updateNoUiSliderInput(
       session, "video_controls",
-      range = c(1, trackRai::n_frames(the_video)),
+      range = c(1, n_frames(the_video)),
       value = c(min_val, val, max_val)
     )
   } else {

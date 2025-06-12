@@ -49,7 +49,7 @@ shiny::observeEvent(the_track_path(), {
   toggleTabs(1, "OFF")
   toggled_tabs$toggled[1] <<- FALSE
   toggleInputs(input, state = "OFF")
-  sc <<- round(max(c(1, trackRai::n_row(the_image) / 720, trackRai::n_col(the_image) / 720)))
+  sc <<- round(max(c(1, n_row(the_image) / 720, n_col(the_image) / 720)))
   the_model <<- ultralytics$YOLO(normalizePath(paste0(the_model_folder(), "/runs/obb/", input$model_x)))
 
   pb <<- Progress$new()
@@ -87,7 +87,7 @@ shiny::observeEvent(the_debounce(), {
           source = cv2$multiply(frame[1], the_mask),
           show = FALSE,
           persist = TRUE,
-          imgsz = c(trackRai::n_row(frame[1]), trackRai::n_col(frame[1])),
+          imgsz = c(n_row(frame[1]), n_col(frame[1])),
           conf = input$conf_x,
           iou = input$iou_x,
           max_det = as.integer(input$maxObjects_x),
