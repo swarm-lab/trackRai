@@ -245,7 +245,7 @@ shiny::observeEvent(yolo_path(), {
         old_frame <- 1
         old_time <- Sys.time()
   
-        for (i in 1:n) {
+        for (i in seq_len(n)) {
           frame <- the_video$read()[1]
           sub <- frame[y:(y + h), x:(x + w)]
           prepped <- cv2$copyMakeBorder(

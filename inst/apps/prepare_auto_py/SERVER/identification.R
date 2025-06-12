@@ -65,7 +65,7 @@ shiny::observeEvent(refresh_display(), {
       dt <- the_stats()[frame == the_frame()]
       dt[, select := (select_h & select_w & mod != 2) | (mod == 1)]
 
-      for (j in 1:nrow(dt)) {
+      for (j in seq_len(nrow(dt))) {
         good <- dt[j, ]$select
         l <- list(
           c(dt[j, ]$x, dt[j, ]$y),
@@ -215,7 +215,7 @@ shiny::observeEvent(input$computeStats_x, {
     the_subs <<- list()
     the_submasks <<- list()
 
-    for (i in 1:n) {
+    for (i in seq_len(n)) {
       the_video$set(cv2$CAP_PROP_POS_FRAMES, frame_pos[i] - 1)
       frame <- the_video$read()[1]
 
