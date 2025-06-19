@@ -9,3 +9,4 @@
 ^logo\.svg$
 ^test$
 ^codecov\.yml$
+^graveyard$

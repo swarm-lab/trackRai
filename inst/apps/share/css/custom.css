@@ -38,6 +38,10 @@
   width: 50%;
 }
 
+.quarterWidth {
+  width: 25%;
+}
+
 .stateTable {
   width: 100%;
 }
@@ -114,7 +118,7 @@ hr.hr-text:after {
   text-align: center;
 }
 
-#settings-tabbable .col-sm-1.vrtc-tab-panel-menu.vrtc-tab-panel-menu-right {
+#bookmarking-tabbable .col-sm-1.vrtc-tab-panel-menu.vrtc-tab-panel-menu-right {
   display: none;
 }
 
@@ -196,6 +200,10 @@ hr.hr-text:after {
 .noUi-handle-upper,
 .noUi-handle-lower {
   background-color: #c8c8c8 !important;
+}
+
+#id_controls > div.noUi-base > div.noUi-origin > div {
+  background-color: #66A61E !important;
 }
 
 .noUi-horizontal .noUi-handle {

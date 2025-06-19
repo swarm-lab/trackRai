@@ -17,10 +17,13 @@
 #' @export
 prepare <- function(...) {
   if (yolo_installed()) {
-    shiny::runApp(paste0(find.package("trackRai"), "/apps/prepare_auto_py"), ...)
+    shiny::runApp(
+      paste0(find.package("trackRai"), "/apps/prepare_auto_py"),
+      ...
+    )
   } else {
     stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
-  }  
+  }
 }
 # prepare <- function(auto = TRUE, ...) {
 #   if (auto) {
@@ -30,10 +33,9 @@ prepare <- function(...) {
 #   }
 # }
 
-
 #' @title Model Training
 #'
-#' @description This function launches a Shiny app to help with the training of 
+#' @description This function launches a Shiny app to help with the training of
 #'  a YOLO model.
 #'
 #' @param ... Parameters to be passed to \link[shiny]{runApp}.
@@ -53,14 +55,14 @@ train <- function(...) {
     shiny::runApp(paste0(find.package("trackRai"), "/apps/train_py"), ...)
   } else {
     stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
-  }  
+  }
 }
 
 
 #' @title Video Tracking
 #'
-#' @description This function launches a Shiny app to help with the tracking of 
-#'  objects in a video using a trained YOLO model. 
+#' @description This function launches a Shiny app to help with the tracking of
+#'  objects in a video using a trained YOLO model.
 #'
 #' @param ... Parameters to be passed to \link[shiny]{runApp}.
 #'
@@ -79,13 +81,13 @@ track <- function(...) {
     shiny::runApp(paste0(find.package("trackRai"), "/apps/track_py"), ...)
   } else {
     stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
-  }  
+  }
 }
 
 
 #' @title Track Visualization
 #'
-#' @description This function launches a Shiny app to help with the 
+#' @description This function launches a Shiny app to help with the
 #'  visualization the tracking results obtained with \link{track}.
 #'
 #' @param ... Parameters to be passed to \link[shiny]{runApp}.
@@ -105,5 +107,15 @@ visualize <- function(...) {
     shiny::runApp(paste0(find.package("trackRai"), "/apps/visualize_py"), ...)
   } else {
     stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
-  }  
+  }
+}
+
+
+#' @export
+trackRai <- function(...) {
+  if (yolo_installed()) {
+    shiny::runApp(paste0(find.package("trackRai"), "/apps/launcher"), ...)
+  } else {
+    stop("YOLO was not detected. Install it with `trackRai::install_yolo()`.")
+  }
 }

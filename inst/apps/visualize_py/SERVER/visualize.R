@@ -28,9 +28,9 @@ mode(.shades) <- "integer"
   NULL
 }
 
-shiny::observeEvent(input$video_controls, {
-  if (is_video_capture(the_video)) {
-    the_frame(input$video_controls[2])
+shiny::observeEvent(input$video_controls_x, {
+  if (trackRcv::is_video_capture(the_video)) {
+    the_frame(input$video_controls_x[2])
   }
 })
 
@@ -51,7 +51,7 @@ shiny::observeEvent(the_frame(), {
 
 shiny::observeEvent(refresh_display(), {
   if (input$main == "1") {
-    if (is_image(the_image)) {
+    if (trackRcv::is_image(the_image)) {
       to_display <<- the_image$copy()
 
       if (data.table::is.data.table(the_tracks)) {
@@ -74,7 +74,7 @@ shiny::observeEvent(refresh_display(), {
 
 output$display <- shiny::renderUI({
   if (print_display() > 0) {
-    if (is_image(to_display)) {
+    if (trackRcv::is_image(to_display)) {
       shiny::tags$img(
         src = paste0("data:image/jpg;base64,", reticulate::py_to_r(
           base64$b64encode(cv2$imencode(".jpg", to_display)[1])$decode("utf-8")
@@ -107,9 +107,9 @@ shiny::observeEvent(input$win_resize, {
 
 # Status
 output$video_status <- shiny::renderUI({
-  if (refresh_display() > -1 & !is_video_capture(the_video)) {
+  if (refresh_display() > -1 & !trackRcv::is_video_capture(the_video)) {
     shiny::p("Video missing (and required).", class = "bad")
-  } else if (!is_video_capture(the_video)) {
+  } else if (!trackRcv::is_video_capture(the_video)) {
     shiny::p("Incompatible videos.", class = "bad")
   }
 })
@@ -125,7 +125,7 @@ output$track_status <- shiny::renderUI({
 
 # UI
 output$export_controls <- shiny::renderUI({
-  if (refresh_display() > -1 & is_video_capture(the_video) &
+  if (refresh_display() > -1 & trackRcv::is_video_capture(the_video) &
     data.table::is.data.table(the_tracks)) {
     shiny::tagList(
       shinyFiles::shinySaveButton(
@@ -141,13 +141,13 @@ output$export_controls <- shiny::renderUI({
 
 
 # Load video file
-shinyFiles::shinyFileChoose(input, "video_file_x",
+shinyFiles::shinyFileChoose(input, "video_file",
   roots = volumes, session = session,
   defaultRoot = default_root(), defaultPath = default_path()
 )
 
-shiny::observeEvent(input$video_file_x, {
-  path <- shinyFiles::parseFilePaths(volumes, input$video_file_x)
+shiny::observeEvent(input$video_file, {
+  path <- shinyFiles::parseFilePaths(volumes, input$video_file)
   if (nrow(path) > 0) {
     video_path(normalizePath(path$datapath, mustWork = FALSE))
   }
@@ -180,7 +180,7 @@ shiny::observeEvent(video_path(), {
   to_check <- cv2$VideoCapture(video_path())
 
   if (reticulate::py_to_r(to_check$isOpened())) {
-    if (!is.na(n_frames(to_check))) {
+    if (!is.na(trackRcv::n_frames(to_check))) {
       the_video <<- to_check
       the_image <<- the_video$read()[1]
       refresh_video(refresh_video() + 1)
@@ -255,18 +255,18 @@ shiny::observeEvent(input$export_x, {
 # Export video with track
 shiny::observeEvent(the_export_path(), {
   shiny::showNotification("Export in progress.", id = "export", duration = NULL)
-  toggleInputs(input, state = "OFF")
+  .toggleInputs(input, state = "OFF")
 
   the_video_writer <<- cv2$VideoWriter(
     normalizePath(the_export_path(), mustWork = FALSE),
     codec,
     the_video$get(cv2$CAP_PROP_FPS),
-    as.integer(c(n_col(the_image), n_row(the_image)))
+    as.integer(c(trackRcv::n_col(the_image), trackRcv::n_row(the_image)))
   )
-  the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls[1] - 1)
+  the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls_x[1] - 1)
   pb <<- Progress$new()
   pb$set(message = "Computing: ", value = 0, detail = "0%")
-  n <<- input$video_controls[3] - input$video_controls[1] + 1
+  n <<- input$video_controls_x[3] - input$video_controls_x[1] + 1
   old_check <<- 0
   old_frame <<- 1
   old_time <<- Sys.time()
@@ -280,12 +280,12 @@ shiny::observeEvent(the_debounce(), {
       out <<- the_video$read()[1]
 
       void <- the_tracks[
-        frame == (input$video_controls[1] + the_loop()),
+        frame == (input$video_controls_x[1] + the_loop()),
         .drawBoxes(out, .SD, .BY, input$line_width_x),
         by = .(id), .SDcols = c("x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4")
       ]
       void <- the_tracks[
-        frame %in% ((input$video_controls[1] + the_loop()) - input$track_length_x + 1):(input$video_controls[1] + the_loop()),
+        frame %in% ((input$video_controls_x[1] + the_loop()) - input$track_length_x + 1):(input$video_controls_x[1] + the_loop()),
         .drawTracks(out, .SD, .BY, input$line_width_x),
         by = .(id), .SDcols = c("x", "y")
       ]
@@ -314,7 +314,7 @@ shiny::observeEvent(the_debounce(), {
       in_progress(FALSE)
       shiny::removeNotification(id = "export")
       pb$close()
-      toggleInputs(input, state = "ON")
+      .toggleInputs(input, state = "ON")
     }
   }
 })

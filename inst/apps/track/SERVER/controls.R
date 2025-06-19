@@ -19,7 +19,19 @@ output$control_panel <- shiny::renderUI({
 
 shiny::observeEvent(refresh_video(), {
   test_1 <- refresh_video() > 0
-  test_2 <- input$main %in% c("1")
+  test_2 <- input$main %in% c("1", "2")
+  test_3 <- trackRcv::is_video_capture(the_video)
+
+  if (test_1 & test_2 & test_3) {
+    shinyjs::show("controls")
+  } else {
+    shinyjs::hide("controls")
+  }
+})
+
+shiny::observeEvent(input$main, {
+  test_1 <- refresh_video() > 0
+  test_2 <- input$main %in% c("1", "2")
   test_3 <- trackRcv::is_video_capture(the_video)
 
   if (test_1 & test_2 & test_3) {
@@ -58,7 +70,6 @@ shiny::observeEvent(refresh_video(), {
 shiny::observeEvent(input$video_controls_x, {
   if (input$video_controls_x[1] != video_range[1]) {
     new_values <- input$video_controls_x
-    # new_values[2] <- new_values[1]
     video_range[1] <<- new_values[1]
     shinyWidgets::updateNoUiSliderInput(
       session, "video_controls_x",
@@ -66,7 +77,6 @@ shiny::observeEvent(input$video_controls_x, {
     )
   } else if (input$video_controls_x[3] != video_range[2]) {
     new_values <- input$video_controls_x
-    # new_values[2] <- new_values[3]
     video_range[2] <<- new_values[3]
     shinyWidgets::updateNoUiSliderInput(
       session, "video_controls_x",

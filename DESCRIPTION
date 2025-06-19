@@ -1,6 +1,6 @@
 Package: trackRai
 Title: Multi-Object Tracking With YOLO11
-Version: 0.0.0.9000
+Version: 0.1.0
 Authors@R: c(
     person("Simon", "Garnier", , "garnier@njit.edu", role = c("aut", "cre"),
         comment = c(ORCID = "0000-0002-3886-3974")),
@@ -32,8 +32,11 @@ Imports:
     shinyFiles (>= 0.9.3),
     shinyjs (>= 2.1.0),
     shinyWidgets (>= 0.8.7),
-    stringr (>= 1.5.1)
+    stringr (>= 1.5.1),
+    trackRcv (>= 0.1.0)
 Suggests: 
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+Remotes:  
+    swarm-lab/trackRcv

@@ -4,7 +4,7 @@ shinyWidgets::verticalTabPanel(
   shiny::p("Visualization module", class = "module-title"),
   shiny::hr(),
   shiny::htmlOutput("video_status"),
-  shinyFiles::shinyFilesButton("video_file_x", "Select video",
+  shinyFiles::shinyFilesButton("video_file", "Select video",
     "Please select a video file", FALSE, class = "fullWidth"
   ),
   shiny::hr(),
@@ -25,7 +25,7 @@ shinyWidgets::verticalTabPanel(
         style = "width: 49%;"
       )
     ),
-    class = "settingsTable"
+    class = "stateTable"
   ),
   shiny::hr(),
   shiny::uiOutput("export_controls")
