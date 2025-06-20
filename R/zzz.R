@@ -10,6 +10,7 @@
 #' @importFrom shinyalert shinyalert
 #' @importFrom shinyjs useShinyjs
 #' @importFrom stringr str_locate_all
+#' @importFrom trackRcv is_video_capture
 
 local <- new.env()
 
