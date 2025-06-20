@@ -89,6 +89,26 @@ ui <- function(request) {
               icon = shiny::icon("search-location", class = "fa-solid"),
               style = "font-size: 20px;",
               width = "100%"
+            ),
+
+            shiny::hr(),
+
+            shiny::actionButton(
+              "fix",
+              " - Fix",
+              icon = shiny::icon("tools", class = "fa-solid"),
+              style = "font-size: 20px;",
+              width = "100%"
+            ),
+
+            shiny::hr(),
+
+            shiny::actionButton(
+              "visualize",
+              " - Visualize",
+              icon = shiny::icon("eye", class = "fa-solid"),
+              style = "font-size: 20px;",
+              width = "100%"
             )
           ),
 
@@ -105,32 +125,52 @@ ui <- function(request) {
 #--------------------------------------------------------------
 server <- function(input, output, session) {
   shiny::observeEvent(input$prepare, {
-    shiny::stopApp(shiny::shinyAppFile(
+    shiny::stopApp(shiny::shinyAppDir(
       paste0(
         find.package("trackRai"),
-        "/apps/prepare_auto/app.R"
+        "/apps/prepare_auto/"
       ),
-      options = list(port = as.numeric(session$clientData$url_port))
+      options = list(launch.browser = TRUE)
     ))
   })
 
   shiny::observeEvent(input$train, {
-    shiny::stopApp(shiny::shinyAppFile(
+    shiny::stopApp(shiny::shinyAppDir(
       paste0(
         find.package("trackRai"),
-        "/apps/train/app.R"
+        "/apps/train/"
       ),
-      options = list(port = as.numeric(session$clientData$url_port))
+      options = list(launch.browser = TRUE)
     ))
   })
 
   shiny::observeEvent(input$track, {
-    shiny::stopApp(shiny::shinyAppFile(
+    shiny::stopApp(shiny::shinyAppDir(
       paste0(
         find.package("trackRai"),
-        "/apps/track/app.R"
+        "/apps/track/"
       ),
-      options = list(port = as.numeric(session$clientData$url_port))
+      options = list(launch.browser = TRUE)
+    ))
+  })
+
+  shiny::observeEvent(input$fix, {
+    shiny::stopApp(shiny::shinyAppDir(
+      paste0(
+        find.package("trackRcv"),
+        "/apps/trackFixer/"
+      ),
+      options = list(launch.browser = TRUE)
+    ))
+  })
+
+  shiny::observeEvent(input$visualize, {
+    shiny::stopApp(shiny::shinyAppDir(
+      paste0(
+        find.package("trackRcv"),
+        "/apps/trackPlayer/"
+      ),
+      options = list(launch.browser = TRUE)
     ))
   })
 

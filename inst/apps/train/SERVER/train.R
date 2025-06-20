@@ -1,3 +1,22 @@
+# Globals and reactives
+volumes <- c(Home = fs::path_home(), getVolumes()())
+the_temp_file <- NULL
+n_gpus <- reticulate::py_to_r(torch$cuda$device_count())
+mps <- reticulate::py_to_r(torch$backends$mps$is_available())
+device <- if (n_gpus > 0) "cuda:0" else if (mps) "mps" else "cpu"
+yolo_proc <- NULL
+
+yolo_installed <- yolo_installed()
+yolo_path <- shiny::reactiveVal()
+the_model_folder <- shiny::reactiveVal()
+the_model <- shiny::reactiveVal()
+retrain <- shiny::reactiveVal(TRUE)
+the_raw_progress <- shiny::reactiveVal()
+the_progress <- shiny::reactiveVal()
+monitor_progress <- shiny::reactiveVal(FALSE)
+monitor_tick <- shiny::reactiveVal(0)
+
+
 # Display
 output$console <- shiny::renderUI({
   shiny::invalidateLater(1000, session)

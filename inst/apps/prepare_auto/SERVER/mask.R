@@ -286,7 +286,7 @@ shiny::observeEvent(stop_mask_collection(), {
             ),
             dtype = "uint8"
           )
-          ell <- optim_ellipse(mask_coords[, 1], mask_coords[, 2])
+          ell <- trackRcv::optim_ellipse(mask_coords[, 1], mask_coords[, 2])
           ellMask <- cv2$ellipse(
             ellMask,
             as.integer(c(ell[1], ell[2])),

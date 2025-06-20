@@ -5,40 +5,75 @@ shinyWidgets::verticalTabPanel(
   shiny::hr(),
   shiny::h4("Detection parameters"),
   shiny::numericInput(
-    "maxObjects_x", "Maximum number of objects to detect:",
-    30, 1, NA, 1, "100%"
+    "max_objects_x",
+    "Maximum number of objects to detect:",
+    30,
+    1,
+    NA,
+    1,
+    "100%"
   ),
   shiny::sliderInput(
-    "conf_x", "Minimum confidence threshold:",
-    0, 1, 0.25, 0.01, width = "100%"
+    "conf_x",
+    "Minimum confidence threshold:",
+    0,
+    1,
+    0.25,
+    0.01,
+    width = "100%"
   ),
   shiny::sliderInput(
-    "iou_x", "Intersection over union threshold:",
-    0, 1, 0.7, 0.01, width = "100%"
+    "iou_x",
+    "Intersection over union threshold:",
+    0,
+    1,
+    0.7,
+    0.01,
+    width = "100%"
   ),
   shiny::hr(),
   shiny::h4("Tracking parameters"),
   shiny::sliderInput(
-    "assoc_x", "Association thresholds:",
-    0, 1, c(0.1, 0.25), 0.01, width = "100%"
+    "assoc_x",
+    "Association thresholds:",
+    0,
+    1,
+    c(0.1, 0.25),
+    0.01,
+    width = "100%"
   ),
   shiny::sliderInput(
-    "newTrack_x", "New track threshold:",
-    0, 1, 0.25, 0.01, width = "100%"
+    "new_track_x",
+    "New track threshold:",
+    0,
+    1,
+    0.25,
+    0.01,
+    width = "100%"
   ),
   shiny::numericInput(
-    "trackbuffer", "Old track buffer:",
-    30, 1, NA, 1, "100%"
+    "track_buffer",
+    "Old track buffer:",
+    30,
+    1,
+    NA,
+    1,
+    "100%"
   ),
   shiny::sliderInput(
-    "match_x", "Track matching threshold:",
-    0, 1, 0.8, 0.01, width = "100%"
+    "match_x",
+    "Track matching threshold:",
+    0,
+    1,
+    0.8,
+    0.01,
+    width = "100%"
   ),
   shiny::hr(),
   shiny::uiOutput("start_stop"),
-  div(
+  shiny::div(
     style = "text-align: center;",
-    checkboxInput("preview", "Show preview", value = FALSE)
+    shiny::checkboxInput("preview", "Show preview", value = FALSE)
   ),
   shiny::hr()
 )

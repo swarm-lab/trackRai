@@ -25,21 +25,30 @@ library(stringr)
 
 
 #--------------------------------------------------------------
-# Custom functions
-#--------------------------------------------------------------
-source("HELPERS/toggler.R", local = FALSE)
-
-
-#--------------------------------------------------------------
 # User Interface
 #--------------------------------------------------------------
+shiny::addResourcePath(
+  prefix = "share",
+  directoryPath = system.file("apps/share", package = "trackRcv")
+)
+
 ui <- function(request) {
   shiny::fluidPage(
-    shiny::tags$head(includeCSS("www/custom.css")),
+    shiny::tags$head(
+      shiny::includeCSS(path = "../share/css/custom.css")
+    ),
     shinyjs::useShinyjs(),
     shinyjs::extendShinyjs(
-      script = "custom.js",
+      script = "share/js/window.js",
       functions = c("uishape")
+    ),
+    shinyjs::extendShinyjs(
+      script = "share/js/keyboard.js",
+      functions = c()
+    ),
+    shinyjs::extendShinyjs(
+      script = "share/js/reset.js",
+      functions = c("replace")
     ),
     shiny::div(id = "curtain", class = "curtain"),
     shiny::div(
@@ -70,7 +79,8 @@ ui <- function(request) {
 # Application server
 #--------------------------------------------------------------
 server <- function(input, output, session) {
-  source("SERVER/global.R", local = TRUE)
+  source("../share/r/togglers.R", local = TRUE)
+  source("../share/r/drawers.R", local = TRUE)
   source("SERVER/data.R", local = TRUE)
   source("SERVER/tracking.R", local = TRUE)
   source("SERVER/controls.R", local = TRUE)

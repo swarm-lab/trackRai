@@ -1,3 +1,50 @@
+# Globals and reactives
+display_table <- NULL
+col <- pals::alphabet()
+the_temp_tracker <- tempfile("tracker", fileext = ".yaml")
+frame <- NULL
+tracks <- NULL
+sc <- NULL
+pb <- NULL
+n <- NULL
+old_check <- NULL
+old_frame <- NULL
+old_time <- NULL
+
+the_track_path <- shiny::reactiveVal()
+the_loop <- shiny::reactiveVal()
+the_debounce <- shiny::debounce(the_loop, 1)
+in_progress <- shiny::reactiveVal(FALSE)
+
+
+# UI
+shinyjs::hideElement("curtain")
+toggled_tabs <- data.frame(
+  tab = 1:2,
+  toggled = c(TRUE, FALSE)
+)
+
+output$start_stop <- shiny::renderUI({
+  if (in_progress()) {
+    shiny::actionButton(
+      "stop_track",
+      "Stop tracking",
+      width = "100%",
+      class = "btn-danger"
+    )
+  } else {
+    shinyFiles::shinySaveButton(
+      "start_track_x",
+      "Start tracking",
+      "Please select a location to save the tracks",
+      "tracks",
+      "csv",
+      class = "fullWidth btn-success"
+    )
+  }
+})
+
+
 # Display
 shiny::observeEvent(input$conf_x, {
   refresh_display(refresh_display() + 1)
@@ -7,31 +54,19 @@ shiny::observeEvent(input$iou_x, {
   refresh_display(refresh_display() + 1)
 })
 
-shiny::observeEvent(input$maxObjects_x, {
+shiny::observeEvent(input$max_objects_x, {
   refresh_display(refresh_display() + 1)
 })
 
 
-# UI
-output$start_stop <- shiny::renderUI({
-  if (in_progress()) {
-    shiny::actionButton(
-      "stop_track", "Stop tracking",
-      width = "100%", class = "btn-danger"
-    )
-  } else {
-    shinyFiles::shinySaveButton("start_track_x", "Start tracking",
-      "Please select a location to save the tracks", "tracks", "csv",
-      class = "fullWidth btn-success"
-    )
-  }
-})
-
-
 # Initiate tracking
-shinyFiles::shinyFileSave(input, "start_track_x",
-  roots = volumes, session = session,
-  defaultRoot = default_root(), defaultPath = default_path()
+shinyFiles::shinyFileSave(
+  input,
+  "start_track_x",
+  roots = volumes,
+  session = session,
+  defaultRoot = default_root(),
+  defaultPath = default_path()
 )
 
 shiny::observeEvent(input$start_track_x, {
@@ -45,12 +80,24 @@ shiny::observeEvent(the_track_path(), {
   the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls_x[1] - 1)
   the_loop(0)
   in_progress(TRUE)
-  shiny::showNotification("Tracking in progress.", id = "tracking", duration = NULL)
+  shiny::showNotification(
+    "Tracking in progress.",
+    id = "tracking",
+    duration = NULL
+  )
   .toggleTabs(1, "OFF")
   toggled_tabs$toggled[1] <<- FALSE
   .toggleInputs(input, state = "OFF")
-  sc <<- round(max(c(1, trackRcv::n_row(the_image) / 720, trackRcv::n_col(the_image) / 720)))
-  the_model <<- ultralytics$YOLO(normalizePath(paste0(the_model_folder(), "/runs/obb/", input$model_x)))
+  sc <<- round(max(c(
+    1,
+    trackRcv::n_row(the_image) / 720,
+    trackRcv::n_col(the_image) / 720
+  )))
+  the_model <<- ultralytics$YOLO(normalizePath(paste0(
+    the_model_folder(),
+    "/runs/obb/",
+    input$model_x
+  )))
 
   pb <<- Progress$new()
   pb$set(message = "Computing: ", value = 0, detail = "0%")
@@ -63,8 +110,8 @@ shiny::observeEvent(the_track_path(), {
   write("tracker_type: botsort", con)
   write(paste0("track_high_thresh: ", input$assoc_x[2]), con, append = TRUE)
   write(paste0("track_low_thresh: ", input$assoc_x[1]), con, append = TRUE)
-  write(paste0("new_track_thresh: ", input$newTrack_x), con, append = TRUE)
-  write(paste0("track_buffer: ", input$trackbuffer), con, append = TRUE)
+  write(paste0("new_track_thresh: ", input$new_track_x), con, append = TRUE)
+  write(paste0("track_buffer: ", input$track_buffer), con, append = TRUE)
   write(paste0("match_thresh: ", input$match_x), con, append = TRUE)
   write("fuse_score: True", con, append = TRUE)
   write("gmc_method: sparseOptFlow", con, append = TRUE)
@@ -90,14 +137,17 @@ shiny::observeEvent(the_debounce(), {
           imgsz = c(trackRcv::n_row(frame[1]), trackRcv::n_col(frame[1])),
           conf = input$conf_x,
           iou = input$iou_x,
-          max_det = as.integer(input$maxObjects_x),
+          max_det = as.integer(input$max_objects_x),
           tracker = normalizePath(the_temp_tracker, mustWork = FALSE),
           verbose = FALSE,
           device = device
         )
 
         if (!reticulate::py_to_r(tracks[0]$obb$id == py_none())) {
-          obb <- asplit(reticulate::py_to_r(tracks[0]$obb$xyxyxyxy$cpu()$numpy()), 3)
+          obb <- asplit(
+            reticulate::py_to_r(tracks[0]$obb$xyxyxyxy$cpu()$numpy()),
+            3
+          )
           xywhr <- reticulate::py_to_r(tracks[0]$obb$xywhr$cpu()$numpy())
           ids <- reticulate::py_to_r(tracks[0]$obb$id$cpu()$numpy())
 
@@ -111,24 +161,50 @@ shiny::observeEvent(the_debounce(), {
             )
           )
           names(tab) <- c(
-            "frame", "id", "x", "y", "width", "height", "angle",
-            "x1", "x2", "x3", "x4", "y1", "y2", "y3", "y4"
+            "frame",
+            "track",
+            "x",
+            "y",
+            "width",
+            "height",
+            "angle",
+            "x1",
+            "x2",
+            "x3",
+            "x4",
+            "y1",
+            "y2",
+            "y3",
+            "y4"
           )
+          tab[, angle := angle * 180 / pi]
 
           if (the_loop() == 0) {
-            if (file.exists(normalizePath(the_track_path(), mustWork = FALSE))) {
+            if (
+              file.exists(normalizePath(the_track_path(), mustWork = FALSE))
+            ) {
               unlink(normalizePath(the_track_path(), mustWork = FALSE))
             }
-            fwrite(tab, normalizePath(the_track_path(), mustWork = FALSE), append = FALSE)
+            fwrite(
+              tab,
+              normalizePath(the_track_path(), mustWork = FALSE),
+              append = FALSE
+            )
           } else {
-            fwrite(tab, normalizePath(the_track_path(), mustWork = FALSE), append = TRUE)
+            fwrite(
+              tab,
+              normalizePath(the_track_path(), mustWork = FALSE),
+              append = TRUE
+            )
           }
 
-          display_table <<- data.table::rbindlist(list(display_table, tab))[frame >= (max(frame) - input$trackbuffer), ]
+          display_table <<- data.table::rbindlist(list(display_table, tab))[
+            frame >= (max(frame) - input$track_buffer),
+          ]
         }
 
         if (input$preview) {
-          if ((the_loop() %% input$trackbuffer) == 0) {
+          if ((the_loop() %% input$track_buffer) == 0) {
             to_display <<- cv2$multiply(frame[1], the_mask)
 
             if (!is.null(display_table)) {
@@ -142,17 +218,37 @@ shiny::observeEvent(the_debounce(), {
                 )
               )
               box <- np$int_(box)
-              shades <- col[(last$id %% length(col)) + 1]
+              shades <- col[(last$track %% length(col)) + 1]
 
               for (i in seq_len(py_to_r(box$shape[0]))) {
-                to_display <<- cv2$drawContours(
-                  to_display, list(box[i - 1]), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-                  as.integer(2 * sc)
+                .drawContour(
+                  to_display,
+                  list(box[i - 1]),
+                  color = as.integer(col2rgb(shades[i], FALSE)[
+                    3:1,
+                    ,
+                    drop = FALSE
+                  ]),
+                  contrast = c(255, 255, 255),
+                  thickness = as.integer(max(1, round(sc)))
                 )
-                trace <- reticulate::r_to_py(as.matrix(display_table[id == last$id[i], c("x", "y")]))
-                to_display <<- cv2$polylines(
-                  to_display, list(np$int_(trace)), 0L, as.integer(col2rgb(shades[i], FALSE)[3:1, , drop = FALSE]),
-                  as.integer(2 * sc)
+
+                trace <- as.matrix(display_table[
+                  track == last$track[i],
+                  c("x", "y")
+                ])
+
+                .drawPolyLine(
+                  to_display,
+                  trace,
+                  closed = FALSE,
+                  color = as.integer(col2rgb(shades[i], FALSE)[
+                    3:1,
+                    ,
+                    drop = FALSE
+                  ]),
+                  contrast = c(255, 255, 255),
+                  thickness = as.integer(max(1, round(sc)))
                 )
               }
             }
@@ -176,7 +272,7 @@ shiny::observeEvent(the_debounce(), {
         }
 
         the_loop(the_loop() + 1)
-      } 
+      }
     } else {
       the_loop(NULL)
       the_track_path(NULL)

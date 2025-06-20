@@ -1,3 +1,29 @@
+# Globals and reactives
+the_video <- NULL
+the_frame <- NULL
+the_mask <- NULL
+to_display <- NULL
+black_screen <- reticulate::r_to_py(array(0L, c(1080, 1920, 3)))
+
+default_root <- shiny::reactiveVal()
+default_path <- shiny::reactiveVal("")
+video_path <- shiny::reactiveVal()
+mask_path <- shiny::reactiveVal()
+refresh_video <- shiny::reactiveVal(0)
+refresh_frame <- shiny::reactiveVal(0)
+refresh_mask <- shiny::reactiveVal(0)
+refresh_display <- shiny::reactiveVal(0)
+
+
+# UI
+shinyjs::hideElement("curtain")
+.toggleTabs(2, "OFF")
+toggled_tabs <- data.frame(
+  tab = 1:2,
+  toggled = c(TRUE, FALSE)
+)
+
+
 # Display
 output$display_frame <- shiny::renderUI({
   if (refresh_frame() > 0) {
@@ -27,25 +53,14 @@ output$display_frame <- shiny::renderUI({
         .drawContour(
           to_display,
           list(obb[i - 1]),
-          color = c(0L, 224L, 0L),
+          color = as.integer(col2rgb(pals::alphabet()[6], FALSE)[
+            3:1,
+            ,
+            drop = FALSE
+          ]),
           contrast = c(255, 255, 255),
-          thickness = as.integer(max(0.5, sc))
+          thickness = as.integer(max(1, round(sc)))
         )
-        
-        # to_display <<- cv2$drawContours(
-        #   to_display,
-        #   list(obb[i - 1]),
-        #   0L,
-        #   c(255L, 255L, 255),
-        #   as.integer(max(0.5, 2 * sc))
-        # )
-        # to_display <<- cv2$drawContours(
-        #   to_display,
-        #   list(obb[i - 1]),
-        #   0L,
-        #   c(0L, 224L, 0L),
-        #   as.integer(max(0.5, sc))
-        # )
       }
 
       shiny::tags$img(
@@ -273,7 +288,7 @@ shiny::observeEvent(the_model_folder(), {
 
 shiny::observeEvent(input$video_controls_x, {
   if (trackRcv::is_video_capture(the_video)) {
-    the_frame <<- read_frame(the_video, input$video_controls_x[1])
+    the_frame <<- trackRcv::read_frame(the_video, input$video_controls_x[1])
     refresh_frame(refresh_frame() + 1)
   }
 })

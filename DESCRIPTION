@@ -32,7 +32,8 @@ Imports:
     shinyFiles (>= 0.9.3),
     shinyjs (>= 2.1.0),
     shinyWidgets (>= 0.8.7),
-    stringr (>= 1.5.1),
+    stringr (>= 1.5.1)
+Depends:
     trackRcv (>= 0.1.0)
 Suggests: 
     knitr,
