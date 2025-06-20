@@ -2,7 +2,6 @@
 % Please edit documentation in R/trackRai-package.R
 \docType{package}
 \name{trackRai-package}
-\alias{trackRai}
 \alias{trackRai-package}
 \title{trackRai: Multi-Object Tracking With YOLO11}
 \description{

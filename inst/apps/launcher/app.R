@@ -124,13 +124,19 @@ ui <- function(request) {
 # Application server
 #--------------------------------------------------------------
 server <- function(input, output, session) {
+  browser <- if (is.null(shiny::getShinyOption("shiny.launch.browser"))) {
+    getOption("shiny.launch.browser")
+  } else {
+    shiny::getShinyOption("shiny.launch.browser")
+  }
+
   shiny::observeEvent(input$prepare, {
     shiny::stopApp(shiny::shinyAppDir(
       paste0(
         find.package("trackRai"),
         "/apps/prepare_auto/"
       ),
-      options = list(launch.browser = TRUE)
+      options = list(launch.browser = browser)
     ))
   })
 
@@ -140,7 +146,7 @@ server <- function(input, output, session) {
         find.package("trackRai"),
         "/apps/train/"
       ),
-      options = list(launch.browser = TRUE)
+      options = list(launch.browser = browser)
     ))
   })
 
@@ -150,7 +156,7 @@ server <- function(input, output, session) {
         find.package("trackRai"),
         "/apps/track/"
       ),
-      options = list(launch.browser = TRUE)
+      options = list(launch.browser = browser)
     ))
   })
 
@@ -158,9 +164,9 @@ server <- function(input, output, session) {
     shiny::stopApp(shiny::shinyAppDir(
       paste0(
         find.package("trackRcv"),
-        "/apps/trackFixer/"
+        "/apps/fix/"
       ),
-      options = list(launch.browser = TRUE)
+      options = list(launch.browser = browser)
     ))
   })
 
@@ -168,9 +174,9 @@ server <- function(input, output, session) {
     shiny::stopApp(shiny::shinyAppDir(
       paste0(
         find.package("trackRcv"),
-        "/apps/trackPlayer/"
+        "/apps/visualize/"
       ),
-      options = list(launch.browser = TRUE)
+      options = list(launch.browser = browser)
     ))
   })
 
