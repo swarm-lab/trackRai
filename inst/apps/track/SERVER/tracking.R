@@ -1,6 +1,5 @@
 # Globals and reactives
 display_table <- NULL
-col <- pals::alphabet()
 the_temp_tracker <- tempfile("tracker", fileext = ".yaml")
 frame <- NULL
 tracks <- NULL
@@ -18,12 +17,6 @@ in_progress <- shiny::reactiveVal(FALSE)
 
 
 # UI
-shinyjs::hideElement("curtain")
-toggled_tabs <- data.frame(
-  tab = 1:2,
-  toggled = c(TRUE, FALSE)
-)
-
 output$start_stop <- shiny::renderUI({
   if (in_progress()) {
     shiny::actionButton(
@@ -46,6 +39,41 @@ output$start_stop <- shiny::renderUI({
 
 
 # Display
+shiny::observeEvent(refresh_display(), {
+  if (input$main == "3") {
+    to_display <<- cv2$multiply(
+      the_image,
+      cv2$divide(cv2$compare(the_mask, 0, 1L), 255L)
+    )
+
+    pred <- the_model(
+      source = to_display,
+      imgsz = c(trackRcv::n_row(to_display), trackRcv::n_col(to_display)),
+      conf = input$conf_x,
+      iou = input$iou_x,
+      max_det = as.integer(input$max_objects_x),
+      show = FALSE,
+      verbose = FALSE,
+      device = device
+    )
+    obb <- pred[0]$obb$xyxyxyxy$cpu()$numpy()
+    obb <- np$int_(obb)
+    sc <- max(c(trackRcv::n_row(to_display), trackRcv::n_col(to_display)) / 720)
+
+    for (i in seq_len(py_to_r(obb$shape[0]))) {
+      .drawContour(
+        to_display,
+        list(obb[i - 1]),
+        color = .shades[, 6],
+        contrast = c(255, 255, 255),
+        thickness = as.integer(max(1, round(sc)))
+      )
+    }
+
+    print_display(print_display() + 1)
+  }
+})
+
 shiny::observeEvent(input$conf_x, {
   refresh_display(refresh_display() + 1)
 })
@@ -85,8 +113,8 @@ shiny::observeEvent(the_track_path(), {
     id = "tracking",
     duration = NULL
   )
-  .toggleTabs(1, "OFF")
-  toggled_tabs$toggled[1] <<- FALSE
+  .toggleTabs(1:2, "OFF")
+  toggled_tabs$toggled[1:2] <<- FALSE
   .toggleInputs(input, state = "OFF")
   sc <<- round(max(c(
     1,
@@ -151,33 +179,62 @@ shiny::observeEvent(the_debounce(), {
           xywhr <- reticulate::py_to_r(tracks[0]$obb$xywhr$cpu()$numpy())
           ids <- reticulate::py_to_r(tracks[0]$obb$id$cpu()$numpy())
 
-          tab <- data.table::as.data.table(
+          # tab <- data.table::as.data.table(
+          #   cbind(
+          #     input$video_controls_x[1] + the_loop(),
+          #     ids,
+          #     xywhr,
+          #     obb[[1]],
+          #     obb[[2]]
+          #   )
+          # )
+          # names(tab) <- c(
+          #   "frame",
+          #   "track",
+          #   "x",
+          #   "y",
+          #   "width",
+          #   "height",
+          #   "angle",
+          #   "x1",
+          #   "x2",
+          #   "x3",
+          #   "x4",
+          #   "y1",
+          #   "y2",
+          #   "y3",
+          #   "y4"
+          # )
+          to_write <- data.table::as.data.table(
             cbind(
               input$video_controls_x[1] + the_loop(),
               ids,
-              xywhr,
-              obb[[1]],
-              obb[[2]]
+              xywhr
             )
           )
-          names(tab) <- c(
+          names(to_write) <- c(
             "frame",
             "track",
             "x",
             "y",
             "width",
             "height",
-            "angle",
-            "x1",
-            "x2",
-            "x3",
-            "x4",
-            "y1",
-            "y2",
-            "y3",
-            "y4"
+            "angle"
           )
-          tab[, angle := angle * 180 / pi]
+          to_write[, angle := angle * 180 / pi]
+
+          if (!is.null(scale_px()) & !is.null(scale_real())) {
+            if (!is.na(scale_real())) {
+              to_write[,
+                paste0(c("x", "y", "width", "height"), "_", unit_real()) := .(
+                  (x - origin()[1]) * scale_real() / scale_px(),
+                  (y - origin()[2]) * scale_real() / scale_px(),
+                  width * scale_real() / scale_px(),
+                  height * scale_real() / scale_px()
+                )
+              ]
+            }
+          }
 
           if (the_loop() == 0) {
             if (
@@ -186,19 +243,22 @@ shiny::observeEvent(the_debounce(), {
               unlink(normalizePath(the_track_path(), mustWork = FALSE))
             }
             fwrite(
-              tab,
+              to_write,
               normalizePath(the_track_path(), mustWork = FALSE),
               append = FALSE
             )
           } else {
             fwrite(
-              tab,
+              to_write,
               normalizePath(the_track_path(), mustWork = FALSE),
               append = TRUE
             )
           }
 
-          display_table <<- data.table::rbindlist(list(display_table, tab))[
+          display_table <<- data.table::rbindlist(list(
+            display_table,
+            to_write
+          ))[
             frame >= (max(frame) - input$track_buffer),
           ]
         }
@@ -209,48 +269,32 @@ shiny::observeEvent(the_debounce(), {
 
             if (!is.null(display_table)) {
               last <- display_table[frame == max(frame)]
-              box <- reticulate::r_to_py(
-                simplify2array(
-                  list(
-                    as.matrix(last[, c("x1", "x2", "x3", "x4")]),
-                    as.matrix(last[, c("y1", "y2", "y3", "y4")])
-                  )
-                )
-              )
-              box <- np$int_(box)
-              shades <- col[(last$track %% length(col)) + 1]
-
-              for (i in seq_len(py_to_r(box$shape[0]))) {
-                .drawContour(
+              void <- last[,
+                .drawBox(
                   to_display,
-                  list(box[i - 1]),
-                  color = as.integer(col2rgb(shades[i], FALSE)[
-                    3:1,
-                    ,
-                    drop = FALSE
-                  ]),
-                  contrast = c(255, 255, 255),
-                  thickness = as.integer(max(1, round(sc)))
-                )
+                  .SD$x,
+                  .SD$y,
+                  .SD$width,
+                  .SD$height,
+                  .SD$angle,
+                  .shades[, (.BY$track %% ncol(.shades)) + 1],
+                  c(255, 255, 255),
+                  as.integer(max(1, round(sc)))
+                ),
+                by = .(track)
+              ]
 
-                trace <- as.matrix(display_table[
-                  track == last$track[i],
-                  c("x", "y")
-                ])
-
+              void <- display_table[,
                 .drawPolyLine(
                   to_display,
-                  trace,
+                  cbind(.SD$x, .SD$y),
                   closed = FALSE,
-                  color = as.integer(col2rgb(shades[i], FALSE)[
-                    3:1,
-                    ,
-                    drop = FALSE
-                  ]),
+                  color = .shades[, (.BY$track[1] %% ncol(.shades)) + 1],
                   contrast = c(255, 255, 255),
                   thickness = as.integer(max(1, round(sc)))
-                )
-              }
+                ),
+                by = .(track)
+              ]
             }
 
             print_display(print_display() + 1)
@@ -281,8 +325,8 @@ shiny::observeEvent(the_debounce(), {
       display_table <<- NULL
       shiny::removeNotification(id = "tracking")
       pb$close()
-      .toggleTabs(1, "ON")
-      toggled_tabs$toggled[1] <<- TRUE
+      .toggleTabs(1:2, "ON")
+      toggled_tabs$toggled[1:2] <<- TRUE
       .toggleInputs(input, state = "ON")
     }
   }
@@ -296,7 +340,7 @@ shiny::observeEvent(input$stop_track, {
   display_table <<- NULL
   shiny::removeNotification(id = "tracking")
   pb$close()
-  .toggleTabs(1, "ON")
-  toggled_tabs$toggled[1] <<- TRUE
+  .toggleTabs(1:2, "ON")
+  toggled_tabs$toggled[1:2] <<- TRUE
   .toggleInputs(input, state = "ON")
 })

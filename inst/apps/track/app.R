@@ -67,6 +67,7 @@ ui <- function(request) {
           menuSide = "right",
           selected = "1",
           source("UI/data.R", local = TRUE)$value,
+          source("UI/scaling.R", local = TRUE)$value,
           source("UI/tracking.R", local = TRUE)$value
         )
       )
@@ -82,6 +83,7 @@ server <- function(input, output, session) {
   source("../share/r/togglers.R", local = TRUE)
   source("../share/r/drawers.R", local = TRUE)
   source("SERVER/data.R", local = TRUE)
+  source("SERVER/scaling.R", local = TRUE)
   source("SERVER/tracking.R", local = TRUE)
   source("SERVER/controls.R", local = TRUE)
   session$onSessionEnded(function() {
