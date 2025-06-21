@@ -1,5 +1,5 @@
 shinyWidgets::verticalTabPanel(
-  title = "2",
+  title = "3",
   box_height = "100%",
   shiny::p("Tracking module", class = "module-title"),
   shiny::hr(),

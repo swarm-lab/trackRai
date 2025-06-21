@@ -24,6 +24,12 @@ refresh_mask <- shiny::reactiveVal(0)
 
 
 # UI
+shinyjs::hideElement("curtain")
+toggled_tabs <- data.frame(
+  tab = 1:3,
+  toggled = c(TRUE, FALSE, FALSE)
+)
+
 shiny::observe({
   if (
     !is.null(the_model_folder()) &
@@ -31,12 +37,12 @@ shiny::observe({
       trackRcv::is_video_capture(the_video)
   ) {
     if (toggled_tabs$toggled[2] == FALSE) {
-      .toggleTabs(2, "ON")
-      toggled_tabs$toggled[2] <<- TRUE
+      .toggleTabs(2:3, "ON")
+      toggled_tabs$toggled[2:3] <<- TRUE
     }
   } else {
-    .toggleTabs(2, "OFF")
-    toggled_tabs$toggled[2] <<- FALSE
+    .toggleTabs(2:3, "OFF")
+    toggled_tabs$toggled[2:3] <<- FALSE
   }
 })
 
@@ -106,41 +112,6 @@ shiny::observeEvent(refresh_display(), {
       }
     } else {
       to_display <<- black_screen$copy()
-    }
-
-    print_display(print_display() + 1)
-  } else if (input$main == "2") {
-    to_display <<- cv2$multiply(
-      the_image,
-      cv2$divide(cv2$compare(the_mask, 0, 1L), 255L)
-    )
-
-    pred <- the_model(
-      source = to_display,
-      imgsz = c(trackRcv::n_row(to_display), trackRcv::n_col(to_display)),
-      conf = input$conf_x,
-      iou = input$iou_x,
-      max_det = as.integer(input$max_objects_x),
-      show = FALSE,
-      verbose = FALSE,
-      device = device
-    )
-    obb <- pred[0]$obb$xyxyxyxy$cpu()$numpy()
-    obb <- np$int_(obb)
-    sc <- max(c(trackRcv::n_row(to_display), trackRcv::n_col(to_display)) / 720)
-
-    for (i in seq_len(py_to_r(obb$shape[0]))) {
-      .drawContour(
-        to_display,
-        list(obb[i - 1]),
-        color = as.integer(col2rgb(col[6], FALSE)[
-          3:1,
-          ,
-          drop = FALSE
-        ]),
-        contrast = c(255, 255, 255),
-        thickness = as.integer(max(1, round(sc)))
-      )
     }
 
     print_display(print_display() + 1)
