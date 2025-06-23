@@ -68,18 +68,18 @@ shiny::observeEvent(input$test_composite, {
       dtype = "uint8"
     )
 
-    rnd_loc <- sample(1:nrow(roi), input$n_objects_x, TRUE)
-    rnd_blob <- sample(which(dt$select), input$n_objects_x, TRUE)
-    rnd_rot <- sample(c(0L, 1L, 2L, -1L), input$n_objects_x, TRUE)
+    rnd_loc <- sample(1:nrow(roi), input$n_instances_x, TRUE)
+    rnd_blob <- sample(which(dt$select), input$n_instances_x, TRUE)
+    rnd_rot <- sample(c(0L, 1L, 2L, -1L), input$n_instances_x, TRUE)
 
     pb <- shiny::Progress$new()
     pb$set(message = "Computing: ", value = 0, detail = "0%")
-    n <- input$n_objects_x
+    n <- input$n_instances_x
     old_check <- 0
     old_frame <- 1
     old_time <- Sys.time()
 
-    for (i in seq_len(input$n_objects_x)) {
+    for (i in seq_len(input$n_instances_x)) {
       if (rnd_rot[i] == -1L) {
         sub <- the_subs[[rnd_blob[i]]]
         submask <- the_submasks[[rnd_blob[i]]]
@@ -438,12 +438,12 @@ shiny::observeEvent(yolo_path(), {
 
         for (ii in seq_len(n_img[i])) {
           composite <- prepped_background$copy()
-          rnd_loc <- sample(1:nrow(roi), input$n_objects_x, TRUE)
-          rnd_blob <- sample(which(dt$select), input$n_objects_x, TRUE)
-          rnd_rot <- sample(c(0L, 1L, 2L, -1L), input$n_objects_x, TRUE)
-          annotations <- matrix(NA_real_, input$n_objects_x, 9)
+          rnd_loc <- sample(1:nrow(roi), input$n_instances_x, TRUE)
+          rnd_blob <- sample(which(dt$select), input$n_instances_x, TRUE)
+          rnd_rot <- sample(c(0L, 1L, 2L, -1L), input$n_instances_x, TRUE)
+          annotations <- matrix(NA_real_, input$n_instances_x, 9)
 
-          for (iii in seq_len(input$n_objects_x)) {
+          for (iii in seq_len(input$n_instances_x)) {
             if (rnd_rot[iii] == -1L) {
               sub <- the_subs[[rnd_blob[iii]]]
               submask <- the_submasks[[rnd_blob[iii]]]

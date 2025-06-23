@@ -11,7 +11,7 @@ shinyjs::disabled(
         shiny::tags$td(
           shiny::actionButton(
             "compute_stats",
-            "Detect objects",
+            "Detect instances",
             width = "100%"
           ),
           style = "width: 54%; vertical-align: top; padding: 0px;"
@@ -42,7 +42,7 @@ shinyjs::disabled(
     shiny::hr(),
     shiny::div(
       style = "text-align: center;",
-      shiny::checkboxInput("auto_select_x", "Automatic object selection", TRUE)
+      shiny::checkboxInput("auto_select_x", "Automatic instance selection", TRUE)
     ),
     shinyWidgets::numericRangeInput(
       "range_width_x",
