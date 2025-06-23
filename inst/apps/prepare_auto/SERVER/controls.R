@@ -115,23 +115,25 @@ shiny::observeEvent(refresh_video(), {
 })
 
 shiny::observeEvent(input$video_controls_x, {
-  if (input$video_controls_x[1] != video_range[1]) {
-    new_values <- input$video_controls_x
-    video_range[1] <<- new_values[1]
-    shinyWidgets::updateNoUiSliderInput(
-      session,
-      "video_controls_x",
-      value = new_values
-    )
-  } else if (input$video_controls_x[3] != video_range[2]) {
-    new_values <- input$video_controls_x
-    video_range[2] <<- new_values[3]
-    shinyWidgets::updateNoUiSliderInput(
-      session,
-      "video_controls_x",
-      value = new_values
-    )
-  }
+  shiny::isolate({
+    if (input$video_controls_x[1] != video_range[1]) {
+      new_values <- input$video_controls_x
+      video_range[1] <<- new_values[1]
+      shinyWidgets::updateNoUiSliderInput(
+        session,
+        "video_controls_x",
+        value = new_values
+      )
+    } else if (input$video_controls_x[3] != video_range[2]) {
+      new_values <- input$video_controls_x
+      video_range[2] <<- new_values[3]
+      shinyWidgets::updateNoUiSliderInput(
+        session,
+        "video_controls_x",
+        value = new_values
+      )
+    }
+  })
 })
 
 shiny::observeEvent(id_frames(), {
