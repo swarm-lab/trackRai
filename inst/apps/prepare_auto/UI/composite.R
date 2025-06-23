@@ -8,8 +8,8 @@ shinyjs::disabled(
       shiny::tags$tr(
         shiny::tags$td(
           shiny::numericInput(
-            "n_objects_x",
-            "Number of objects",
+            "n_instances_x",
+            "Number of instances",
             100,
             1,
             Inf,

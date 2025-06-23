@@ -27,8 +27,8 @@ pak::pak("swarm-lab/trackRai")
 
 ## User guides
 
-- [1 - Install YOLO11](https://swarm-lab.github.io/trackRai/articles/z1_installyolo.html)
-- [2 - Prepare a dataset for training a YOLO model](https://swarm-lab.github.io/trackRai/articles/z2_prepare.html)
+- [1. Installing trackRai](https://swarm-lab.github.io/trackRai/articles/z1_install_trackRai.html)
+- [2. Prepare a dataset for training a YOLO model](https://swarm-lab.github.io/trackRai/articles/z2_prepare.html)
 - [3 - Train a YOLO model](https://swarm-lab.github.io/trackRai/articles/z3_train.html)
 - [4 - Track objects in a video using a trained YOLO model](https://swarm-lab.github.io/trackRai/articles/z4_track.html)
 - [5 - Visualize the results of tracking](https://swarm-lab.github.io/trackRai/articles/z5_visualize.html)
