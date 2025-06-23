@@ -34,8 +34,8 @@ Imports:
 Depends:
     trackRcv (>= 0.1.0)
 Suggests: 
-    knitr,
+    quarto,
     rmarkdown
-VignetteBuilder: knitr
+VignetteBuilder: quarto
 Remotes:  
     swarm-lab/trackRcv
