@@ -31,7 +31,7 @@ library(stringr)
 #--------------------------------------------------------------
 shiny::addResourcePath(
   prefix = "share",
-  directoryPath = system.file("apps/share", package = "trackRcv")
+  directoryPath = system.file("apps/share", package = "trackRai")
 )
 
 ui <- function(request) {
