@@ -40,18 +40,26 @@ window.addEventListener("keydown", function (event) {
     }
 
     if (event.code === "ArrowLeft") {
-        Shiny.onInputChange("leftKey", Math.random());
+        if (document.activeElement === document.body) {
+            Shiny.onInputChange("leftKey", Math.random());
+        }
     }
 
     if (event.code === "ArrowRight") {
-        Shiny.onInputChange("rightKey", Math.random());
+        if (document.activeElement === document.body) {
+            Shiny.onInputChange("rightKey", Math.random());
+        }
     }
 
     if (event.code === "ArrowUp") {
-        Shiny.onInputChange("upKey", Math.random());
+        if (document.activeElement === document.body) {
+            Shiny.onInputChange("upKey", Math.random());
+        }
     }
 
     if (event.code === "ArrowDown") {
-        Shiny.onInputChange("downKey", Math.random());
+        if (document.activeElement === document.body) {
+            Shiny.onInputChange("downKey", Math.random());
+        }
     }
 });

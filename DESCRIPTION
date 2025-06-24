@@ -17,20 +17,20 @@ RoxygenNote: 7.3.2
 URL: https://github.com/swarm-lab/trackRai, https://swarm-lab.github.io/trackRai/
 BugReports: https://github.com/swarm-lab/trackRai/issues
 Imports: 
-    autothresholdr (>= 1.4.2),
-    cli (>= 3.6.4),
-    data.table (>= 1.16.4),
-    pals (>= 1.9),
-    plotly (>= 4.10.4),
-    pracma (>= 2.4.4),
-    processx (>= 3.8.5),
-    reticulate (>= 1.40.0),
-    shiny (>= 1.10.0),
-    shinyalert (>= 3.1.0),
-    shinyFiles (>= 0.9.3),
-    shinyjs (>= 2.1.0),
-    shinyWidgets (>= 0.8.7),
-    stringr (>= 1.5.1)
+    autothresholdr,
+    cli,
+    data.table,
+    pals,
+    plotly,
+    pracma,
+    processx,
+    reticulate,
+    shiny,
+    shinyalert,
+    shinyFiles,
+    shinyjs,
+    shinyWidgets,
+    stringr
 Depends:
     trackRcv (>= 0.1.0)
 Suggests: 
