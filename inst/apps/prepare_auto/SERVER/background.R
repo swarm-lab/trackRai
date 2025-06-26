@@ -256,7 +256,7 @@ shiny::observeEvent(input$escKey, {
 
 shiny::observeEvent(stop_ghost_collection(), {
   if (collect_ghost() > 0) {
-    if (nrow(ghost_coords) > 0) {
+    if (!is.null(ghost_coords)) {
       roi <- reticulate::np_array(
         array(
           0L,
