@@ -53,11 +53,7 @@ output$display_frame <- shiny::renderUI({
         .drawContour(
           to_display,
           list(obb[i - 1]),
-          color = as.integer(col2rgb(pals::alphabet()[6], FALSE)[
-            3:1,
-            ,
-            drop = FALSE
-          ]),
+          color = as.integer(col2rgb(pals::alphabet()[7], FALSE)),
           contrast = c(255, 255, 255),
           thickness = as.integer(max(1, round(sc)))
         )
@@ -285,6 +281,49 @@ shiny::observeEvent(the_model_folder(), {
     )))
   }
 })
+
+
+# Read frame
+shiny::observeEvent(input$leftKey, {
+  if (trackRcv::is_video_capture(the_video)) {
+    shinyWidgets::updateNoUiSliderInput(
+      session,
+      "video_controls_x",
+      value = input$video_controls_x - 1
+    )
+  }
+})
+
+shiny::observeEvent(input$rightKey, {
+  if (trackRcv::is_video_capture(the_video)) {
+    shinyWidgets::updateNoUiSliderInput(
+      session,
+      "video_controls_x",
+      value = input$video_controls_x + 1
+    )
+  }
+})
+
+shiny::observeEvent(input$downKey, {
+  if (trackRcv::is_video_capture(the_video)) {
+    shinyWidgets::updateNoUiSliderInput(
+      session,
+      "video_controls_x",
+      value = input$video_controls_x - trackRcv::fps(the_video)
+    )
+  }
+})
+
+shiny::observeEvent(input$upKey, {
+  if (trackRcv::is_video_capture(the_video)) {
+    shinyWidgets::updateNoUiSliderInput(
+      session,
+      "video_controls_x",
+      value = input$video_controls_x + trackRcv::fps(the_video)
+    )
+  }
+})
+
 
 shiny::observeEvent(input$video_controls_x, {
   if (trackRcv::is_video_capture(the_video)) {

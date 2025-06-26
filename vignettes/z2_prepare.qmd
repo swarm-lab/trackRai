@@ -13,7 +13,7 @@ knitr:
 
 ## 0. Introduction
 
-Once you are ready to process a video, you can launch trackRai by typing the following command in the R console:
+Once you are ready to preprocess a video, you can launch trackRai by typing the following command in the R console:
 
 ```{r, eval=FALSE}
 library(trackRai)
@@ -42,7 +42,7 @@ The first step of the preparation process is to load a video file into the app. 
 
 ![](images/z2_1.jpg){style="border-radius: 5px; border-style: groove;" fig-align="center"}
 
-You can navigate through the video by sliding the green tab along the timeline displayed below the video. The gray tabs can be used to restrict the analysis to a specific time interval of the video.
+You can navigate through the video by sliding the green tab along the timeline displayed below the video. The gray tabs can be used to restrict the analysis to a specific time interval of the video. You can also use the arrow keys on your keyboard to navigate through the video: the left and right arrows allow you to navigate frame by frame; the up and down arrows allow you to navigate one second at a time.
 
 Once the app has opened the video, you can move to the “Background module” by clicking on the tab marked “2” on the right side of the control panel.
 

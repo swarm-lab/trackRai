@@ -39,6 +39,11 @@ ui <- function(request) {
     shiny::tags$head(
       shiny::includeCSS(path = "../share/css/custom.css")
     ),
+    tags$style(HTML(
+      ".noUi-handle-upper, .noUi-handle-lower {
+        background-color: #66A61E !important;
+      }"
+    )),
     shinyjs::useShinyjs(),
     shinyjs::extendShinyjs(
       script = "share/js/window.js",
