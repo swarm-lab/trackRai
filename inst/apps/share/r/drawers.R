@@ -1,4 +1,4 @@
-.shades <- grDevices::col2rgb(pals::alphabet())[3:1, ]
+.shades <- grDevices::col2rgb(pals::alphabet())
 mode(.shades) <- "integer"
 
 .drawText <- function(
