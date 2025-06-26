@@ -157,74 +157,96 @@ shiny::observeEvent(video_path(), {
 # Read frame
 shiny::observeEvent(input$leftKey, {
   if (trackRcv::is_video_capture(the_video)) {
-    vals <- input$video_controls_x
-
-    if (vals[2] > vals[1]) {
-      vals[2] <- vals[2] - 1
+    if (input$main == "5") {
+      val <- input$id_controls[1] - 1
       shinyWidgets::updateNoUiSliderInput(
         session,
-        "video_controls_x",
-        value = vals
+        "id_controls",
+        value = val
       )
+    } else {
+      vals <- input$video_controls_x
+
+      if (vals[2] > vals[1]) {
+        vals[2] <- vals[2] - 1
+        shinyWidgets::updateNoUiSliderInput(
+          session,
+          "video_controls_x",
+          value = vals
+        )
+      }
     }
   }
 })
 
 shiny::observeEvent(input$rightKey, {
   if (trackRcv::is_video_capture(the_video)) {
-    vals <- input$video_controls_x
-
-    if (vals[2] < vals[3]) {
-      vals[2] <- vals[2] + 1
+    if (input$main == "5") {
+      val <- input$id_controls[1] + 1
       shinyWidgets::updateNoUiSliderInput(
         session,
-        "video_controls_x",
-        value = vals
+        "id_controls",
+        value = val
       )
+    } else {
+      vals <- input$video_controls_x
+
+      if (vals[2] < vals[3]) {
+        vals[2] <- vals[2] + 1
+        shinyWidgets::updateNoUiSliderInput(
+          session,
+          "video_controls_x",
+          value = vals
+        )
+      }
     }
   }
 })
 
 shiny::observeEvent(input$downKey, {
   if (trackRcv::is_video_capture(the_video)) {
-    vals <- input$video_controls_x
+    if (input$main != "5") {
+      vals <- input$video_controls_x
 
-    if (vals[2] >= (vals[1] + fps(the_video))) {
-      vals[2] <- vals[2] - fps(the_video)
-      shinyWidgets::updateNoUiSliderInput(
-        session,
-        "video_controls_x",
-        value = vals
-      )
-    } else {
-      vals[2] <- vals[1]
-      shinyWidgets::updateNoUiSliderInput(
-        session,
-        "video_controls_x",
-        value = vals
-      )
+      if (vals[2] >= (vals[1] + fps(the_video))) {
+        vals[2] <- vals[2] - fps(the_video)
+        shinyWidgets::updateNoUiSliderInput(
+          session,
+          "video_controls_x",
+          value = vals
+        )
+      } else {
+        vals[2] <- vals[1]
+        shinyWidgets::updateNoUiSliderInput(
+          session,
+          "video_controls_x",
+          value = vals
+        )
+      }
     }
   }
 })
 
 shiny::observeEvent(input$upKey, {
   if (trackRcv::is_video_capture(the_video)) {
-    vals <- input$video_controls_x
+    if (input$main != "5") {
+      vals <- input$video_controls_x
 
-    if (vals[2] <= (vals[3] - fps(the_video))) {
-      vals[2] <- vals[2] + fps(the_video)
-      shinyWidgets::updateNoUiSliderInput(
-        session,
-        "video_controls_x",
-        value = vals
-      )
-    } else {
-      vals[2] <- vals[3]
-      shinyWidgets::updateNoUiSliderInput(
-        session,
-        "video_controls_x",
-        value = vals
-      )
+      if (vals[2] <= (vals[3] - fps(the_video))) {
+        vals[2] <- vals[2] + fps(the_video)
+        shinyWidgets::updateNoUiSliderInput(
+          session,
+          "video_controls_x",
+          value = vals
+        )
+      } else {
+        vals[2] <- vals[3]
+        shinyWidgets::updateNoUiSliderInput(
+          session,
+          "video_controls_x",
+          value = vals
+        )
+      }
     }
   }
 })
