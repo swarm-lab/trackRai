@@ -5,13 +5,47 @@ output$control_panel <- shiny::renderUI({
       id = "controls",
       style = "width: 90%; margin: 0 auto; padding-bottom: 0px;",
       shinyWidgets::noUiSliderInput(
-        "video_controls_x", NULL, 0, 0, c(0),
+        "video_controls_x",
+        NULL,
+        0,
+        0,
+        c(0),
         step = 1,
         width = "100%",
         color = "#2b4e8d",
         tooltips = TRUE,
         pips = list(mode = "count", values = 5, density = 0),
         format = shinyWidgets::wNumbFormat(decimals = 0)
+      ),
+      shiny::div(
+        style = "padding-bottom: 10px;",
+        shiny::span("-1 second"),
+        shiny::icon(
+          "square-caret-down",
+          class = "fa-regular",
+          style = "font-size: 16px; vertical-align: bottom;"
+        ),
+        shiny::span(" | "),
+        shiny::span("-1 frame"),
+        shiny::icon(
+          "square-caret-left",
+          class = "fa-regular",
+          style = "font-size: 16px; vertical-align: bottom;"
+        ),
+        shiny::span(" | "),
+        shiny::span("+1 frame"),
+        shiny::icon(
+          "square-caret-right",
+          class = "fa-regular",
+          style = "font-size: 16px; vertical-align: bottom;"
+        ),
+        shiny::span(" | "),
+        shiny::span("+1 second"),
+        shiny::icon(
+          "square-caret-up",
+          class = "fa-regular",
+          style = "font-size: 16px; vertical-align: bottom;"
+        )
       )
     )
   })
@@ -39,13 +73,15 @@ shiny::observeEvent(refresh_video(), {
     val <- 1
 
     shinyWidgets::updateNoUiSliderInput(
-      session, "video_controls_x",
+      session,
+      "video_controls_x",
       range = c(1, trackRcv::n_frames(the_video)),
       value = c(val)
     )
   } else {
     shinyWidgets::updateNoUiSliderInput(
-      session, "video_controls_x",
+      session,
+      "video_controls_x",
       range = c(0, 0),
       value = c(0)
     )
