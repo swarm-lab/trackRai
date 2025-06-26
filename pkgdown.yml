@@ -4,7 +4,7 @@ pkgdown_sha: ~
 articles:
   z1_install_trackRai: z1_install_trackRai.html
   z2_prepare: z2_prepare.html
-last_built: 2025-06-24T17:17Z
+last_built: 2025-06-26T12:48Z
 urls:
   reference: https://swarm-lab.github.io/trackRai/reference
   article: https://swarm-lab.github.io/trackRai/articles
