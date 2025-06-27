@@ -1,8 +1,8 @@
 ---
-title: "3. Training a YOLO model"
+title: "4. Tracking objects"
 author: "Simon Garnier"
 vignette: >
-  %\VignetteIndexEntry{3. Training a YOLO model}
+  %\VignetteIndexEntry{4. Tracking objects}
   %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
 knitr:
