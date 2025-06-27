@@ -64,7 +64,7 @@ shiny::observeEvent(refresh_display(), {
       .drawContour(
         to_display,
         list(obb[i - 1]),
-        color = .shades[, 6],
+        color = .shades[, 7],
         contrast = c(255, 255, 255),
         thickness = as.integer(max(1, round(sc)))
       )
@@ -179,32 +179,6 @@ shiny::observeEvent(the_debounce(), {
           xywhr <- reticulate::py_to_r(tracks[0]$obb$xywhr$cpu()$numpy())
           ids <- reticulate::py_to_r(tracks[0]$obb$id$cpu()$numpy())
 
-          # tab <- data.table::as.data.table(
-          #   cbind(
-          #     input$video_controls_x[1] + the_loop(),
-          #     ids,
-          #     xywhr,
-          #     obb[[1]],
-          #     obb[[2]]
-          #   )
-          # )
-          # names(tab) <- c(
-          #   "frame",
-          #   "track",
-          #   "x",
-          #   "y",
-          #   "width",
-          #   "height",
-          #   "angle",
-          #   "x1",
-          #   "x2",
-          #   "x3",
-          #   "x4",
-          #   "y1",
-          #   "y2",
-          #   "y3",
-          #   "y4"
-          # )
           to_write <- data.table::as.data.table(
             cbind(
               input$video_controls_x[1] + the_loop(),
