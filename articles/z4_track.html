@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>4 - Track objects in a video using a trained YOLO model • trackRai</title>
+<title>4. Tracking objects • trackRai</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -15,7 +15,10 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="4 - Track objects in a video using a trained YOLO model">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="z4_track_files/libs/quarto-html/popper.min.js"></script><script src="z4_track_files/libs/quarto-html/tippy.umd.min.js"></script><link href="z4_track_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="z4_track_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="4. Tracking objects">
+<meta property="og:image" content="https://swarm-lab.github.io/trackRai/logo.svg">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -38,11 +41,10 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/z1_installyolo.html">1 - Install YOLO11</a></li>
-    <li><a class="dropdown-item" href="../articles/z2_prepare.html">2 - Prepare a dataset for training a YOLO model</a></li>
-    <li><a class="dropdown-item" href="../articles/z3_train.html">3 - Train a YOLO model</a></li>
-    <li><a class="dropdown-item" href="../articles/z4_track.html">4 - Track objects in a video using a trained YOLO model</a></li>
-    <li><a class="dropdown-item" href="../articles/z5_visualize.html">5 - Visualize the results of tracking</a></li>
+<li><a class="dropdown-item" href="../articles/z1_install.html">1. Installing trackRai</a></li>
+    <li><a class="dropdown-item" href="../articles/z2_prepare.html">2. Preparing a training dataset</a></li>
+    <li><a class="dropdown-item" href="../articles/z3_train.html">3. Training a YOLO model</a></li>
+    <li><a class="dropdown-item" href="../articles/z4_track.html">4. Tracking objects</a></li>
   </ul>
 </li>
       </ul>
@@ -56,145 +58,193 @@
 
 
   </div>
-</nav><div class="container template-article">
-
-
-
-
+</nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>4 - Track objects in a video using a trained YOLO model</h1>
-            
-      
-      <small class="dont-index">Source: <a href="https://github.com/swarm-lab/trackRai/blob/master/vignettes/z4_track.Rmd" class="external-link"><code>vignettes/z4_track.Rmd</code></a></small>
-      <div class="d-none name"><code>z4_track.Rmd</code></div>
+      <img src="../logo.svg" class="logo" alt=""><h1>4. Tracking objects</h1>
+
+      <p class="author">Simon Garnier</p>
+
+
+      <small class="dont-index">Source: <a href="https://github.com/swarm-lab/trackRai/blob/master/vignettes/z4_track.qmd" class="external-link"><code>vignettes/z4_track.qmd</code></a></small>
+      <div class="d-none name"><code></code></div>
     </div>
 
-    
-    
-<p>In this tutorial, we will discuss how to use the third app provided
-with <code>trackRai</code> to track objects in a video using a trained
-YOLO11 model, as explained in the <a href="https://swarm-lab.github.io/trackRai/articles/z3_train.html">previous
-tutorial</a>. While it recommended to train the model on a machine with
-an NVIDIA graphics card and the CUDA framework installed, tracking can
-be done with reasonable performance on machines without these
-specifications.</p>
-<hr>
-<div class="section level2">
-<h2 id="launch-the-tracking-app">4.1 - Launch the tracking app<a class="anchor" aria-label="anchor" href="#launch-the-tracking-app"></a>
+
+
+
+
+
+    <section class="level2"><h2 id="introduction">0. Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>To launch the tracking app, run the following in the R console:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<p>Once you are ready to track objects in a video, you can launch trackRai by typing the following command in the R console:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/swarm-lab/trackRai" class="external-link">trackRai</a></span><span class="op">)</span></span>
-<span><span class="fu">track</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p>This will open the app either in the viewer panel of RStudio and
-Positron, or in your default internet browser. You can control where the
-app is opened using the <code>launch.browser</code> parameter (see the
-documentation of shiny::runApp() for more information).</p>
-<hr>
+<span><span class="fu"><a href="../reference/trackRai.html">trackRai</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div class="section level2">
-<h2 id="tab-1-data-module">4.2 - Tab 1: data module<a class="anchor" aria-label="anchor" href="#tab-1-data-module"></a>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="images/z0.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;;width:40.0%"></p>
+</figure>
+</div>
+<p>This will open the app launcher either in the viewer pane of RStudio and Positron, or in a separate window, depending on your local configuration. In RStudio at least, you can control where the app opens by setting the <code>launch.browser</code> option. For instance:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/trackRai.html">trackRai</a></span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/viewer.html" class="external-link">paneViewer</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<p>will launch the app in the RStudio viewer pane.</p>
+<p>Once the launcher is running, click on the “Track” button to launch the tracking app. The launcher will close and the app will start shortly after. This app will help you track objects in a video using a trained YOLO11 model, as explained in the <a href="https://swarm-lab.github.io/trackRai/articles/z3_train.html">previous tutorial</a>. While it is recommended to train the model on a machine with an NVIDIA graphics card and the CUDA framework installed, tracking can be done with reasonable performance on machines without these specifications.</p>
+<hr></section><section class="level2"><h2 id="data-module">1. Data module<a class="anchor" aria-label="anchor" href="#data-module"></a>
 </h2>
-<p>Once the app opens, you will be presented with the “Data” tab. First,
-you need to select a video by clicking the <code>Select video</code>
-button. You can also select an optional mask by clicking the
-<code>Select mask (optional)</code> button. This will load the video in
-the app and you can navigate it using the slider under the display
-panel. The slider has three handles:</p>
-<ul>
-<li>the green handle allows you to navigate through the video to display
-a frame of your choice;</li>
-<li>the two grey handles allow you to restrict the processing of the
-video to a range of frames in the video. This can be convenient when
-only a portion of the video is usable, for instance.</li>
-</ul>
-<p>Finally, you will need to select a trained YOLO dataset by clicking
-the <code>Select trained dataset</code> button and navigate to a folder
-containing a trained YOLO dataset (it should a folder named
-<code>YOLO</code>). Select this folder. If the folder contains multiple
-trained models, you can select the one of your choice using the dropdown
-menu at the bottom of the sidebar.</p>
-<p><img src="../reference/figures/track/1_data.jpg"></p>
-<p>Once the video and trained dataset are loaded in the app, the second
-tab of the app will become available and you can click on it to navigate
-there.</p>
-<hr>
+<p>Once the app opens, you will be presented with the “Data” module. First, you need to select a video by clicking the “Select video” button. You can also select an optional mask by clicking the “Select mask (optional)” button. This will load the video in the app. You can navigate through the video by sliding the green tab along the timeline displayed below the video. The gray tabs can be used to restrict the analysis to a specific time interval of the video. You can also use the arrow keys on your keyboard to navigate through the video: the left and right arrows allow you to navigate frame by frame; the up and down arrows allow you to navigate one second at a time.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="images/z4_1.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
+</figure>
 </div>
-<div class="section level2">
-<h2 id="tab-2-tracking-module">4.3 - Tab 2: tracking module<a class="anchor" aria-label="anchor" href="#tab-2-tracking-module"></a>
+<p>Finally, you will need to select a trained YOLO dataset by clicking the “Select trained dataset” button and navigate to a folder containing a trained YOLO dataset (it should a folder named ”YOLO”). Select this folder. If the folder contains multiple trained models, you can select the one of your choice using the dropdown menu at the bottom of the sidebar.</p>
+<p>Once the video and trained dataset are loaded in the app, the second tab of the app will become available and you can click on it to navigate there.</p>
+<hr></section><section class="level2"><h2 id="scaling-module">2. Scaling module<a class="anchor" aria-label="anchor" href="#scaling-module"></a>
 </h2>
-<p>In the second tab of the tracking app, you can set the parameters for
-the object detection and tracking. The detection parameters are used by
-YOLO to decide which parts of the image contains an object of interest.
-These parameters are:</p>
-<ul>
-<li>
-<strong>Maximum number of objects to detect:</strong> Maximum number
-of detections allowed per frame. Limits the total number of objects the
-model can detect in a single inference, preventing excessive outputs in
-dense scenes.</li>
-<li>
-<strong>Minimum confidence threshold:</strong> the minimum
-confidence threshold for detections. Objects detected with confidence
-below this threshold will be disregarded. Adjusting this value can help
-reduce false positives.</li>
-<li>
-<strong>Intersection over union threshold:</strong> threshold for
-non-maximum suppression. Lower values result in fewer detections by
-eliminating overlapping boxes, which can be useful for reducing
-duplicates.</li>
-</ul>
-<p>The effect of these parameters on the detection quality can be seen
-directly in display panel.</p>
-<p><img src="../reference/figures/track/2_tracking.jpg"></p>
-<p>The tracking parameters are used by YOLO to decide which object in a
-given frame corresponds to which object in the following frame. These
-parameters are:</p>
-<ul>
-<li>
-<strong>Association thresholds:</strong> The highest value is the
-threshold used for initial association of a detection with a track. If
-the detection’s score is above this threshold, it could be associated in
-the first round. The lowest value is the threshold used for secondary
-association. If a detection wasn’t associated in the first round and its
-score is higher than this, it might still be associated in a second
-round.</li>
-<li>
-<strong>New track threshold:</strong> This is the threshold used for
-starting a new track. If a detection doesn’t match any existing tracks
-and its score is above this threshold, a new track will be
-initialized.</li>
-<li>
-<strong>Old track buffer:</strong> This is the number of frames
-allowed to pass without receiving updates from a track before it will be
-removed. Higher values allow tracks to remain active longer without
-updates, which might help with intermittent detections but could
-increase the risk of tracking errors.</li>
-<li>
-<strong>Track matching threshold:</strong> This threshold is used
-for matching tracks between consecutive frames. Only tracks with a score
-above this threshold are considered for matching.</li>
-</ul>
-<p>You cannot directly observe the effect of this parameters in the
-display panel. However, you can run the tracking on a small portion of
-the video and use the <code>Show preview</code> mode to evaluate the
-quality of the resulting tracks.</p>
-<p>Once you are satisfied with the selected parameters, you can start
-the tracking by clicking the <code>Start tracking</code> button. It will
-open a file browser where you can select where to save the results of
-the tracking. If you would like to see a preview of the tracks while the
-tracking is running, tick the <code>Show preview</code> tick box.</p>
-<p><img src="../reference/figures/track/3_tracking.jpg"></p>
-<p>Once the tracking has completed, you can visualize the results using
-the <a href="https://swarm-lab.github.io/trackRai/articles/z5_visualize.html">visualization
-app</a>.</p>
-<hr>
+<p>By default, the app will set the origin of the coordinate system to the top-left corner of the video. You can change this by clicking the “Set origin” button in the control panel. You then use your mouse to click on the location in the video frame where you want the origin to be.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="images/z4_2.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
+</figure>
 </div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+<p>You can also set a scaling factor for directly converting the pixel coordinates into real-world coordinates. For this, click on the “Set scale” button in the control panel. You then use your mouse to select two points in the video frame that are known to be at a certain distance apart in the real world. A pop-up window will ask you to enter the distance between these two points and the unit of measurement you want to use. The app will then automatically convert all the tracking results into real-world coordinates for you.</p>
+<hr></section><section class="level2"><h2 id="tracking-module">3. Tracking module<a class="anchor" aria-label="anchor" href="#tracking-module"></a>
+</h2>
+<p>Finally, the tracking module is where all the magic happens. But before that, you will need to set a few parameters.</p>
+<p>The detection parameters are used by YOLO to decide which parts of the image contains an object of interest. These parameters are:</p>
+<ul>
+<li>“Maximum number of objects to detect”: the maximum number of detected objects allowed per frame. This limits the total number of objects the model can detect in a single inference, preventing excessive outputs in dense scenes.</li>
+<li>“Minimum confidence threshold”: the minimum confidence threshold for detecting an object. Objects detected with confidence below this threshold will be disregarded. Adjusting this value can help reduce false positives.</li>
+<li>“Intersection over union threshold”: the threshold for non-maximum suppression. Lower values result in fewer detected objects by eliminating overlapping boxes, which can be useful for reducing duplicates.</li>
+</ul>
+<p>The effect of these parameters on the detection quality can be seen directly in the display panel.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="images/z4_3.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
+</figure>
+</div>
+<p>The tracking parameters are used by YOLO to decide which object in a given frame corresponds to which object in the following frame. These parameters are:</p>
+<ul>
+<li>“Association thresholds”: the highest value is the threshold used for initial association of a detected object with a track. If the detection’s score is above this threshold, the object is associated with a track in the first round of the association process. The lowest value is the threshold used for secondary association. If a detected object wasn’t associated in the first round and its score is higher than this, it might still be associated with a track in the second round of the association process.</li>
+<li>“New track threshold”: this is the threshold used for starting a new track. If a detected object doesn’t match any existing tracks and its score is above this threshold, a new track will be initialized.</li>
+<li>“Old track buffer”: this is the number of frames allowed to pass without receiving updates from a track before it will be removed. Higher values allow tracks to remain active longer without updates, which might help if an object is not detected in every single frame, but could also increase the risk of tracking errors.</li>
+<li>“Track matching threshold”: this threshold is used for matching tracks between consecutive frames. Only tracks with a score above this threshold are considered for matching.</li>
+</ul>
+<p>You cannot directly observe the effect of this parameters in the display panel. However, you can run the tracking on a small portion of the video and use the “Show preview” mode to evaluate the quality of the resulting tracks.</p>
+<p>Once you are satisfied with the selected parameters, you can start the tracking by clicking the “Start tracking” button. It will open a file browser where you can select where to save the results of the tracking. If you would like to see a preview of the tracks while the tracking is running, tick the “Show preview” tick box.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="images/z4_4.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
+</figure>
+</div>
+<hr></section><section class="level2"><h2 id="output-data">4. Output data<a class="anchor" aria-label="anchor" href="#output-data"></a>
+</h2>
+<p>Once the app is done processing the video, the resulting CSV file will contain between 7 and 11 columns depending on whether you have set a real-world scale and origin in the “Scale module”. These columns will be the following:</p>
+<ul>
+<li>“frame” is the video frame number at which the measurements along the corresponding row have been made.</li>
+<li>“track” is the identity of the tracked object as estimated by the app.</li>
+<li>“x” is the x coordinate of the object location in pixels in the context of the video frame. The origin is set at the top-left corner of the frame.</li>
+<li>“y” is the y coordinate of the object location in pixels in the context of the video frame. The origin is set at the top-left corner of the frame.</li>
+<li>“width” is the width in pixels of the object.</li>
+<li>“height” is the height in pixels of the object.</li>
+<li>“angle” is the angle in degrees between the main axis of the object and the y axis.</li>
+</ul>
+<p>If you have set a real-world scale and origin in the “Tracking module”, the following extra columns will be saved:</p>
+<ul>
+<li>“x_[unit]” is the x coordinate of the object location in real-world [unit]. The origin is set to the real-world equivalent to that you have defined in the “Scale module”.</li>
+<li>“y_[unit]” is the y coordinate of the object location in real-world [unit]. The origin is set to the real-world equivalent to that you have defined in the “Tracking module”.</li>
+<li>“width_[unit]” is the width in real-world [unit] of the object.</li>
+<li>“height_[unit]” is the height in real-world [unit] of the object.</li>
+</ul>
+<hr>
+<p>The video used throughout this tutorial was provided by <em>Sridhar, V. H., Roche, D. G., and Gingins, S. (2019). Tracktor: Image-based automated tracking of animal movement and behaviour. Methods Ecol. Evol. 10, 691. doi:10.1111/2041-210X.13166</em> and used here with permission of the authors.</p>
+</section><script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'light-border',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config);
+    }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script></main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
 </div>
-
 
 
     <footer><div class="pkgdown-footer-left">

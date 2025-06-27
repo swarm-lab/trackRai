@@ -41,9 +41,10 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/z1_install_trackRai.html">1. Installing trackRai</a></li>
+<li><a class="dropdown-item" href="../articles/z1_install.html">1. Installing trackRai</a></li>
     <li><a class="dropdown-item" href="../articles/z2_prepare.html">2. Preparing a training dataset</a></li>
     <li><a class="dropdown-item" href="../articles/z3_train.html">3. Training a YOLO model</a></li>
+    <li><a class="dropdown-item" href="../articles/z4_track.html">4. Tracking objects</a></li>
   </ul>
 </li>
       </ul>
@@ -92,7 +93,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/trackRai.html">trackRai</a></span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/viewer.html" class="external-link">paneViewer</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>will launch the app in the RStudio viewer pane.</p>
-<p>Once the launcher is running, click on the “Train” button to launch the data preparation app. The launcher will close and the app will start shortly after. This app will help you train a YOLO11 model using the dataset created in the <a href="https://swarm-lab.github.io/trackRai/articles/z2_prepare.html">previous tutorial</a>. The process is straightforward, however, it might take some time depending on the configuration of your system. A machine with an NVIDIA graphics card and the CUDA framework installed is highly recommended.</p>
+<p>Once the launcher is running, click on the “Train” button to launch the YOLO training app. The launcher will close and the app will start shortly after. This app will help you train a YOLO11 model using the dataset created in the <a href="https://swarm-lab.github.io/trackRai/articles/z2_prepare.html">previous tutorial</a>. The process is straightforward, however, it might take some time depending on the configuration of your system. A machine with an NVIDIA graphics card and the CUDA framework installed is highly recommended.</p>
 <hr></section><section class="level2"><h2 id="training-module">1. Training module<a class="anchor" aria-label="anchor" href="#training-module"></a>
 </h2>
 <p>Once the app opens, you will be presented with the “Training” tab. Click on the “Select training dataset” button and navigate to a folder containing a YOLO dataset as prepared in the <a href="https://swarm-lab.github.io/trackRai/articles/z2_prepare.html">previous tutorial</a> (it should a folder named “YOLO”). Select this folder.</p>
