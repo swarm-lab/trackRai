@@ -30,7 +30,7 @@ trackRai(launch.browser = shiny::paneViewer())
 
 will launch the app in the RStudio viewer pane.
 
-Once the launcher is running, click on the “Train” button to launch the data preparation app. The launcher will close and the app will start shortly after. This app will help you train a YOLO11 model using the dataset created in the [previous tutorial](https://swarm-lab.github.io/trackRai/articles/z2_prepare.html). The process is straightforward, however, it might take some time depending on the configuration of your system. A machine with an NVIDIA graphics card and the CUDA framework installed is highly recommended.
+Once the launcher is running, click on the “Train” button to launch the YOLO training app. The launcher will close and the app will start shortly after. This app will help you train a YOLO11 model using the dataset created in the [previous tutorial](https://swarm-lab.github.io/trackRai/articles/z2_prepare.html). The process is straightforward, however, it might take some time depending on the configuration of your system. A machine with an NVIDIA graphics card and the CUDA framework installed is highly recommended.
 
 ------------------------------------------------------------------------
 
