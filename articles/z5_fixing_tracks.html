@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>3. Training a YOLO model • trackRai</title>
+<title>5. Fixing tracks • trackRai</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -15,9 +15,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="z3_train_files/libs/quarto-html/popper.min.js"></script><script src="z3_train_files/libs/quarto-html/tippy.umd.min.js"></script><link href="z3_train_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="z3_train_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="3. Training a YOLO model">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="z5_fixing_tracks_files/libs/quarto-html/popper.min.js"></script><script src="z5_fixing_tracks_files/libs/quarto-html/tippy.umd.min.js"></script><link href="z5_fixing_tracks_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="z5_fixing_tracks_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="5. Fixing tracks">
 <meta property="og:image" content="https://swarm-lab.github.io/trackRai/logo.svg">
 </head>
 <body>
@@ -63,12 +63,12 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>3. Training a YOLO model</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>5. Fixing tracks</h1>
 
       <p class="author">Simon Garnier</p>
 
 
-      <small class="dont-index">Source: <a href="https://github.com/swarm-lab/trackRai/blob/master/vignettes/z3_train.qmd" class="external-link"><code>vignettes/z3_train.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/swarm-lab/trackRai/blob/master/vignettes/z5_fixing_tracks.qmd" class="external-link"><code>vignettes/z5_fixing_tracks.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -79,7 +79,7 @@
 
     <section class="level2"><h2 id="introduction">0. Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>Once you are ready to train a YOLO model, you can launch trackRai by typing the following command in the R console:</p>
+<p>Once you have finished tracking a video, you can manually inspect the results and fix any potential error using the track fixing app provided with the package. You can launch the app by typing the following command in the R console:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/swarm-lab/trackRai" class="external-link">trackRai</a></span><span class="op">)</span></span>
@@ -95,37 +95,36 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/trackRai.html">trackRai</a></span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/viewer.html" class="external-link">paneViewer</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>will launch the app in the RStudio viewer pane.</p>
-<p>Once the launcher is running, click on the “Train” button to launch the YOLO training app. The launcher will close and the app will start shortly after. This app will help you train a YOLO11 model using the dataset created in the <a href="https://swarm-lab.github.io/trackRai/articles/z2_prepare.html">previous tutorial</a>. The process is straightforward, however, it might take some time depending on the configuration of your system. A machine with an NVIDIA graphics card and the CUDA framework installed is highly recommended.</p>
-<hr></section><section class="level2"><h2 id="training-module">1. Training module<a class="anchor" aria-label="anchor" href="#training-module"></a>
+<p>Once the launcher is running, click on the “Fix” button to launch the tracking app. The launcher will close and the app will start shortly after.</p>
+<hr></section><section class="level2"><h2 id="fixer-module">1. Fixer module<a class="anchor" aria-label="anchor" href="#fixer-module"></a>
 </h2>
-<p>Once the app opens, you will be presented with the “Training” tab. Click on the “Select training dataset” button and navigate to a folder containing a YOLO dataset as prepared in the <a href="https://swarm-lab.github.io/trackRai/articles/z2_prepare.html">previous tutorial</a> (it should a folder named “YOLO”). Select this folder.</p>
-<p>Then, select a model size. Smaller models take less time and memory to train, larger models may yield better results for complex arrangements of objects. We find that the smaller (“nano”) model size does a really good job in most situations.</p>
-<p>Finally, you can “Set the number of training epochs” you would like to run and the “patience” of the training process. This last paramater allows the training to stop automatically if the training performance does not improve after a set number of epochs. This helps prevent overfitting by stopping training when performance plateaus; it also saves computing time. If you do not want training to stop early, set the patience to the maximum number of epochs.</p>
+<p>The first step of the fixing process is to load a video file and the tracking data into the app. To do this, simply click the “Select video” button. This will bring up a navigator that you will use to locate the video file that you would like to track. Once you have located the video file in the navigator, click the “Select” button. The app will open the video and display its first image in the display window (see below).</p>
+<p>Repeat the process with “Select tracks” button to load the tracking data. Once this is done, the tracked objects should be indicated by a colored box with a number corresponding to their tracked identity (see below).</p>
 <div class="quarto-figure quarto-figure-center">
-<figure><p><img src="images/z3_1.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
+<figure><p><img src="images/z5_1.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
 </figure>
 </div>
-<p>After setting all the training parameters, click the “Start training” button and wait until it completes. Performance metrics will be displayed in the graph on the left of the window, and in the log panel below the graph.</p>
-<p>Once the training has completed successfully, the second tab of the app will become available and you can click on it to navigate there.</p>
-<hr></section><section class="level2"><h2 id="checking-module">2. Checking module<a class="anchor" aria-label="anchor" href="#checking-module"></a>
-</h2>
-<p>In the second tab of the training app, you can check the quality of the training and the effect of the inference paramaters on the detection of the objects of interest in a video.</p>
-<p>First, you need to select a video by clicking the “Select video” button. You can also select an optional mask by clicking the “Select mask (optional)” button. This will load the video in the app and you can navigate it using the slider under the display panel. You can also use the arrow keys on your keyboard to navigate through the video: the left and right arrows allow you to navigate frame by frame; the up and down arrows allow you to navigate one second at a time. Detected objects will be automatically enclosed in a green rectangle.</p>
-<div class="quarto-figure quarto-figure-center">
-<figure><p><img src="images/z3_2.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
-</figure>
-</div>
-<p>You can check the effect of the following paramters on the quality of the object detection:</p>
+<p>You can navigate through the video by sliding the green tab along the timeline displayed below the video. You can also use the arrow keys on your keyboard to navigate through the video: the left and right arrows allow you to navigate frame by frame; the up and down arrows allow you to navigate one second at a time.</p>
+<p>Below the navigation controls, you will find a dropdown menu that lists a series of suspected issues with your tracking data. These are simply positions in the video where an existing track suddenly disappears, or a new track suddenly appears. While these do not necessarily indicate an actual error, they are often indicative of a problem with the tracking. You can navigate to each of these suspected issues by selecting them from the dropdown menu.</p>
+<p>Below again are 6 buttons that allow you to perform a number of correcting operations if you find that <code>trackR</code> made a mistake during tracking:</p>
 <ul>
-<li>
-<strong>Minimum confidence threshold:</strong> the minimum confidence threshold for detections. Objects detected with confidence below this threshold will be disregarded. Adjusting this value can help reduce false positives.</li>
-<li>
-<strong>Intersection over union threshold:</strong> threshold for non-maximum suppression. Lower values result in fewer detections by eliminating overlapping boxes, which can be useful for reducing duplicates.</li>
-<li>
-<strong>Maximum number of objects to detect:</strong> Maximum number of detections allowed per frame. Limits the total number of objects the model can detect in a single inference, preventing excessive outputs in dense scenes.</li>
+<li>The “Reassign” button (or the “q” key of your keyboard) will open the reassignment menu. When the menu has opened, you can use the first dropdown selector to select which track to assign a new number to or to reassign to a previously existing track. You can then type in the input box below the number you would like to assign to the track.</li>
+<li>The “Remove” button (or the “w” key of your keyboard) will open the removal menu. When the menu has opened, you can use the dropdown selector to select which track to remove.</li>
+<li>The “Swap IDs” button (or the “e” key of your keyboard) will open the ID swapping menu. When the menu has opened, you can use the two dropdown selectors to select which tracks to swap. Note that swapping will occur from that frame on. Previous frames will not be affected and tracks will retain their original ID.</li>
+<li>The “Merge IDs” button (or the “r” key of your keyboard) will open the ID merging menu. When the menu has opened, you can use the two dropdown selectors to select which tracks to merge together. Note that the resulting track will retain the ID of the first selected track.</li>
+<li>The “Undo” button (or the “a” key of your keyboard) will undo any change made during the fixing session in the reverse order that they have been made.</li>
+<li>The “Save” button (or the “s” key of your keyboard) will save the modifications that you have made during the fixing session. These modifications are saved in a different file than the one containing the original tracking results to prevent accidental modifications to permanently damage the original results. The modified file will have the same name and be saved at the same location as the original file but with “_fixed” appended to its name. Note that if you interrupt your fixing session before the end of the video, you can resume it by loading the “[original_file_name]_fixed.csv” file instead of the original one. In this case, any new correction will also be saved to the “[original_file_name]_fixed.csv” file.</li>
 </ul>
-<p>If you are not satisfied with the detection results, you can return to the first tab and increase the number of training epochs and the patience of the training, or select a larger model size, before running another round of training.</p>
-<p>If you are satisfied with the results, you are done and you can close the app. The next step will be using the trained model to track objects in a video.</p>
+<p>Under these buttons, some basic statistics about the tracks are displayed below the fixing controls. These can be useful to track your progress during a fixing session. For instance, if the statistics table shows that your file contains 10 tracks but you know you only had 8 individuals in your experiment, this is a good indication that some errors remain to be fixed.</p>
+<p>Finally, at the very bottom of control panel, you can modify the “Tag scale” and “Tag line width” parameters to make the track tags more visible on the video.</p>
+<hr></section><section class="level2"><h2 id="output">2. Output data<a class="anchor" aria-label="anchor" href="#output"></a>
+</h2>
+<p>Once you click the “Save” button in the app, the data that is saved in the “[original_file_name]_fixed.csv” file has the same columns has those saved originally by <code>trackR</code> (see <a href="z2_tracking_objects.html#output">here for more details</a>).</p>
+<p>The file will also contain 2 additional columns:</p>
+<ul>
+<li>“track_fixed” is the identity of the tracked object after the corrections have been applied. The <code>track</code> column retains the original, uncorrected identity.</li>
+<li>“ignore” indicates whether you can ignore (TRUE) or not (FALSE) the corresponding row when you analyze the data. Ignored rows are those, for instance, from tracks that you have chosen to remove or merge with another track.</li>
+</ul>
 <hr>
 <p>The video used throughout this tutorial was provided by <em>Sridhar, V. H., Roche, D. G., and Gingins, S. (2019). Tracktor: Image-based automated tracking of animal movement and behaviour. Methods Ecol. Evol. 10, 691. doi:10.1111/2041-210X.13166</em> and used here with permission of the authors.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">

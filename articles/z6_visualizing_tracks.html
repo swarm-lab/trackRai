@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>1. Installing trackRai • trackRai</title>
+<title>6. Visualizing tracks • trackRai</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
 <link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
 <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
@@ -15,9 +15,9 @@
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="z1_install_files/libs/quarto-html/popper.min.js"></script><script src="z1_install_files/libs/quarto-html/tippy.umd.min.js"></script><link href="z1_install_files/libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="z1_install_files/libs/quarto-html/light-border.css" rel="stylesheet">
-<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="1. Installing trackRai">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><script src="z6_visualizing_tracks_files/libs/quarto-html/popper.min.js"></script><script src="z6_visualizing_tracks_files/libs/quarto-html/tippy.umd.min.js"></script><link href="z6_visualizing_tracks_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="z6_visualizing_tracks_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="6. Visualizing tracks">
 <meta property="og:image" content="https://swarm-lab.github.io/trackRai/logo.svg">
 </head>
 <body>
@@ -63,12 +63,12 @@
 </nav><div class="container template-quarto">
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.svg" class="logo" alt=""><h1>1. Installing trackRai</h1>
+      <img src="../logo.svg" class="logo" alt=""><h1>6. Visualizing tracks</h1>
 
       <p class="author">Simon Garnier</p>
 
 
-      <small class="dont-index">Source: <a href="https://github.com/swarm-lab/trackRai/blob/master/vignettes/z1_install.qmd" class="external-link"><code>vignettes/z1_install.qmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/swarm-lab/trackRai/blob/master/vignettes/z6_visualizing_tracks.qmd" class="external-link"><code>vignettes/z6_visualizing_tracks.qmd</code></a></small>
       <div class="d-none name"><code></code></div>
     </div>
 
@@ -77,42 +77,45 @@
 
 
 
-    <section class="level2"><h2 id="package-installation">1. Package installation<a class="anchor" aria-label="anchor" href="#package-installation"></a>
+    <section class="level2"><h2 id="introduction">0. Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<section class="level3"><h3 id="from-cran">1.1. From CRAN<a class="anchor" aria-label="anchor" href="#from-cran"></a>
-</h3>
-<p>trackRai is currently not available on CRAN.</p>
-</section><section class="level3"><h3 id="from-github">1.2. From GitHub<a class="anchor" aria-label="anchor" href="#from-github"></a>
-</h3>
-<p>You can install trackRai and the rest of its dependencies by simply typing the following command in your R console:</p>
+<p>Once you have a tracking dataset ready, you can visualize it using the trajectory visualization app provided in the package. You can launch the app by typing the following command in the R console:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"swarm-lab/trackRai"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/swarm-lab/trackRai" class="external-link">trackRai</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/trackRai.html">trackRai</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 </div>
-<hr></section></section><section class="level2"><h2 id="setting-up-trackrai">2. Setting up trackRai<a class="anchor" aria-label="anchor" href="#setting-up-trackrai"></a>
-</h2>
-<p>It is recommended to run trackRai on a machine equipped with an <a href="https://www.nvidia.com/" class="external-link">NVIDIA</a> graphics card and the <a href="https://developer.nvidia.com/cuda-toolkit" class="external-link">CUDA toolkit</a>. If your computer is equipped with an NVIDIA graphics card, you can find instructions to install CUDA here:</p>
-<ul>
-<li>For Windows computers: https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/</li>
-<li>For Linux computers: https://docs.nvidia.com/cuda/cuda-installation-guide-linux/</li>
-</ul>
-<p>If your computer is not equipped with an NVIDIA graphics card or if the CUDA toolkit is not installed on it, you can still use trackRai but the training of the YOLO model may take a very long time (several hours).</p>
-<blockquote>
-<p><strong>Note:</strong> at the time of writing, YOLO (and therefore, trackRai) is compatible with CUDA versions 11.8, 12.4, and 12.6.</p>
-</blockquote>
-<p>Once trackRai is installed, you will need to install <a href="https://www.ultralytics.com/yolo" class="external-link">YOLO</a> on your machine using the helper function <code><a href="../reference/install_yolo.html">install_yolo()</a></code> provided by trackRai.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="images/z0.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;;width:40.0%"></p>
+</figure>
+</div>
+<p>This will open the app launcher either in the viewer pane of RStudio and Positron, or in a separate window, depending on your local configuration. In RStudio at least, you can control where the app opens by setting the <code>launch.browser</code> option. For instance:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/swarm-lab/trackRai" class="external-link">trackRai</a></span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/install_yolo.html">install_yolo</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/trackRai.html">trackRai</a></span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/viewer.html" class="external-link">paneViewer</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-<p>The installer will prompt you with a series of questions. Answer “Yes” every time if you want YOLO and its dependencies to be installed on your machine. Answering “No” may stop the installation process and trackRai may not be usable. You may also need to restart your R session before being able to use the apps provided with trackRai.</p>
-<blockquote>
-<p><strong>Note:</strong> by default, <code><a href="../reference/install_yolo.html">install_yolo()</a></code> will attempt to install Python 3.12.5 on your system if it is not already present. If errors happen during the installation of Python, or if you prefer installing another version, you can do so using the “python_version” parameter of <code><a href="../reference/install_yolo.html">install_yolo()</a></code>. YOLO is currently compatible with Python 3.8.0 to 3.12.8, so any of these versions should work.</p>
-</blockquote>
-<blockquote>
-<p><strong>Note:</strong> on a Windows computer, <code><a href="../reference/install_yolo.html">install_yolo()</a></code> will attempt to automatically detect the version of CUDA that is installed on the machine. You can override this using the “cuda_win_version” parameter.</p>
-</blockquote>
+<p>will launch the app in the RStudio viewer pane.</p>
+<p>Once the launcher is running, click on the “Visualize” button to launch the visualization app. The launcher will close and the app will start shortly after.</p>
+<hr></section><section class="level2"><h2 id="player-module">1. Player module<a class="anchor" aria-label="anchor" href="#player-module"></a>
+</h2>
+<p>The first step of the visualization process is to load a video file and the tracking data into the app. To do this, simply click the “Select video” button. This will bring up a navigator that you will use to locate the video file that you would like to track. Once you have located the video file in the navigator, click the “Select” button. The app` will open the video and display its first image in the display window (see below).</p>
+<p>Repeat the process with “Select tracks” button to load the tracking data. Once this is done, the tracked objects should be indicated by a colored box with a number corresponding to their tracked identity (see below).</p>
+<div class="quarto-figure quarto-figure-center">
+<figure><p><img src="images/z6_1.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
+</figure>
+</div>
+<p>You can navigate through the video by sliding the green tab along the timeline displayed below the video. You can also use the arrow keys on your keyboard to navigate through the video: the left and right arrows allow you to navigate frame by frame; the up and down arrows allow you to navigate one second at a time.</p>
+<p>Below the navigation controls, you will find two tick boxes. On the left, the “Show IDs” tick box allows you to show or hide the IDs of the tracked objects within the colored boxes delineating them. On the right, the “Show tracks” tick box allows you to show or hide the trajectories that the tracked objects have taken during a fixed number of frames.</p>
+<p>Below these tick boxes, you will find four numeric input fields:</p>
+<ul>
+<li><p>“Track width (pixels)” allows you to adjust the width of the lines delineating the tracked objects and representing their trajectories;</p></li>
+<li><p>“Track length (frames)” allows you to adjust the number of frames used to represent the trajectories of the tracked objects;</p></li>
+<li><p>“Tag scale” allows you to adjust the font size of the tags that represent the identities of the tracked objects;</p></li>
+<li><p>“Tag line width” allows you to adjust the font thickness of the tags.</p></li>
+</ul>
+<p>Finally, at the very bottom of the app window, the “Export video” button allows you to export the video with the tracked objects superimposed on it. After clicking this button, the app will prompt you to select a location to save the exported video. Once this is done, the export will start and the video will be saved in the selected location.</p>
+<hr>
+<p>The video used throughout this tutorial was provided by <em>Sridhar, V. H., Roche, D. G., and Gingins, S. (2019). Tracktor: Image-based automated tracking of animal movement and behaviour. Methods Ecol. Evol. 10, 691. doi:10.1111/2041-210X.13166</em> and used here with permission of the authors.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);

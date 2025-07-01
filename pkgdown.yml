@@ -6,7 +6,9 @@ articles:
   z2_prepare: z2_prepare.html
   z3_train: z3_train.html
   z4_track: z4_track.html
-last_built: 2025-06-27T22:48Z
+  z5_fixing_tracks: z5_fixing_tracks.html
+  z6_visualizing_tracks: z6_visualizing_tracks.html
+last_built: 2025-07-01T12:51Z
 urls:
   reference: https://swarm-lab.github.io/trackRai/reference
   article: https://swarm-lab.github.io/trackRai/articles
