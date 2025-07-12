@@ -172,10 +172,6 @@ shiny::observeEvent(the_debounce(), {
         )
 
         if (!reticulate::py_to_r(tracks[0]$obb$id == py_none())) {
-          obb <- asplit(
-            reticulate::py_to_r(tracks[0]$obb$xyxyxyxy$cpu()$numpy()),
-            3
-          )
           xywhr <- reticulate::py_to_r(tracks[0]$obb$xywhr$cpu()$numpy())
           ids <- reticulate::py_to_r(tracks[0]$obb$id$cpu()$numpy())
 

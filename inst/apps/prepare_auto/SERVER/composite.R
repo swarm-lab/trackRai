@@ -52,11 +52,8 @@ shiny::observeEvent(input$test_composite, {
     )
     tmp <- cv2$erode(tmp, k)
     mask <- tmp[1:(1 + trackRcv::n_row(mask)), 1:(1 + trackRcv::n_col(mask))]
-    nz <- cv2$findNonZero(mask)
-    roi <- cbind(
-      reticulate::py_to_r(nz[,, 0]),
-      trackRcv::n_row(mask) - reticulate::py_to_r(nz[,, 1])
-    )
+    roi <- reticulate::py_to_r(mask)
+    roi <- roi[nrow(roi):1, ]
 
     the_composite <<- the_background$copy()
 
@@ -68,18 +65,22 @@ shiny::observeEvent(input$test_composite, {
       dtype = "uint8"
     )
 
-    rnd_loc <- sample(1:nrow(roi), input$n_instances_x, TRUE)
-    rnd_blob <- sample(which(dt$select), input$n_instances_x, TRUE)
-    rnd_rot <- sample(c(0L, 1L, 2L, -1L), input$n_instances_x, TRUE)
+    rnd_loc <- .sampleMinDist(
+      roi,
+      input$n_instances_x,
+      round(mean(dt$width[dt$select]) / 2)
+    )
+    rnd_blob <- sample(which(dt$select), nrow(rnd_loc), TRUE)
+    rnd_rot <- sample(c(0L, 1L, 2L, -1L), nrow(rnd_loc), TRUE)
 
     pb <- shiny::Progress$new()
     pb$set(message = "Computing: ", value = 0, detail = "0%")
-    n <- input$n_instances_x
+    n <- nrow(rnd_loc)
     old_check <- 0
     old_frame <- 1
     old_time <- Sys.time()
 
-    for (i in seq_len(input$n_instances_x)) {
+    for (i in seq_len(n)) {
       if (rnd_rot[i] == -1L) {
         sub <- the_subs[[rnd_blob[i]]]
         submask <- the_submasks[[rnd_blob[i]]]
@@ -88,8 +89,8 @@ shiny::observeEvent(input$test_composite, {
         submask <- cv2$rotate(the_submasks[[rnd_blob[i]]], rnd_rot[i])
       }
 
-      bottom <- roi[rnd_loc[i], 2] - round(trackRcv::n_row(sub) / 2)
-      left <- roi[rnd_loc[i], 1] - round(trackRcv::n_col(sub) / 2)
+      bottom <- rnd_loc[i, 1] - round(trackRcv::n_row(sub) / 2)
+      left <- rnd_loc[i, 2] - round(trackRcv::n_col(sub) / 2)
       top <- trackRcv::n_row(stamp) - bottom - trackRcv::n_row(sub)
       right <- trackRcv::n_col(stamp) - left - trackRcv::n_col(sub)
 
@@ -170,7 +171,10 @@ shiny::observeEvent(input$test_composite, {
       the_composite,
       runif(1, 1 / (1 + input$gain_x), 1 + input$gain_x)
     )
-    the_composite <<- cv2$add(the_composite, runif(1, -input$bias_x, input$bias_x))
+    the_composite <<- cv2$add(
+      the_composite,
+      runif(1, -input$bias_x, input$bias_x)
+    )
 
     if (input$saltpepper_x > 0) {
       r <- sample(0:input$saltpepper_x, 1)
@@ -399,8 +403,8 @@ shiny::observeEvent(yolo_path(), {
           1L
       )
       tmp <- cv2$erode(tmp, k)
-      nz <- cv2$findNonZero(tmp)
-      roi <- cbind(reticulate::py_to_r(nz[,, 0]), reticulate::py_to_r(nz[,, 1]))
+      roi <- reticulate::py_to_r(tmp)
+      roi <- roi[nrow(roi):1, ]
 
       composite <- prepped_background$copy()
       stamp <- reticulate::np_array(
@@ -438,12 +442,17 @@ shiny::observeEvent(yolo_path(), {
 
         for (ii in seq_len(n_img[i])) {
           composite <- prepped_background$copy()
-          rnd_loc <- sample(1:nrow(roi), input$n_instances_x, TRUE)
+          rnd_loc <- .sampleMinDist(
+            roi,
+            input$n_instances_x,
+            round(mean(dt$width[dt$select]) / 2)
+          )
           rnd_blob <- sample(which(dt$select), input$n_instances_x, TRUE)
           rnd_rot <- sample(c(0L, 1L, 2L, -1L), input$n_instances_x, TRUE)
           annotations <- matrix(NA_real_, input$n_instances_x, 9)
+          nn <- nrow(rnd_loc)
 
-          for (iii in seq_len(input$n_instances_x)) {
+          for (iii in seq_len(nn)) {
             if (rnd_rot[iii] == -1L) {
               sub <- the_subs[[rnd_blob[iii]]]
               submask <- the_submasks[[rnd_blob[iii]]]
@@ -452,8 +461,8 @@ shiny::observeEvent(yolo_path(), {
               submask <- cv2$rotate(the_submasks[[rnd_blob[iii]]], rnd_rot[iii])
             }
 
-            bottom <- roi[rnd_loc[iii], 2] - round(trackRcv::n_row(sub) / 2)
-            left <- roi[rnd_loc[iii], 1] - round(trackRcv::n_col(sub) / 2)
+            bottom <- rnd_loc[iii, 1] - round(trackRcv::n_row(sub) / 2)
+            left <- rnd_loc[iii, 2] - round(trackRcv::n_col(sub) / 2)
             top <- trackRcv::n_row(stamp) - bottom - trackRcv::n_row(sub)
             right <- trackRcv::n_col(stamp) - left - trackRcv::n_col(sub)
 
