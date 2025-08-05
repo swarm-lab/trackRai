@@ -55,7 +55,8 @@ output$display_frame <- shiny::renderUI({
           list(obb[i - 1]),
           color = as.integer(col2rgb(pals::alphabet()[7], FALSE)),
           contrast = c(255, 255, 255),
-          thickness = as.integer(max(1, round(sc)))
+          thickness = as.integer(max(1, round(sc))),
+          outline = as.integer(max(1, round(sc)))
         )
       }
 

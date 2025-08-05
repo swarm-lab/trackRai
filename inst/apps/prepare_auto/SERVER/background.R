@@ -48,9 +48,11 @@ shiny::observeEvent(refresh_display(), {
           .drawPolyLine(
             to_display,
             ghost_coords,
-            TRUE,
-            c(255L, 255L, 255L),
-            sc
+            closed = TRUE,
+            color = c(255, 255, 255),
+            contrast = c(0, 0, 0),
+            thickness = as.integer(max(1, round(sc))),
+            outline = as.integer(max(1, round(sc)))
           )
         }
 
@@ -60,10 +62,10 @@ shiny::observeEvent(refresh_display(), {
               to_display,
               ghost_coords[i, 1],
               ghost_coords[i, 2],
-              r,
-              c(0L, 0L, 255L),
-              c(255L, 255L, 255L),
-              sc
+              radius = r,
+              color = c(0L, 0L, 255L),
+              contrast = c(255L, 255L, 255L),
+              thickness = as.integer(max(1, round(sc)))
             )
           }
         }
@@ -187,12 +189,14 @@ shiny::observeEvent(input$ghostButton, {
 shinyjs::onevent("click", "display_img", function(props) {
   if (collect_ghost() > 0) {
     x <- trackRcv::n_col(to_display) * (props$offsetX / input$display_img_width)
-    y <- trackRcv::n_row(to_display) * (props$offsetY / input$display_img_height)
+    y <- trackRcv::n_row(to_display) *
+      (props$offsetY / input$display_img_height)
     ghost_coords <<- rbind(ghost_coords, c(x, y))
     refresh_display(refresh_display() + 1)
   } else if (collect_mask() > 0) {
     x <- trackRcv::n_col(to_display) * (props$offsetX / input$display_img_width)
-    y <- trackRcv::n_row(to_display) * (props$offsetY / input$display_img_height)
+    y <- trackRcv::n_row(to_display) *
+      (props$offsetY / input$display_img_height)
     mask_coords <<- rbind(mask_coords, c(x, y))
 
     if (collect_mask() == 2 & nrow(mask_coords) >= 5) {
@@ -201,8 +205,10 @@ shinyjs::onevent("click", "display_img", function(props) {
 
     refresh_display(refresh_display() + 1)
   } else if (input$main == "5" & !is.null(the_stats())) {
-    px <- trackRcv::n_col(to_display) * (props$offsetX / input$display_img_width)
-    py <- trackRcv::n_row(to_display) * (props$offsetY / input$display_img_height)
+    px <- trackRcv::n_col(to_display) *
+      (props$offsetX / input$display_img_width)
+    py <- trackRcv::n_row(to_display) *
+      (props$offsetY / input$display_img_height)
 
     dt <- the_stats()
     in_rect <- dt[

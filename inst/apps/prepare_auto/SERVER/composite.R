@@ -68,7 +68,7 @@ shiny::observeEvent(input$test_composite, {
     rnd_loc <- .sampleMinDist(
       roi,
       input$n_instances_x,
-      round(mean(dt$width[dt$select]) / 2)
+      input$overlap_buffer_x
     )
     rnd_blob <- sample(which(dt$select), nrow(rnd_loc), TRUE)
     rnd_rot <- sample(c(0L, 1L, 2L, -1L), nrow(rnd_loc), TRUE)
@@ -144,7 +144,8 @@ shiny::observeEvent(input$test_composite, {
         ell[[3]],
         color = c(0L, 224L, 0L),
         contrast = c(255L, 255L, 255),
-        thickness = as.integer(max(1, round(sc)))
+        thickness = as.integer(max(1, round(sc))),
+        outline = as.integer(max(1, round(sc)))
       )
 
       new_check <- floor(100 * i / n)
@@ -445,7 +446,7 @@ shiny::observeEvent(yolo_path(), {
           rnd_loc <- .sampleMinDist(
             roi,
             input$n_instances_x,
-            round(mean(dt$width[dt$select]) / 2)
+            input$overlap_buffer_x
           )
           rnd_blob <- sample(which(dt$select), input$n_instances_x, TRUE)
           rnd_rot <- sample(c(0L, 1L, 2L, -1L), input$n_instances_x, TRUE)

@@ -66,7 +66,8 @@ shiny::observeEvent(refresh_display(), {
         list(obb[i - 1]),
         color = .shades[, 7],
         contrast = c(255, 255, 255),
-        thickness = as.integer(max(1, round(sc)))
+        thickness = as.integer(max(1, round(sc))),
+        outline = as.integer(max(1, round(sc)))
       )
     }
 
@@ -247,9 +248,10 @@ shiny::observeEvent(the_debounce(), {
                   .SD$width,
                   .SD$height,
                   .SD$angle,
-                  .shades[, (.BY$track %% ncol(.shades)) + 1],
-                  c(255, 255, 255),
-                  as.integer(max(1, round(sc)))
+                  color = .shades[, (.BY$track %% ncol(.shades)) + 1],
+                  contrast = c(255, 255, 255),
+                  thickness = as.integer(max(1, round(sc))),
+                  outline = as.integer(max(1, round(sc)))
                 ),
                 by = .(track)
               ]
@@ -261,7 +263,8 @@ shiny::observeEvent(the_debounce(), {
                   closed = FALSE,
                   color = .shades[, (.BY$track[1] %% ncol(.shades)) + 1],
                   contrast = c(255, 255, 255),
-                  thickness = as.integer(max(1, round(sc)))
+                  thickness = as.integer(max(1, round(sc))),
+                  outline = as.integer(max(1, round(sc)))
                 ),
                 by = .(track)
               ]

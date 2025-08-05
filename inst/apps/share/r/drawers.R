@@ -9,7 +9,8 @@ mode(.shades) <- "integer"
   scale = 1,
   color = c(255, 255, 255),
   contrast = c(0, 0, 0),
-  thickness = 1
+  thickness = 1,
+  outline = 1
 ) {
   cv2$putText(
     img,
@@ -18,7 +19,7 @@ mode(.shades) <- "integer"
     cv2$FONT_HERSHEY_SIMPLEX,
     scale,
     as.integer(contrast),
-    as.integer(max(1, round(2 * thickness))),
+    as.integer(round(thickness + outline)),
     cv2$LINE_AA
   )
 
@@ -29,7 +30,7 @@ mode(.shades) <- "integer"
     cv2$FONT_HERSHEY_SIMPLEX,
     scale,
     as.integer(color),
-    as.integer(max(1, round(thickness))),
+    as.integer(round(thickness)),
     cv2$LINE_AA
   )
   NULL
@@ -43,14 +44,15 @@ mode(.shades) <- "integer"
   scale = 1,
   color = c(255, 255, 255),
   contrast = c(0, 0, 0),
-  thickness = 1
+  thickness = 1,
+  outline = 1
 ) {
   txt_size <- reticulate::py_to_r(
     cv2$getTextSize(
       as.character(txt),
       cv2$FONT_HERSHEY_SIMPLEX,
       scale,
-      as.integer(max(1, round(2 * thickness)))
+      as.integer(round(thickness + outline))
     )
   )
 
@@ -62,7 +64,8 @@ mode(.shades) <- "integer"
     scale,
     color,
     contrast,
-    thickness
+    thickness,
+    outline
   )
   NULL
 }
@@ -81,7 +84,7 @@ mode(.shades) <- "integer"
     as.integer(c(x, y)),
     as.integer(radius),
     as.integer(contrast),
-    as.integer(max(1, round(2 * thickness)))
+    as.integer(round(2 * thickness))
   )
 
   cv2$circle(
@@ -100,14 +103,15 @@ mode(.shades) <- "integer"
   closed = FALSE,
   color = c(255, 255, 255),
   contrast = c(0, 0, 0),
-  thickness = 1
+  thickness = 1,
+  outline = 1
 ) {
   cv2$polylines(
     img,
     array(as.integer(m), c(1, dim(m))),
     closed,
     as.integer(contrast),
-    as.integer(max(1, round(2 * thickness)))
+    as.integer(round(thickness + outline))
   )
 
   cv2$polylines(
@@ -115,7 +119,7 @@ mode(.shades) <- "integer"
     array(as.integer(m), c(1, dim(m))),
     closed,
     as.integer(color),
-    as.integer(max(1, round(thickness)))
+    as.integer(round(thickness))
   )
   NULL
 }
@@ -125,14 +129,15 @@ mode(.shades) <- "integer"
   ct,
   color = c(255, 255, 255),
   contrast = c(0, 0, 0),
-  thickness = 1
+  thickness = 1,
+  outline = 1
 ) {
   cv2$drawContours(
     img,
     ct,
     -1L,
     as.integer(contrast),
-    as.integer(max(1, round(2 * thickness)))
+    as.integer(round(thickness + outline))
   )
 
   cv2$drawContours(
@@ -140,7 +145,7 @@ mode(.shades) <- "integer"
     ct,
     -1L,
     as.integer(color),
-    as.integer(max(1, round(thickness)))
+    as.integer(round(thickness))
   )
   NULL
 }
@@ -154,7 +159,8 @@ mode(.shades) <- "integer"
   angle,
   color = c(255, 255, 255),
   contrast = c(0, 0, 0),
-  thickness = 1
+  thickness = 1,
+  outline = 1
 ) {
   box <- cv2$boxPoints(reticulate::r_to_py(list(
     c(x, y),
@@ -168,7 +174,7 @@ mode(.shades) <- "integer"
     list(reticulate::r_to_py(box)),
     -1L,
     as.integer(contrast),
-    as.integer(max(1, round(2 * thickness)))
+    as.integer(round(thickness + outline))
   )
 
   cv2$drawContours(
@@ -176,7 +182,7 @@ mode(.shades) <- "integer"
     list(reticulate::r_to_py(box)),
     -1L,
     as.integer(color),
-    as.integer(max(1, round(thickness)))
+    as.integer(round(thickness))
   )
   NULL
 }
