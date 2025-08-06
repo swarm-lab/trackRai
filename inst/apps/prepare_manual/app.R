@@ -18,9 +18,6 @@ library(shinyjs)
 library(shinyalert)
 library(trackRcv)
 library(trackRai)
-library(autothresholdr)
-library(stringr)
-library(plotly)
 library(data.table)
 
 

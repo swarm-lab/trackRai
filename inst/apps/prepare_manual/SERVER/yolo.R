@@ -171,21 +171,29 @@ shiny::observeEvent(yolo_path(), {
           frame == frames[i],
           as.list(c(
             tag = tag_n,
-            reticulate::py_to_r(cv2$boxPoints(list(
-              c(x, y),
-              c(width, height),
-              angle
-            )))
+            c(
+              t(
+                reticulate::py_to_r(
+                  cv2$boxPoints(
+                    list(
+                      c(x, y),
+                      c(width, height),
+                      angle
+                    )
+                  )
+                )
+              )
+            )
           )),
           by = .I
         ]
 
-        cols <- c("V2", "V3", "V4", "V5")
+        cols <- c("V2", "V4", "V6", "V8")
         annotations[,
           (cols) := lapply(.SD, "/", trackRcv::n_col(frame)),
           .SDcols = cols
         ]
-        cols <- c("V6", "V7", "V8", "V9")
+        cols <- c("V3", "V5", "V7", "V9")
         annotations[,
           (cols) := lapply(.SD, "/", trackRcv::n_row(frame)),
           .SDcols = cols
@@ -243,10 +251,16 @@ shiny::observeEvent(yolo_path(), {
       write("", con, append = TRUE)
       write("names:", con, append = TRUE)
 
-      tags <- unique(obb[, c("tag_n", "tag")], by = c("tag_n", "tag"))[order(tag_n)]
-      
+      tags <- unique(obb[, c("tag_n", "tag")], by = c("tag_n", "tag"))[order(
+        tag_n
+      )]
+
       for (i in seq_len(nrow(tags))) {
-        write(paste0("    ", tags[i, "tag_n"], ": ", tags[i, "tag"]), con, append = TRUE)
+        write(
+          paste0("    ", tags[i, "tag_n"], ": ", tags[i, "tag"]),
+          con,
+          append = TRUE
+        )
       }
 
       close(con)
