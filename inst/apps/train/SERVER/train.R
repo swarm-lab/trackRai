@@ -3,7 +3,13 @@ volumes <- c(Home = fs::path_home(), getVolumes()())
 the_temp_file <- NULL
 n_gpus <- reticulate::py_to_r(torch$cuda$device_count())
 mps <- reticulate::py_to_r(torch$backends$mps$is_available())
-device <- if (n_gpus > 0) "cuda:0" else if (mps) "mps" else "cpu"
+device <- if (n_gpus > 0) {
+  "cuda:0"
+} else if (mps) {
+  "mps"
+} else {
+  "cpu"
+}
 yolo_proc <- NULL
 
 yolo_installed <- yolo_installed()
@@ -33,12 +39,24 @@ output$console <- shiny::renderUI({
 
 output$plotly <- plotly::renderPlotly({
   if (!is.null(the_progress())) {
-    plotly::plot_ly(the_progress(),
-      x = ~epoch, y = ~box_loss, name = "Box loss",
-      type = "scatter", mode = "lines+markers"
+    plotly::plot_ly(
+      the_progress(),
+      x = ~epoch,
+      y = ~box_loss,
+      name = "Box loss",
+      type = "scatter",
+      mode = "lines+markers"
     ) %>%
-      plotly::add_trace(y = ~cls_loss, name = "Class loss", mode = "lines+markers") %>%
-      plotly::add_trace(y = ~dfl_loss, name = "DFL loss", mode = "lines+markers") %>%
+      plotly::add_trace(
+        y = ~cls_loss,
+        name = "Class loss",
+        mode = "lines+markers"
+      ) %>%
+      plotly::add_trace(
+        y = ~dfl_loss,
+        name = "DFL loss",
+        mode = "lines+markers"
+      ) %>%
       plotly::layout(
         margin = list(l = 20, r = 20, t = 20, b = 20, pad = 0),
         xaxis = list(title = "Epochs", range = c(0, input$epochs_x)),
@@ -126,19 +144,25 @@ output$nvidia_status <- shiny::renderUI({
 output$start_stop <- shiny::renderUI({
   if (monitor_progress()) {
     shiny::actionButton(
-      "stop_train_x", "Stop training",
-      width = "100%", class = "btn-danger"
+      "stop_train_x",
+      "Stop training",
+      width = "100%",
+      class = "btn-danger"
     )
   } else {
     if (!is.null(yolo_path()) & retrain()) {
       shiny::actionButton(
-        "start_train_x", "Start training",
-        width = "100%", class = "btn-success"
+        "start_train_x",
+        "Start training",
+        width = "100%",
+        class = "btn-success"
       )
     } else {
       shinyjs::disabled(shiny::actionButton(
-        "start_train_x", "Start training",
-        width = "100%", class = "btn-success"
+        "start_train_x",
+        "Start training",
+        width = "100%",
+        class = "btn-success"
       ))
     }
   }
@@ -156,8 +180,11 @@ shiny::observeEvent(the_model_folder(), {
 
 
 # Train
-shinyFiles::shinyDirChoose(input, "dataset_x",
-  roots = volumes, session = session
+shinyFiles::shinyDirChoose(
+  input,
+  "dataset_x",
+  roots = volumes,
+  session = session
 )
 
 shiny::observeEvent(input$dataset_x, {
@@ -188,7 +215,8 @@ shiny::observeEvent(input$dataset_x, {
     } else {
       shiny::showNotification(
         "Incorrectly formatted dataset. Choose another one.",
-        id = "yolo", type = "error"
+        id = "yolo",
+        type = "error"
       )
     }
   }
@@ -214,8 +242,20 @@ shiny::observeEvent(input$start_train_x, {
   if (!is.null(yolo_path())) {
     if (retrain()) {
       unlink(paste0(yolo_path(), "/runs/obb/train*"), recursive = TRUE)
-      background <- cv2$imread(normalizePath(paste0(yolo_path(), "/background.png"), mustWork = FALSE))
-      imgsz <- trackRcv::n_col(background)
+      test_image <- cv2$imread(
+        list.files(
+          normalizePath(yolo_path(), mustWork = FALSE),
+          recursive = TRUE,
+          pattern = "*.png",
+          full.names = TRUE
+        )[1]
+      )
+      # background <- cv2$imread(normalizePath(
+      #   paste0(yolo_path(), "/background.png"),
+      #   mustWork = FALSE
+      # ))
+      # imgsz <- trackRcv::n_col(background)
+      imgsz <- trackRcv::n_col(test_image)
       the_temp_file <<- tempfile(fileext = ".txt")
       model <- paste0("yolo11", input$yolo_x, "-obb.pt")
       epochs <- input$epochs_x
@@ -307,8 +347,7 @@ shiny::observeEvent(monitor_tick(), {
 
       if (nrow(progress_tab) > 0) {
         progress_tab <- unique(
-          progress_tab[
-            ,
+          progress_tab[,
             tstrsplit(string, "\\s{2,}")[c(2, 4:6)]
           ]
         )
@@ -326,18 +365,27 @@ shiny::observeEvent(monitor_tick(), {
 
       if (length(stop) > 0) {
         model_folder <- paste0(
-          yolo_path(), "/",
-          gsub("Results saved to ", "", cli::ansi_strip(the_raw_progress()[stop]))
+          yolo_path(),
+          "/",
+          gsub(
+            "Results saved to ",
+            "",
+            cli::ansi_strip(the_raw_progress()[stop])
+          )
         )
         the_model_folder(model_folder)
         shiny::showNotification(
           paste0("Results saved to ", model_folder),
-          id = "done", duration = NULL, type = "message"
+          id = "done",
+          duration = NULL,
+          type = "message"
         )
       } else {
         shiny::showNotification(
           paste0("Training failed. Logs can be found here: ", the_temp_file),
-          id = "done", duration = NULL, type = "error"
+          id = "done",
+          duration = NULL,
+          type = "error"
         )
       }
 
