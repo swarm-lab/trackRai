@@ -11,7 +11,6 @@ library(trackRai)
 # Custom functions
 #--------------------------------------------------------------
 
-
 #--------------------------------------------------------------
 # User Interface
 #--------------------------------------------------------------
@@ -63,13 +62,42 @@ ui <- function(request) {
               "margin-left: 40px;",
               "margin-right: 40px;"
             ),
-            shiny::actionButton(
-              "prepare",
-              " - Prepare",
+
+            shinyWidgets::dropMenu(
+              shiny::actionButton(
+                "prepare",
+                " - Prepare",
+                icon = shiny::icon("tasks", class = "fa-solid"),
+                style = "font-size: 20px; padding-bottom: 10px !important;",
+                width = "100%"
+              ),
+              shiny::actionButton(
+                "prepare_auto",
+                " - Auto annotation",
+                icon = shiny::icon("gear", class = "fa-solid"),
+                style = "font-size: 20px; margin-bottom: 10px;",
+                width = "100%"
+              ),
+              shiny::actionButton(
+                "prepare_manual",
+                " - Manual annotation",
+                icon = shiny::icon("hand", class = "fa-solid"),
+                style = "font-size: 20px;",
+                width = "100%"
+              ),
               icon = shiny::icon("tasks", class = "fa-solid"),
-              style = "font-size: 20px;",
-              width = "100%"
+              label = " - Prepare",
+              width = "100%",
+              maxWidth = "275px"
             ),
+
+            # shiny::actionButton(
+            #   "prepare",
+            #   " - Prepare",
+            #   icon = shiny::icon("tasks", class = "fa-solid"),
+            #   style = "font-size: 20px;",
+            #   width = "100%"
+            # ),
 
             shiny::hr(),
 
@@ -130,11 +158,21 @@ server <- function(input, output, session) {
     shiny::getShinyOption("shiny.launch.browser")
   }
 
-  shiny::observeEvent(input$prepare, {
+  shiny::observeEvent(input$prepare_auto, {
     shiny::stopApp(shiny::shinyAppDir(
       paste0(
         find.package("trackRai"),
         "/apps/prepare_auto/"
+      ),
+      options = list(launch.browser = browser)
+    ))
+  })
+
+  shiny::observeEvent(input$prepare_manual, {
+    shiny::stopApp(shiny::shinyAppDir(
+      paste0(
+        find.package("trackRai"),
+        "/apps/prepare_manual/"
       ),
       options = list(launch.browser = browser)
     ))
