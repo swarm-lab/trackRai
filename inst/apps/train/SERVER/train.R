@@ -250,16 +250,13 @@ shiny::observeEvent(input$start_train_x, {
           full.names = TRUE
         )[1]
       )
-      # background <- cv2$imread(normalizePath(
-      #   paste0(yolo_path(), "/background.png"),
-      #   mustWork = FALSE
-      # ))
-      # imgsz <- trackRcv::n_col(background)
       imgsz <- trackRcv::n_col(test_image)
       the_temp_file <<- tempfile(fileext = ".txt")
       model <- paste0("yolo11", input$yolo_x, "-obb.pt")
       epochs <- input$epochs_x
       patience <- input$patience_x
+      yaml <- yaml::read_yaml(paste0(yolo_path(), "/dataset.yaml"))
+      single_cls <- if (length(yaml$names) > 1) "False" else "True"
       if (n_gpus > 1) {
         yolo_proc <<- processx::process$new(
           trackRai:::.yolo_path(),
@@ -272,7 +269,7 @@ shiny::observeEvent(input$start_train_x, {
             paste0("patience=", patience),
             paste0("imgsz=", imgsz),
             "batch=8",
-            "single_cls=True",
+            paste0("single_cls=", single_cls),
             paste0("device=", paste0((1:n_gpus) - 1, collapse = ","))
           ),
           stdout = the_temp_file,
@@ -291,7 +288,7 @@ shiny::observeEvent(input$start_train_x, {
             paste0("patience=", patience),
             paste0("imgsz=", imgsz),
             "batch=-1",
-            "single_cls=True",
+            paste0("single_cls=", single_cls),
             "device=mps"
           ),
           stdout = the_temp_file,
@@ -310,7 +307,7 @@ shiny::observeEvent(input$start_train_x, {
             paste0("patience=", patience),
             paste0("imgsz=", imgsz),
             "batch=-1",
-            "single_cls=True"
+            paste0("single_cls=", single_cls),
           ),
           stdout = the_temp_file,
           stderr = "2>&1",

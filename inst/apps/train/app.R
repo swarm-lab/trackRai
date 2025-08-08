@@ -24,6 +24,7 @@ library(plotly)
 library(processx)
 library(cli)
 library(stringr)
+library(yaml)
 
 
 #--------------------------------------------------------------
