@@ -5,6 +5,11 @@ obb <- NULL
 collect_object <- shiny::reactiveVal(0)
 stop_object_collection <- shiny::reactiveVal(0)
 remove_object <- shiny::reactiveVal(0)
+tags <- shiny::reactiveVal(data.frame(
+  label = character(0),
+  value = character(0),
+  order = numeric(0)
+))
 
 
 # UI
@@ -32,10 +37,6 @@ shiny::observeEvent(refresh_display(), {
   if (input$main %in% c("2", "3")) {
     if (trackRcv::is_image(the_image)) {
       to_display <<- the_image$copy()
-      avg_bgr <- unlist(reticulate::py_to_r(cv2$mean(to_display)))[1:3]
-      shade_ix <- which.max(apply(.shades, 2, function(shade) {
-        sum((shade - avg_bgr[3:1])^2)
-      }))
       sc <- max(
         c(trackRcv::n_row(to_display), trackRcv::n_col(to_display)) / 720
       )
@@ -48,7 +49,7 @@ shiny::observeEvent(refresh_display(), {
             coords[1],
             coords[2],
             radius = r,
-            color = .shades[, shade_ix],
+            color = .shades[3:1, which(tags()$label == input$object_tag_x)],
             contrast = c(255, 255, 255),
             thickness = as.integer(max(1, round(r / 2)))
           )
@@ -82,7 +83,7 @@ shiny::observeEvent(refresh_display(), {
                 .SD$width,
                 .SD$height,
                 .SD$angle,
-                color = .shades[, shade_ix],
+                color = .shades[3:1, which(tags()$label == .SD$tag)],
                 contrast = c(255, 255, 255),
                 thickness = 2L, # as.integer(max(1, round(sc))),
                 outline = as.integer(max(1, round(sc)))
@@ -96,7 +97,7 @@ shiny::observeEvent(refresh_display(), {
                 .SD$x,
                 .SD$y,
                 radius = r,
-                color = .shades[, shade_ix],
+                color = .shades[3:1, which(tags()$label == .SD$tag)],
                 contrast = c(255, 255, 255),
                 thickness = as.integer(max(1, round(r / 2)))
               ),
@@ -111,8 +112,8 @@ shiny::observeEvent(refresh_display(), {
                 .SD$tag,
                 .SD$x,
                 .SD$y,
-                scale = 0.5,
-                color = .shades[, shade_ix],
+                scale = 0.75,
+                color = .shades[3:1, which(tags()$label == .SD$tag)],
                 contrast = c(255, 255, 255),
                 thickness = 1L, # as.integer(max(1, round(sc))),
                 outline = as.integer(max(1, round(sc)))
@@ -131,32 +132,79 @@ shiny::observeEvent(refresh_display(), {
 })
 
 
+# Tag handling
+shiny::observeEvent(input$tag_added, {
+  tmp <- tags()
+  n <- nrow(tmp) + 1
+  tmp[n, ]$label <- input$tag_added$label
+  tmp[n, ]$value <- input$tag_added$value
+  tmp[n, ]$order <- as.numeric(input$tag_added$`$order`)
+  tags(tmp)
+})
+
+output$tag_list <- shiny::renderTable(
+  {
+    if (nrow(tags()) > 0) {
+      m <- matrix("", nrow = 3, ncol = ceiling(nrow(tags()) / 3))
+      colors_id <- ((tags()$order - 1) %% length(pals::alphabet())) + 1
+      colors <- pals::alphabet()[colors_id]
+      h <- sapply(seq_along(colors), function(i) {
+        as.character(
+          shiny::span(
+            shiny::icon(
+              "square",
+              class = "fa-solid",
+              style = paste0("color: ", colors[i], ";")
+            ),
+            tags()$label[i]
+          )
+        )
+      })
+      m[1:length(h)] <- h
+      as.data.frame(t(m))
+    }
+  },
+  colnames = FALSE,
+  sanitize.text.function = function(x) x,
+  width = "100%"
+)
+
+
 # Add/remove object
 shiny::observeEvent(input$qKey, {
-  if (input$main == "2") {
+  if (input$main == "2" & input$focused != "object_tag_x-selectized") {
     shinyjs::click("add_object", asis = FALSE)
   }
 })
 
 shiny::observeEvent(input$add_object, {
   if (trackRcv::is_image(the_image)) {
-    .toggleInputs(input, "OFF")
-    .toggleTabs(1:3, "OFF")
+    if (nchar(input$object_tag_x) > 0) {
+      .toggleInputs(input, "OFF")
+      .toggleTabs(1:3, "OFF")
 
-    shiny::showNotification(
-      "Click at the head and tail of the object to select. Esc to cancel.",
-      id = "object_notif",
-      duration = NULL,
-      type = "message"
-    )
+      shiny::showNotification(
+        "Click at the head and tail of the object to select. Esc to cancel.",
+        id = "object_notif",
+        duration = NULL,
+        type = "message"
+      )
 
-    shinyjs::addClass("display", "active_display")
-    collect_object(1)
+      shinyjs::addClass("display", "active_display")
+      collect_object(1)
+    } else {
+      shiny::showNotification(
+        "No tag selected. Please create and select at least one tag.",
+        id = "object_notif",
+        duration = 5,
+        type = "error"
+      )
+    }
   }
 })
 
 shiny::observeEvent(input$wKey, {
-  if (input$main == "2") {
+  if (input$main == "2" & input$focused != "object_tag_x-selectized") {
     shinyjs::click("remove_object", asis = FALSE)
   }
 })
@@ -237,7 +285,7 @@ shiny::observeEvent(stop_object_collection(), {
         obb,
         data.table::data.table(
           frame = input$video_controls_x,
-          tag = input$object_tag,
+          tag = input$object_tag_x,
           x = coords[1],
           y = coords[2],
           width = w,
@@ -277,8 +325,10 @@ shiny::observeEvent(stop_object_collection(), {
   refresh_display(refresh_display() + 1)
 })
 
+
+# Random frame selection
 shiny::observeEvent(input$rKey, {
-  if (input$main == "2") {
+  if (input$main == "2" & input$focused != "object_tag_x-selectized") {
     shinyjs::click("random_frame", asis = FALSE)
   }
 })

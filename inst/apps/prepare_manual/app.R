@@ -34,6 +34,15 @@ ui <- function(request) {
     shiny::tags$head(
       shiny::includeCSS(path = "../share/css/custom.css")
     ),
+    tags$head(
+      tags$style(
+        HTML(
+          "#tag_list table th, #tag_list table td { 
+            border-top: none; 
+          }"
+        )
+      )
+    ),
     shinyjs::useShinyjs(),
     shinyjs::extendShinyjs(
       script = "share/js/window.js",
@@ -46,6 +55,10 @@ ui <- function(request) {
     shinyjs::extendShinyjs(
       script = "share/js/reset.js",
       functions = c("replace")
+    ),
+    shinyjs::extendShinyjs(
+      script = "share/js/focus.js",
+      functions = c("initfocus")
     ),
     shiny::div(id = "curtain", class = "curtain"),
     shiny::div(
@@ -64,7 +77,7 @@ ui <- function(request) {
           selected = "1",
           source("UI/video.R", local = TRUE)$value,
           source("UI/segmentation.R", local = TRUE)$value,
-          source("UI/yolo.R", local = TRUE)$value 
+          source("UI/yolo.R", local = TRUE)$value
         ),
         source("UI/bookmarking.R", local = TRUE)$value
       )
@@ -77,6 +90,7 @@ ui <- function(request) {
 # Application server
 #--------------------------------------------------------------
 server <- function(input, output, session) {
+  js$initfocus()
   source("../share/r/togglers.R", local = TRUE)
   source("../share/r/drawers.R", local = TRUE)
   source("../share/r/samplers.R", local = TRUE)

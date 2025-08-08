@@ -30,12 +30,13 @@ Imports:
     shinyFiles,
     shinyjs,
     shinyWidgets,
-    stringr
+    stringr,
+    yaml
 Depends:
     trackRcv (>= 0.1.0)
 Suggests: 
     quarto,
     rmarkdown
 VignetteBuilder: quarto
-Remotes:  
+Remotes: 
     swarm-lab/trackRcv

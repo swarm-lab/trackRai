@@ -52,6 +52,9 @@ shiny::onBookmark(function(state) {
   if (!is.null(obb)) {
     state$values$obb <- obb
   }
+  if (length(tags()) > 0) {
+    state$values$tags <- tags()
+  }
 })
 
 shiny::onBookmarked(function(url) {
@@ -102,5 +105,18 @@ shiny::onRestore(function(state) {
   }
   if (!is.null(state$values$obb)) {
     obb <<- data.table::as.data.table(state$values$obb)
+  }
+  if (!is.null(state$values$tags)) {
+    tags(as.data.frame(state$values$tags))
+  }
+})
+
+shiny::onRestored(function(state) {
+  if (length(tags()) > 0) {
+    shiny::updateSelectizeInput(
+      session,
+      "object_tag_x",
+      choices = tags()$label
+    )
   }
 })
