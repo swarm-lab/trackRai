@@ -307,7 +307,7 @@ shiny::observeEvent(input$start_train_x, {
             paste0("patience=", patience),
             paste0("imgsz=", imgsz),
             "batch=-1",
-            paste0("single_cls=", single_cls),
+            paste0("single_cls=", single_cls)
           ),
           stdout = the_temp_file,
           stderr = "2>&1",
