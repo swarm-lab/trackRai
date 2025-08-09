@@ -1,6 +1,15 @@
 .shades <- grDevices::col2rgb(pals::alphabet())
 mode(.shades) <- "integer"
 
+.col2hex <- function(cname) {
+  colMat <- col2rgb(cname)
+  rgb(
+    red = colMat[1, ] / 255,
+    green = colMat[2, ] / 255,
+    blue = colMat[3, ] / 255
+  )
+}
+
 .drawText <- function(
   img,
   txt,
@@ -57,7 +66,7 @@ mode(.shades) <- "integer"
   )
 
   .drawText(
-    img, 
+    img,
     txt,
     (x - txt_size[[1]][[1]] / 2) + 2,
     (y + txt_size[[1]][[2]] / 2) - 1,

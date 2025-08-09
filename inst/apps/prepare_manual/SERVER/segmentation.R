@@ -49,7 +49,16 @@ shiny::observeEvent(refresh_display(), {
             coords[1],
             coords[2],
             radius = r,
-            color = .shades[3:1, which(tags()$label == input$object_tag_x)],
+            color = if (tolower(input$object_tag_x) %in% colors()) {
+              col2rgb(tolower(input$object_tag_x))[3:1, ]
+            } else {
+              .shades[
+                3:1,
+                (which(tags()$label == input$object_tag_x) -
+                  1 %% ncol(.shades)) +
+                  1
+              ]
+            },
             contrast = c(255, 255, 255),
             thickness = as.integer(max(1, round(r / 2)))
           )
@@ -83,7 +92,17 @@ shiny::observeEvent(refresh_display(), {
                 .SD$width,
                 .SD$height,
                 .SD$angle,
-                color = .shades[3:1, which(tags()$label == .SD$tag)],
+                color = if (tolower(.SD$tag) %in% colors()) {
+                  col2rgb(tolower(.SD$tag))[3:1, ]
+                } else {
+                  .shades[
+                    3:1,
+                    (which(tags()$label == .SD$tag) -
+                      1 %%
+                        ncol(.shades)) +
+                      1
+                  ]
+                },
                 contrast = c(255, 255, 255),
                 thickness = 2L, # as.integer(max(1, round(sc))),
                 outline = as.integer(max(1, round(sc)))
@@ -97,7 +116,17 @@ shiny::observeEvent(refresh_display(), {
                 .SD$x,
                 .SD$y,
                 radius = r,
-                color = .shades[3:1, which(tags()$label == .SD$tag)],
+                color = if (tolower(.SD$tag) %in% colors()) {
+                  col2rgb(tolower(.SD$tag))[3:1, ]
+                } else {
+                  .shades[
+                    3:1,
+                    (which(tags()$label == .SD$tag) -
+                      1 %%
+                        ncol(.shades)) +
+                      1
+                  ]
+                },
                 contrast = c(255, 255, 255),
                 thickness = as.integer(max(1, round(r / 2)))
               ),
@@ -113,7 +142,17 @@ shiny::observeEvent(refresh_display(), {
                 .SD$x,
                 .SD$y,
                 scale = 0.75,
-                color = .shades[3:1, which(tags()$label == .SD$tag)],
+                color = if (tolower(.SD$tag) %in% colors()) {
+                  col2rgb(tolower(.SD$tag))[3:1, ]
+                } else {
+                  .shades[
+                    3:1,
+                    (which(tags()$label == .SD$tag) -
+                      1 %%
+                        ncol(.shades)) +
+                      1
+                  ]
+                },
                 contrast = c(255, 255, 255),
                 thickness = 1L, # as.integer(max(1, round(sc))),
                 outline = as.integer(max(1, round(sc)))
@@ -148,6 +187,8 @@ output$tag_list <- shiny::renderTable(
       m <- matrix("", nrow = 3, ncol = ceiling(nrow(tags()) / 3))
       colors_id <- ((tags()$order - 1) %% length(pals::alphabet())) + 1
       colors <- pals::alphabet()[colors_id]
+      ix <- tolower(tags()$label) %in% colors()
+      colors[ix] <- .col2hex(tolower(tags()$label[ix]))
       h <- sapply(seq_along(colors), function(i) {
         as.character(
           shiny::span(
@@ -168,6 +209,20 @@ output$tag_list <- shiny::renderTable(
   sanitize.text.function = function(x) x,
   width = "100%"
 )
+
+shiny::observeEvent(input$eKey, {
+  if (input$main == "2" & input$focused != "object_tag_x-selectized") {
+    if (nrow(tags()) > 0) {
+      ix <- which(tags()$label == input$object_tag_x)
+      new_ix <- (ix %% nrow(tags())) + 1
+      shiny::updateSelectizeInput(
+        session,
+        "object_tag_x",
+        selected = tags()$label[new_ix]
+      )
+    }
+  }
+})
 
 
 # Add/remove object
