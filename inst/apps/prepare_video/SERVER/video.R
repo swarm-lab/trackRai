@@ -464,8 +464,6 @@ shiny::observeEvent(output_path(), {
       0L
     )
 
-    print(paste0(trackRcv::n_col(prepped), ":", trackRcv::n_row(prepped)))
-
     vw <- cv2$VideoWriter(
       normalizePath(
         paste0(output_path()),
