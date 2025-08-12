@@ -72,6 +72,13 @@ ui <- function(request) {
                 width = "100%"
               ),
               shiny::actionButton(
+                "prepare_video",
+                " - Video optimization",
+                icon = shiny::icon("video", class = "fa-solid"),
+                style = "font-size: 20px; margin-bottom: 10px;",
+                width = "100%"
+              ),
+              shiny::actionButton(
                 "prepare_auto",
                 " - Auto annotation",
                 icon = shiny::icon("gear", class = "fa-solid"),
@@ -90,14 +97,6 @@ ui <- function(request) {
               width = "100%",
               maxWidth = "275px"
             ),
-
-            # shiny::actionButton(
-            #   "prepare",
-            #   " - Prepare",
-            #   icon = shiny::icon("tasks", class = "fa-solid"),
-            #   style = "font-size: 20px;",
-            #   width = "100%"
-            # ),
 
             shiny::hr(),
 
@@ -157,6 +156,16 @@ server <- function(input, output, session) {
   } else {
     shiny::getShinyOption("shiny.launch.browser")
   }
+
+  shiny::observeEvent(input$prepare_video, {
+    shiny::stopApp(shiny::shinyAppDir(
+      paste0(
+        find.package("trackRai"),
+        "/apps/prepare_video/"
+      ),
+      options = list(launch.browser = browser)
+    ))
+  })
 
   shiny::observeEvent(input$prepare_auto, {
     shiny::stopApp(shiny::shinyAppDir(

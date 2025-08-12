@@ -55,9 +55,6 @@ shinyjs::disabled(
         )
       )
     ),
-    # shiny::sliderInput("saltpepper_x", "Add random image noise", 0, 50, 0),
-    # shiny::sliderInput("gain_x", "Add random gain", 0, 1, 0, 0.05),
-    # shiny::sliderInput("bias_x", "Add random bias", 0, 50, 0),
     shiny::actionButton(
       "test_composite",
       "Generate test composite",

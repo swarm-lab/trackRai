@@ -226,7 +226,7 @@ shiny::observeEvent(input$main, {
 
 shiny::observeEvent(the_frame(), {
   if (!is.null(the_frame())) {
-    the_image <<- read_frame(the_video, the_frame())
+    the_image <<- trackRcv::read_frame(the_video, the_frame())
     refresh_display(refresh_display() + 1)
   }
 })

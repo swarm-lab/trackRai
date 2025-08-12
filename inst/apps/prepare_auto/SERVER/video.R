@@ -157,14 +157,7 @@ shiny::observeEvent(video_path(), {
 # Read frame
 shiny::observeEvent(input$leftKey, {
   if (trackRcv::is_video_capture(the_video)) {
-    if (input$main == "5") {
-      val <- input$id_controls[1] - 1
-      shinyWidgets::updateNoUiSliderInput(
-        session,
-        "id_controls",
-        value = val
-      )
-    } else {
+    if (input$main != "5") {
       vals <- input$video_controls_x
 
       if (vals[2] > vals[1]) {
@@ -175,6 +168,13 @@ shiny::observeEvent(input$leftKey, {
           value = vals
         )
       }
+    } else {
+      val <- input$id_controls[1] - 1
+      shinyWidgets::updateNoUiSliderInput(
+        session,
+        "id_controls",
+        value = val
+      )
     }
   }
 })
@@ -275,7 +275,7 @@ shiny::observeEvent(input$main, {
 
 shiny::observeEvent(the_frame(), {
   if (!is.null(the_frame())) {
-    the_image <<- read_frame(the_video, the_frame())
+    the_image <<- trackRcv::read_frame(the_video, the_frame())
     refresh_display(refresh_display() + 1)
   }
 })

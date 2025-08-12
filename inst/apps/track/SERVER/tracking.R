@@ -56,17 +56,53 @@ shiny::observeEvent(refresh_display(), {
       verbose = FALSE,
       device = device
     )
+    class_names <- unlist(reticulate::py_to_r(pred[0]$names))
+    classes <- reticulate::py_to_r(pred[0]$obb$cls$cpu()$numpy())
     obb <- pred[0]$obb$xyxyxyxy$cpu()$numpy()
     obb <- np$int_(obb)
     sc <- max(c(trackRcv::n_row(to_display), trackRcv::n_col(to_display)) / 720)
 
-    for (i in seq_len(py_to_r(obb$shape[0]))) {
+    for (i in seq_along(classes)) {
       .drawContour(
         to_display,
         list(obb[i - 1]),
-        color = .shades[, 7],
+        color = if (tolower(class_names[classes[i] + 1]) %in% colors()) {
+          col2rgb(tolower(class_names[classes[i] + 1]))[3:1, ]
+        } else {
+          .shades[
+            3:1,
+            (which(class_names == class_names[classes[i] + 1]) -
+              1 %%
+                ncol(.shades)) +
+              1
+          ]
+        },
         contrast = c(255, 255, 255),
-        thickness = as.integer(max(1, round(sc))),
+        thickness = 2L,
+        outline = as.integer(max(1, round(sc)))
+      )
+
+      com <- apply(reticulate::py_to_r(obb[i - 1]), 2, mean)
+
+      .drawTag(
+        to_display,
+        class_names[classes[i] + 1],
+        com[1],
+        com[2],
+        scale = 0.75,
+        color = if (tolower(class_names[classes[i] + 1]) %in% colors()) {
+          col2rgb(tolower(class_names[classes[i] + 1]))[3:1, ]
+        } else {
+          .shades[
+            3:1,
+            (which(class_names == class_names[classes[i] + 1]) -
+              1 %%
+                ncol(.shades)) +
+              1
+          ]
+        },
+        contrast = c(255, 255, 255),
+        thickness = 1L,
         outline = as.integer(max(1, round(sc)))
       )
     }
@@ -146,8 +182,8 @@ shiny::observeEvent(the_track_path(), {
   write("gmc_method: sparseOptFlow", con, append = TRUE)
   write("proximity_thresh: 0.5", con, append = TRUE)
   write("appearance_thresh: 0.25", con, append = TRUE)
-  write("with_reid: False", con, append = TRUE)
-
+  write("with_reid: True", con, append = TRUE)
+  write("model: auto", con, append = TRUE)
   close(con)
 })
 
@@ -173,19 +209,20 @@ shiny::observeEvent(the_debounce(), {
         )
 
         if (!reticulate::py_to_r(tracks[0]$obb$id == py_none())) {
-          xywhr <- reticulate::py_to_r(tracks[0]$obb$xywhr$cpu()$numpy())
+          class_names <- unlist(reticulate::py_to_r(tracks[0]$names))
+          classes <- reticulate::py_to_r(tracks[0]$obb$cls$cpu()$numpy())
           ids <- reticulate::py_to_r(tracks[0]$obb$id$cpu()$numpy())
-
-          to_write <- data.table::as.data.table(
-            cbind(
-              input$video_controls_x[1] + the_loop(),
-              ids,
-              xywhr
-            )
+          xywhr <- reticulate::py_to_r(tracks[0]$obb$xywhr$cpu()$numpy())
+          to_write <- data.table::data.table(
+            frame = input$video_controls_x[1] + the_loop(),
+            track = ids,
+            class = class_names[classes + 1],
+            xywhr
           )
           names(to_write) <- c(
             "frame",
             "track",
+            "class",
             "x",
             "y",
             "width",
@@ -248,9 +285,14 @@ shiny::observeEvent(the_debounce(), {
                   .SD$width,
                   .SD$height,
                   .SD$angle,
-                  color = .shades[, (.BY$track %% ncol(.shades)) + 1],
+                  color = .shades[3:1, (.BY$track %% ncol(.shades)) + 1],
+                  # color = if (tolower(.SD$class[1]) %in% colors()) {
+                  #   col2rgb(tolower(.SD$class[1]))[3:1, ]
+                  # } else {
+                  #   .shades[3:1, (.BY$track %% ncol(.shades)) + 1]
+                  # },
                   contrast = c(255, 255, 255),
-                  thickness = as.integer(max(1, round(sc))),
+                  thickness = 2L,
                   outline = as.integer(max(1, round(sc)))
                 ),
                 by = .(track)
@@ -261,9 +303,14 @@ shiny::observeEvent(the_debounce(), {
                   to_display,
                   cbind(.SD$x, .SD$y),
                   closed = FALSE,
-                  color = .shades[, (.BY$track[1] %% ncol(.shades)) + 1],
+                  color = .shades[3:1, , (.BY$track[1] %% ncol(.shades)) + 1],
+                  # color = if (tolower(.SD$class[1]) %in% colors()) {
+                  #   col2rgb(tolower(.SD$class[1]))[3:1, ]
+                  # } else {
+                  #   .shades[3:1, (.BY$track %% ncol(.shades)) + 1]
+                  # },
                   contrast = c(255, 255, 255),
-                  thickness = as.integer(max(1, round(sc))),
+                  thickness = 2L,
                   outline = as.integer(max(1, round(sc)))
                 ),
                 by = .(track)
