@@ -113,15 +113,6 @@ shinyjs::disabled(
       class = "fullWidth"
     ),
 
-    shiny::div(
-      style = "text-align: center;",
-      shiny::checkboxInput(
-        "export_video_x",
-        "Include reframed video",
-        value = FALSE
-      )
-    ),
-
     shiny::hr()
   )
 )
