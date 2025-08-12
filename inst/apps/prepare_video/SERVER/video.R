@@ -429,17 +429,17 @@ shiny::observeEvent(output_path(), {
     the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls_x[1] - 1)
 
     if (input$rescale == "1:1") {
-      x <- roi()[1]
-      y <- roi()[3]
+      x <- roi()[1] - 1
+      y <- roi()[3] - 1
       w <- (roi()[2] - roi()[1]) + 1
       h <- (roi()[4] - roi()[3]) + 1
       proc <- the_video$read()[1][y:(y + h), x:(x + w)]
     } else {
       r <- eval(parse(text = gsub(":", "/", input$rescale)))
-      x <- roi()[1] * r
-      y <- roi()[3] * r
-      w <- (roi()[2] * r - roi()[1] * r) + 1
-      h <- (roi()[4] * r - roi()[3] * r) + 1
+      x <- round((roi()[1] - 1) * r)
+      y <- round((roi()[3] - 1) * r)
+      w <- round(((roi()[2] - roi()[1]) + 1) * r)
+      h <- round(((roi()[4] - roi()[3]) + 1) * r)
       proc <- cv2$resize(
         the_video$read()[1],
         reticulate::py_none(),
@@ -463,6 +463,8 @@ shiny::observeEvent(output_path(), {
       NULL,
       0L
     )
+
+    print(paste0(trackRcv::n_col(prepped), ":", trackRcv::n_row(prepped)))
 
     vw <- cv2$VideoWriter(
       normalizePath(
