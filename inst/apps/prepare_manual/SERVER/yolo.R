@@ -167,6 +167,55 @@ shiny::observeEvent(yolo_path(), {
           frame
         )
 
+        if (input$enrich_x) {
+          for (j in seq_len(input$enrich_n_x)) {
+            copy <- frame$copy()
+
+            # Salt and pepper noise
+            r <- sample(0:25, 1)
+            sp <- reticulate::np_array(
+              array(
+                sample(
+                  -r:r,
+                  trackRcv::n_row(copy) * trackRcv::n_col(copy) * 3,
+                  replace = TRUE
+                ),
+                c(trackRcv::n_row(copy), trackRcv::n_col(copy), 3)
+              ),
+              dtype = "int_"
+            )
+            copy <- cv2$add(copy, sp, dtype = copy$dtype$type())
+
+            # Random gain
+            copy <- cv2$multiply(
+              copy,
+              runif(1, 1 / (1 + 0.25), 1 + 0.25)
+            )
+
+            # Random bias
+            copy <- cv2$add(
+              copy,
+              runif(1, -15, 15)
+            )
+
+            cv2$imwrite(
+              normalizePath(
+                paste0(
+                  yolo_path(),
+                  "/YOLO/images/",
+                  folder[i],
+                  i,
+                  "_",
+                  j,
+                  ".png"
+                ),
+                mustWork = FALSE
+              ),
+              copy
+            )
+          }
+        }
+
         annotations <- obb[
           frame == frames[i],
           as.list(c(
@@ -214,6 +263,28 @@ shiny::observeEvent(yolo_path(), {
           row.names = FALSE,
           col.names = FALSE
         )
+
+        if (input$enrich_x) {
+          for (j in seq_len(input$enrich_n_x)) {
+            write.table(
+              annotations[, .SD, .SDcols = !c("I")],
+              normalizePath(
+                paste0(
+                  yolo_path(),
+                  "/YOLO/labels/",
+                  folder[i],
+                  i,
+                  "_",
+                  j,
+                  ".txt"
+                ),
+                mustWork = FALSE
+              ),
+              row.names = FALSE,
+              col.names = FALSE
+            )
+          }
+        }
 
         new_check <- floor(100 * i / n)
         if (new_check > (old_check + 5)) {

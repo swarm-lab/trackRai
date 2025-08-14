@@ -53,7 +53,8 @@ shinyjs::disabled(
           numericInput("bias_x", "Random bias", 0, 0, 127, 1, "100%"),
           style = "width: 49%;"
         )
-      )
+      ),
+      class = "stateTable"
     ),
     shiny::actionButton(
       "test_composite",
@@ -102,7 +103,9 @@ shinyjs::disabled(
           ),
           style = "width: 32%;"
         )
-      )
+      ),
+      class = "stateTable",
+      style = "margin-bottom: -10px;"
     ),
     shiny::hr(),
 
