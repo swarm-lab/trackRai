@@ -63,7 +63,11 @@ shiny::observeEvent(input$range_height_x, {
 
 shiny::observeEvent(input$shape_buffer_x, {
   the_stats(NULL)
-  shinyWidgets::updateNumericRangeInput(session, "range_width_x", value = c(0, 0))
+  shinyWidgets::updateNumericRangeInput(
+    session,
+    "range_width_x",
+    value = c(0, 0)
+  )
   shinyWidgets::updateNumericRangeInput(
     session,
     "range_height_x",
@@ -72,27 +76,35 @@ shiny::observeEvent(input$shape_buffer_x, {
   refresh_display(refresh_display() + 1)
 })
 
-shiny::observeEvent(input$n_ID_frames_x, {
-  the_stats(NULL)
+shiny::observeEvent(
+  input$n_ID_frames_x,
+  {
+    the_stats(NULL)
 
-  if (trackRcv::is_video_capture(the_video)) {
-    n <- input$video_controls_x[3] - input$video_controls_x[1] + 1
-    step <- floor(n / input$n_ID_frames_x)
-    id_frames(seq.int(
-      input$video_controls_x[1],
-      input$video_controls_x[3],
-      step
-    )[1:input$n_ID_frames_x])
-  }
+    if (trackRcv::is_video_capture(the_video)) {
+      n <- input$video_controls_x[3] - input$video_controls_x[1] + 1
+      step <- floor(n / input$n_ID_frames_x)
+      id_frames(seq.int(
+        input$video_controls_x[1],
+        input$video_controls_x[3],
+        step
+      )[1:input$n_ID_frames_x])
+    }
 
-  shinyWidgets::updateNumericRangeInput(session, "range_width_x", value = c(0, 0))
-  shinyWidgets::updateNumericRangeInput(
-    session,
-    "range_height_x",
-    value = c(0, 0)
-  )
-  refresh_display(refresh_display() + 1)
-}, ignoreInit = TRUE)
+    shinyWidgets::updateNumericRangeInput(
+      session,
+      "range_width_x",
+      value = c(0, 0)
+    )
+    shinyWidgets::updateNumericRangeInput(
+      session,
+      "range_height_x",
+      value = c(0, 0)
+    )
+    refresh_display(refresh_display() + 1)
+  },
+  ignoreInit = TRUE
+)
 
 shiny::observeEvent(refresh_display(), {
   if (input$main == "5") {
@@ -114,7 +126,8 @@ shiny::observeEvent(refresh_display(), {
           dt[j, ]$angle,
           color = if (good) c(0L, 224L, 0L) else c(5L, 80L, 255L),
           contrast = c(255L, 255L, 255),
-          thickness = as.integer(max(1, round(sc)))
+          thickness = as.integer(max(1, round(sc))),
+          outline = as.integer(max(1, round(sc)))
         )
       }
 
@@ -191,7 +204,8 @@ shiny::observeEvent(refresh_display(), {
             ell[[3]],
             color = c(5L, 80L, 255L),
             contrast = c(255L, 255L, 255),
-            thickness = as.integer(max(1, round(sc)))
+            thickness = as.integer(max(1, round(sc))),
+            outline = as.integer(max(1, round(sc)))
           )
         }
       }
@@ -340,8 +354,16 @@ shiny::observeEvent(input$compute_stats, {
       dt[, select_w := (width >= rw[1]) & (width <= rw[2])]
       rh <- round(range(dt$height[k$cluster == ix], na.rm = TRUE))
       dt[, select_h := (height >= rh[1]) & (height <= rh[2])]
-      shinyWidgets::updateNumericRangeInput(session, "range_width_x", value = rw)
-      shinyWidgets::updateNumericRangeInput(session, "range_height_x", value = rh)
+      shinyWidgets::updateNumericRangeInput(
+        session,
+        "range_width_x",
+        value = rw
+      )
+      shinyWidgets::updateNumericRangeInput(
+        session,
+        "range_height_x",
+        value = rh
+      )
     } else {
       rw <- round(range(dt$width, na.rm = TRUE))
       dt[, select_w := (width >= rw[1]) & (width <= rw[2])]

@@ -6,9 +6,7 @@ if (Sys.info()["sysname"] == "Darwin") {
 }
 
 library(reticulate)
-reticulate::use_virtualenv("trackR")
-torch <- reticulate::import("torch", convert = FALSE)
-ultralytics <- reticulate::import("ultralytics", convert = FALSE)
+reticulate::use_virtualenv("trackR", required = TRUE)
 cv2 <- reticulate::import("cv2", convert = FALSE)
 np <- reticulate::import("numpy", convert = FALSE)
 base64 <- reticulate::import("base64", convert = FALSE)
@@ -18,13 +16,9 @@ library(shinyWidgets)
 library(shinyFiles)
 library(shinyjs)
 library(shinyalert)
+library(trackRcv)
 library(trackRai)
 library(data.table)
-library(plotly)
-library(processx)
-library(cli)
-library(stringr)
-library(yaml)
 
 
 #--------------------------------------------------------------
@@ -40,11 +34,15 @@ ui <- function(request) {
     shiny::tags$head(
       shiny::includeCSS(path = "../share/css/custom.css")
     ),
-    tags$style(HTML(
-      ".noUi-handle-upper, .noUi-handle-lower {
-        background-color: #66A61E !important;
-      }"
-    )),
+    tags$head(
+      tags$style(
+        HTML(
+          "#tag_list table th, #tag_list table td { 
+            border-top: none; 
+          }"
+        )
+      )
+    ),
     shinyjs::useShinyjs(),
     shinyjs::extendShinyjs(
       script = "share/js/window.js",
@@ -57,6 +55,10 @@ ui <- function(request) {
     shinyjs::extendShinyjs(
       script = "share/js/reset.js",
       functions = c("replace")
+    ),
+    shinyjs::extendShinyjs(
+      script = "share/js/focus.js",
+      functions = c("initfocus")
     ),
     shiny::div(id = "curtain", class = "curtain"),
     shiny::div(
@@ -73,9 +75,11 @@ ui <- function(request) {
           contentWidth = 11,
           menuSide = "right",
           selected = "1",
-          source("UI/train.R", local = TRUE)$value,
-          source("UI/check.R", local = TRUE)$value
-        )
+          source("UI/video.R", local = TRUE)$value,
+          source("UI/segmentation.R", local = TRUE)$value,
+          source("UI/yolo.R", local = TRUE)$value
+        ),
+        source("UI/bookmarking.R", local = TRUE)$value
       )
     )
   )
@@ -86,16 +90,17 @@ ui <- function(request) {
 # Application server
 #--------------------------------------------------------------
 server <- function(input, output, session) {
+  js$initfocus()
   source("../share/r/togglers.R", local = TRUE)
   source("../share/r/drawers.R", local = TRUE)
-  source("SERVER/train.R", local = TRUE)
-  source("SERVER/check.R", local = TRUE)
+  source("../share/r/samplers.R", local = TRUE)
+  source("../share/r/obb.R", local = TRUE)
   source("SERVER/controls.R", local = TRUE)
-  session$onSessionEnded(function() {
-    if (!is.null(yolo_proc)) {
-      yolo_proc$kill_tree()
-    }
-  })
+  source("SERVER/video.R", local = TRUE)
+  source("SERVER/segmentation.R", local = TRUE)
+  source("SERVER/yolo.R", local = TRUE)
+  source("SERVER/bookmarking.R", local = TRUE)
+  session$onSessionEnded(function() {})
 }
 
 shiny::shinyApp(ui = ui, server = server, enableBookmarking = "url")

@@ -96,10 +96,11 @@ shiny::observeEvent(refresh_display(), {
             lab,
             x,
             y,
-            font_scale,
-            c(255, 255, 255),
-            c(0, 0, 0),
-            font_thickness
+            scale = font_scale,
+            color = c(255, 255, 255),
+            contrast = c(0, 0, 0),
+            thickness = font_thickness,
+            outline = font_thickness
           )
         }
       }
@@ -109,10 +110,11 @@ shiny::observeEvent(refresh_display(), {
           .drawPolyLine(
             to_display,
             mask_coords,
-            TRUE,
-            c(255, 255, 255),
-            c(255, 255, 255),
-            sc
+            closed = TRUE,
+            color = c(255, 255, 255),
+            contrast = c(255, 255, 255),
+            thickness = as.integer(max(1, round(sc))),
+            outline = as.integer(max(1, round(sc)))
           )
         }
       }
@@ -123,10 +125,10 @@ shiny::observeEvent(refresh_display(), {
             to_display,
             mask_coords[i, 1],
             mask_coords[i, 2],
-            r,
-            c(0, 0, 255),
-            c(255, 255, 255),
-            sc
+            radius = r,
+            color = c(0, 0, 255),
+            contrast = c(255, 255, 255),
+            thickness = as.integer(max(1, round(sc)))
           )
         }
       }

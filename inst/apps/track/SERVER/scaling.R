@@ -26,20 +26,21 @@ shiny::observeEvent(refresh_display(), {
       .drawPolyLine(
         to_display,
         rbind(c(x, y + 50), c(x, y), c(x + 50, y)),
-        FALSE,
-        c(255, 255, 255),
-        c(0, 0, 0),
-        sc * 1.5
+        closed = FALSE,
+        color = c(255, 255, 255),
+        contrast = c(0, 0, 0),
+        thickness = as.integer(max(1.5, round(sc))),
+        outline = as.integer(max(1.5, round(sc)))
       )
 
       .drawCircle(
         to_display,
         origin()[1],
         origin()[2],
-        r,
-        c(255, 255, 255),
-        c(0, 0, 0),
-        sc * 1.5
+        radius = r,
+        color = c(255, 255, 255),
+        contrast = c(0, 0, 0),
+        thickness = as.integer(max(1.5, round(sc)))
       )
     }
 
@@ -48,10 +49,11 @@ shiny::observeEvent(refresh_display(), {
         .drawPolyLine(
           to_display,
           scale_coords,
-          FALSE,
-          c(255, 255, 255),
-          c(0, 0, 0),
-          sc * 1.5
+          closed = FALSE,
+          color = c(255, 255, 255),
+          contrast = c(0, 0, 0),
+          thickness = as.integer(max(1.5, round(sc))),
+          outline = as.integer(max(1.5, round(sc)))
         )
       }
 
@@ -60,10 +62,10 @@ shiny::observeEvent(refresh_display(), {
           to_display,
           scale_coords[i, 1],
           scale_coords[i, 2],
-          r,
-          c(255, 255, 255),
-          c(0, 0, 0),
-          sc * 1.5
+          radius = r,
+          color = c(255, 255, 255),
+          contrast = c(0, 0, 0),
+          thickness = as.integer(max(1.5, round(sc)))
         )
       }
     }

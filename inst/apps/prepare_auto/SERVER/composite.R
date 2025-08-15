@@ -68,7 +68,7 @@ shiny::observeEvent(input$test_composite, {
     rnd_loc <- .sampleMinDist(
       roi,
       input$n_instances_x,
-      round(mean(dt$width[dt$select]) / 2)
+      input$overlap_buffer_x
     )
     rnd_blob <- sample(which(dt$select), nrow(rnd_loc), TRUE)
     rnd_rot <- sample(c(0L, 1L, 2L, -1L), nrow(rnd_loc), TRUE)
@@ -144,7 +144,8 @@ shiny::observeEvent(input$test_composite, {
         ell[[3]],
         color = c(0L, 224L, 0L),
         contrast = c(255L, 255L, 255),
-        thickness = as.integer(max(1, round(sc)))
+        thickness = as.integer(max(1, round(sc))),
+        outline = as.integer(max(1, round(sc)))
       )
 
       new_check <- floor(100 * i / n)
@@ -238,15 +239,8 @@ shiny::observeEvent(yolo_path(), {
         duration = NULL
       )
 
-      # Background and mask
-      shiny::showNotification(
-        "Creating background and mask.",
-        id = "yolo_step_1",
-        duration = NULL
-      )
-
       dir.create(paste0(yolo_path(), "/YOLO"))
-
+      
       nz <- cv2$findNonZero(cv2$cvtColor(the_mask, cv2$COLOR_BGR2GRAY))
       roi <- cbind(reticulate::py_to_r(nz[,, 0]), reticulate::py_to_r(nz[,, 1]))
       x <- min(roi[, 1])
@@ -272,13 +266,6 @@ shiny::observeEvent(yolo_path(), {
         0L
       )
       prepped_background <- prepped$copy()
-      cv2$imwrite(
-        normalizePath(
-          paste0(yolo_path(), "/YOLO/background.png"),
-          mustWork = FALSE
-        ),
-        prepped_background
-      )
 
       sub <- the_mask[y:(y + h), x:(x + w)]
       prepped <- cv2$copyMakeBorder(
@@ -291,100 +278,8 @@ shiny::observeEvent(yolo_path(), {
         NULL,
         0L
       )
-      cv2$imwrite(
-        normalizePath(paste0(yolo_path(), "/YOLO/mask.png"), mustWork = FALSE),
-        prepped
-      )
 
       prepped_mask <- cv2$divide(cv2$compare(prepped, 0, 1L), 255L)
-
-      shiny::removeNotification(id = "yolo_step_1")
-
-      # Tracking video
-      if (input$export_video_x) {
-        shiny::showNotification(
-          "Creating video for tracking.",
-          id = "yolo_step_2",
-          duration = NULL
-        )
-
-        the_video$set(cv2$CAP_PROP_POS_FRAMES, input$video_controls_x[1] - 1)
-
-        vw <- cv2$VideoWriter(
-          normalizePath(
-            paste0(yolo_path(), "/YOLO/video.mp4"),
-            mustWork = FALSE
-          ),
-          trackRcv::fourcc("avc1"),
-          trackRcv::fps(the_video),
-          as.integer(c(
-            trackRcv::n_col(prepped),
-            trackRcv::n_row(prepped)
-          ))
-        )
-
-        if (!reticulate::py_to_r(vw$isOpened())) {
-          vw <- cv2$VideoWriter(
-            normalizePath(
-              paste0(yolo_path(), "/YOLO/video.mp4"),
-              mustWork = FALSE
-            ),
-            trackRcv::fourcc("mp4v"),
-            trackRcv::fps(the_video),
-            as.integer(c(
-              trackRcv::n_col(prepped),
-              trackRcv::n_row(prepped)
-            ))
-          )
-        }
-
-        pb <- shiny::Progress$new()
-        pb$set(message = "Computing: ", value = 0, detail = "0%")
-        n <- input$video_controls_x[3] - input$video_controls_x[1] + 1
-        old_check <- 0
-        old_frame <- 1
-        old_time <- Sys.time()
-
-        for (i in seq_len(n)) {
-          frame <- the_video$read()[1]
-          sub <- frame[y:(y + h), x:(x + w)]
-          prepped <- cv2$copyMakeBorder(
-            sub,
-            as.integer(top),
-            as.integer(bottom),
-            as.integer(left),
-            as.integer(right),
-            cv2$BORDER_CONSTANT,
-            NULL,
-            0L
-          )
-          vw$write(prepped)
-
-          new_check <- floor(100 * i / n)
-          if (new_check > (old_check + 5)) {
-            new_time <- Sys.time()
-            fps <- (i - old_frame + 1) /
-              as.numeric(difftime(new_time, old_time, units = "secs"))
-            old_check <- new_check
-            old_frame <- i
-            old_time <- new_time
-            pb$set(
-              value = new_check / 100,
-              detail = paste0(
-                new_check,
-                "% - ",
-                round(fps, digits = 2),
-                "fps"
-              )
-            )
-          }
-        }
-
-        pb$close()
-        vw$release()
-
-        shiny::removeNotification(id = "yolo_step_2")
-      }
 
       # Training images
       dir.create(paste0(yolo_path(), "/YOLO/labels"))
@@ -426,7 +321,7 @@ shiny::observeEvent(yolo_path(), {
       for (i in seq_along(composite_folders)) {
         shiny::showNotification(
           paste0("Creating the ", composite_tasks[i], " composites."),
-          id = paste0("yolo_step_3", 2 + i),
+          id = paste0("yolo_step_", 2 + i),
           duration = NULL
         )
 
@@ -445,7 +340,7 @@ shiny::observeEvent(yolo_path(), {
           rnd_loc <- .sampleMinDist(
             roi,
             input$n_instances_x,
-            round(mean(dt$width[dt$select]) / 2)
+            input$overlap_buffer_x
           )
           rnd_blob <- sample(which(dt$select), input$n_instances_x, TRUE)
           rnd_rot <- sample(c(0L, 1L, 2L, -1L), input$n_instances_x, TRUE)
@@ -584,7 +479,7 @@ shiny::observeEvent(yolo_path(), {
         }
 
         pb$close()
-        shiny::removeNotification(id = paste0("yolo_step_3", 2 + i))
+        shiny::removeNotification(id = paste0("yolo_step_", 2 + i))
       }
 
       con <- file(
