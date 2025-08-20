@@ -56,21 +56,29 @@ shinyjs::disabled(
     shiny::tags$table(
       shiny::tags$tr(
         shiny::tags$td(
-          shinyWidgets::prettyCheckbox(
+          shinyWidgets::prettyToggle(
             "show_box",
-            "Show boxes",
+            label_on = "Show boxes",
+            label_off = "Show boxes",
             value = TRUE,
-            width = "100%"
+            width = "100%",
+            shape = "curve",
+            outline = TRUE,
+            bigger = TRUE
           ),
           style = "width: 49%;"
         ),
         shiny::tags$td(),
         shiny::tags$td(
-          shinyWidgets::prettyCheckbox(
+          shinyWidgets::prettyToggle(
             "show_tag",
-            "Show tags",
+            label_on = "Show tags",
+            label_off = "Show tags",
             value = FALSE,
-            width = "100%"
+            width = "100%",
+            shape = "curve",
+            outline = TRUE,
+            bigger = TRUE
           ),
           style = "width: 49%;"
         )
