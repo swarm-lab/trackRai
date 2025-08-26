@@ -48,7 +48,6 @@ shiny::observeEvent(refresh_display(), {
       to_display <<- black_screen$copy()
     }
 
-    js$uishape("display_img")
     print_display(print_display() + 1)
   }
 })
@@ -87,12 +86,17 @@ output$display <- shiny::renderUI({
   }
 })
 
-session$onFlushed(function() {
-  js$uishape("display_img")
-})
+session$onFlushed(
+  function() {
+    js$uishape("display_img")
+    js$imgshape("display_img")
+  },
+  once = FALSE
+)
 
 shiny::observeEvent(input$win_resize, {
   js$uishape("display_img")
+  js$imgshape("display_img")
 })
 
 
@@ -157,8 +161,6 @@ shiny::observeEvent(video_path(), {
 # Read frame
 shiny::observeEvent(input$leftKey, {
   if (trackRcv::is_video_capture(the_video)) {
-    val <- input$video_controls_x
-
     if (input$video_controls_x > 1) {
       shinyWidgets::updateNoUiSliderInput(
         session,
@@ -171,8 +173,6 @@ shiny::observeEvent(input$leftKey, {
 
 shiny::observeEvent(input$rightKey, {
   if (trackRcv::is_video_capture(the_video)) {
-    vals <- input$video_controls_x
-
     if (input$video_controls_x < trackRcv::n_frames(the_video)) {
       shinyWidgets::updateNoUiSliderInput(
         session,

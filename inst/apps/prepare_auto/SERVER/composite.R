@@ -142,8 +142,8 @@ shiny::observeEvent(input$test_composite, {
         ell[[2]][[1]],
         ell[[2]][[2]],
         ell[[3]],
-        color = c(0L, 224L, 0L),
-        contrast = c(255L, 255L, 255),
+        color = c(0, 224, 0),
+        contrast = c(255, 255, 255),
         thickness = as.integer(max(1, round(sc))),
         outline = as.integer(max(1, round(sc)))
       )

@@ -47,5 +47,42 @@ shinyWidgets::verticalTabPanel(
     1,
     "100%"
   ),
+
+  shiny::hr(),
+  
+  shiny::tags$table(
+    shiny::tags$tr(
+      shiny::tags$td(
+        shinyWidgets::prettyToggle(
+          inputId = "show_class",
+          label_on = "Show classes",
+          label_off = "Show classes",
+          value = TRUE,
+          shape = "curve",
+          outline = TRUE,
+          bigger = TRUE,
+          width = "100%"
+        ),
+        style = "width: 49%; text-align:center;"
+      ),
+      shiny::tags$td(),
+      shiny::tags$td(
+        shinyWidgets::prettyToggle(
+          inputId = "show_box",
+          label_on = "Show boxes",
+          label_off = "Show boxes",
+          value = TRUE,
+          shape = "curve",
+          outline = TRUE,
+          bigger = TRUE,
+          width = "100%"
+        ),
+        style = "width: 49%; text-align:center;"
+      )
+    ),
+    class = "stateTable",
+    style = "margin-bottom: -15px;"
+  ),
+
   shiny::hr()
 )

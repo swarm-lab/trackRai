@@ -79,8 +79,8 @@ shiny::observeEvent(refresh_display(), {
         ct,
         color = c(0, 224, 0),
         contrast = c(255, 255, 255),
-        thickness = as.integer(max(1.5, round(sc))),
-        outline = as.integer(max(1.5, round(sc)))
+        thickness = max(1.5, round(sc)),
+        outline = max(1.5, round(sc))
       )
     }
 

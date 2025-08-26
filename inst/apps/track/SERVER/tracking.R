@@ -39,6 +39,10 @@ output$start_stop <- shiny::renderUI({
 
 
 # Display
+shiny::observeEvent(input$main, {
+  refresh_display(refresh_display() + 1)
+})
+
 shiny::observeEvent(refresh_display(), {
   if (input$main == "3") {
     to_display <<- cv2$multiply(
@@ -78,32 +82,21 @@ shiny::observeEvent(refresh_display(), {
           ]
         },
         contrast = c(255, 255, 255),
-        thickness = 2L,
-        outline = as.integer(max(1, round(sc)))
+        thickness = max(1, floor(sc)),
+        outline = max(1, ceiling(sc))
       )
 
       com <- apply(reticulate::py_to_r(obb[i - 1]), 2, mean)
-
       .drawTag(
         to_display,
         class_names[classes[i] + 1],
         com[1],
         com[2],
-        scale = 0.75,
-        color = if (tolower(class_names[classes[i] + 1]) %in% colors()) {
-          col2rgb(tolower(class_names[classes[i] + 1]))[3:1, ]
-        } else {
-          .shades[
-            3:1,
-            (which(class_names == class_names[classes[i] + 1]) -
-              1 %%
-                ncol(.shades)) +
-              1
-          ]
-        },
-        contrast = c(255, 255, 255),
-        thickness = 1L,
-        outline = as.integer(max(1, round(sc)))
+        scale = sc / 2,
+        color = c(255, 255, 255),
+        contrast = c(0, 0, 0),
+        thickness = max(1, floor(sc)),
+        outline = max(1, ceiling(sc))
       )
     }
 
@@ -286,11 +279,6 @@ shiny::observeEvent(the_debounce(), {
                   .SD$height,
                   .SD$angle,
                   color = .shades[3:1, (.BY$track %% ncol(.shades)) + 1],
-                  # color = if (tolower(.SD$class[1]) %in% colors()) {
-                  #   col2rgb(tolower(.SD$class[1]))[3:1, ]
-                  # } else {
-                  #   .shades[3:1, (.BY$track %% ncol(.shades)) + 1]
-                  # },
                   contrast = c(255, 255, 255),
                   thickness = 2L,
                   outline = as.integer(max(1, round(sc)))
@@ -304,11 +292,6 @@ shiny::observeEvent(the_debounce(), {
                   cbind(.SD$x, .SD$y),
                   closed = FALSE,
                   color = .shades[3:1, , (.BY$track[1] %% ncol(.shades)) + 1],
-                  # color = if (tolower(.SD$class[1]) %in% colors()) {
-                  #   col2rgb(tolower(.SD$class[1]))[3:1, ]
-                  # } else {
-                  #   .shades[3:1, (.BY$track %% ncol(.shades)) + 1]
-                  # },
                   contrast = c(255, 255, 255),
                   thickness = 2L,
                   outline = as.integer(max(1, round(sc)))

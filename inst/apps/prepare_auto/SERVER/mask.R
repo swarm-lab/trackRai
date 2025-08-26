@@ -113,8 +113,8 @@ shiny::observeEvent(refresh_display(), {
             closed = TRUE,
             color = c(255, 255, 255),
             contrast = c(255, 255, 255),
-            thickness = as.integer(max(1, round(sc))),
-            outline = as.integer(max(1, round(sc)))
+            thickness = max(1, round(sc)),
+            outline = max(1, round(sc))
           )
         }
       }
@@ -128,7 +128,7 @@ shiny::observeEvent(refresh_display(), {
             radius = r,
             color = c(0, 0, 255),
             contrast = c(255, 255, 255),
-            thickness = as.integer(max(1, round(sc)))
+            thickness = max(1, round(sc))
           )
         }
       }

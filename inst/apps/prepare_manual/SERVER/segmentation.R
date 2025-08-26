@@ -40,7 +40,7 @@ shiny::observeEvent(refresh_display(), {
       sc <- max(
         c(trackRcv::n_row(to_display), trackRcv::n_col(to_display)) / 720
       )
-      r <- sc * 1.5
+      r <- sc * 3
 
       if (!is.null(object_coords)) {
         void <- apply(object_coords, 1, function(coords) {
@@ -285,16 +285,20 @@ shiny::observeEvent(input$remove_object, {
 })
 
 shinyjs::onevent("click", "display_img", function(props) {
-  x <- trackRcv::n_col(to_display) * (props$offsetX / input$display_img_width)
-  y <- trackRcv::n_row(to_display) * (props$offsetY / input$display_img_height)
-
+  px <- trackRcv::n_col(to_display) *
+    ((props$offsetX -
+      (input$display_img_uiwidth - input$display_img_imgwidth) / 2) /
+      input$display_img_imgwidth)
+  py <- trackRcv::n_row(to_display) *
+    (props$offsetY / input$display_img_imgheight)
+  
   if (collect_object() > 0) {
-    object_coords <<- rbind(object_coords, c(round(x), round(y)))
+    object_coords <<- rbind(object_coords, c(round(px), round(py)))
     if (nrow(object_coords) > 1) {
       stop_object_collection(stop_object_collection() + 1)
     }
   } else if (remove_object() > 0) {
-    object_coords <<- rbind(object_coords, c(round(x), round(y)))
+    object_coords <<- rbind(object_coords, c(round(px), round(py)))
     if (nrow(object_coords) > 0) {
       stop_object_collection(stop_object_collection() + 1)
     }

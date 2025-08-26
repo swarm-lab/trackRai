@@ -1,0 +1,57 @@
+---
+title: "2.1. Optimizing a video for YOLO"
+author: "Simon Garnier"
+vignette: >
+  %\VignetteIndexEntry{2.1. Optimizing a video for YOLO}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: '#>'
+---
+
+## 0. Introduction
+
+Once you are ready to preprocess a video, you can launch trackRai by typing the following command in the R console:
+
+```{r, eval=FALSE}
+library(trackRai)
+trackRai()
+```
+
+::: {style="text-align: center;"}
+![](images/z0_1.jpg){fig-align="center" style="border-radius: 5px; border-style: groove;" width="40%"} ![](images/z0_2.jpg){fig-align="center" style="border-radius: 5px; border-style: groove;" width="40%"}
+:::
+
+This will open the app launcher either in the viewer pane of RStudio and Positron, or in a separate window, depending on your local configuration. In RStudio at least, you can control where the app opens by setting the `launch.browser` option. For instance:
+
+```{r, eval=FALSE}
+trackRai(launch.browser = shiny::paneViewer())
+```
+
+will launch the app in the RStudio viewer pane.
+
+Once the launcher is running, click on the “Prepare” button, and then on the “Video optimization” one to launch the video preparation app. The launcher will close and the app will start shortly after. This app will help you prepare your video in a way that is optimal for YOLO training. In particular, you will be able to trim the video to remove unnecessary parts, select a region of interest to focus your analysis on, and reduce the resolution of the video if needed. The app will also ensure that the dimensions of the video are multiples of 32, which will help speed up the image processing performed by YOLO.
+
+------------------------------------------------------------------------
+
+## 1. Video module
+
+The first step of the process is to load a video file into the app. To do this, simply click the “Select video” button. This will bring up a navigator that you will use to locate the video file that you would like to process. Once you have located the video file in the navigator, click the “Select” button. The app will open the video and display its first image in the display window (see below).
+
+![](images/z2_1_1.jpg){style="border-radius: 5px; border-style: groove;" fig-align="center"}
+
+You can navigate through the video by sliding the green tab along the timeline displayed below the video. The gray tabs can be used to restrict the analysis to a specific time interval of the video. You can also use the arrow keys on your keyboard to navigate through the video: the left and right arrows allow you to navigate frame by frame; the up and down arrows allow you to navigate one second at a time.
+
+The “Rescaling factor” drop-down menu allows you to scale down the resolution of the video if needed. If the objects you want to track are large, this will help reduce the computational load during the training and tracking processes. If the objects you want to track are small, however, you probably want to keep the resolution as high as possible.
+
+Below the “Rescaling factor” drop-down menu, you will find four buttons that allow you to set the top, bottom, left, and right boundaries of the region of interest of the video. Click on the button corresponding to the boundary you want to set, and then click on the video to set it.
+
+![](images/z2_1_2.jpg){style="border-radius: 5px; border-style: groove;" fig-align="center"}
+
+Once you are done, click the “Export video” button to save the optimized video. This will bring up a file manager and you can select the location where you would like the video to be saved. Once the export process terminates, you are done and you can close the app.
+
+------------------------------------------------------------------------
+
+The video used throughout this tutorial was provided by *Sridhar, V. H., Roche, D. G., and Gingins, S. (2019). Tracktor: Image-based automated tracking of animal movement and behaviour. Methods Ecol. Evol. 10, 691. doi:10.1111/2041-210X.13166* and used here with permission of the authors.

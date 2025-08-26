@@ -48,7 +48,6 @@ shiny::observeEvent(refresh_display(), {
       to_display <<- black_screen$copy()
     }
 
-    js$uishape("display_img")
     print_display(print_display() + 1)
   }
 })
@@ -87,12 +86,17 @@ output$display <- shiny::renderUI({
   }
 })
 
-session$onFlushed(function() {
-  js$uishape("display_img")
-})
+session$onFlushed(
+  function() {
+    js$uishape("display_img")
+    js$imgshape("display_img")
+  },
+  once = FALSE
+)
 
 shiny::observeEvent(input$win_resize, {
   js$uishape("display_img")
+  js$imgshape("display_img")
 })
 
 

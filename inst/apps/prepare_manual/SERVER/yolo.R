@@ -189,7 +189,7 @@ shiny::observeEvent(yolo_path(), {
             # Random gain
             copy <- cv2$multiply(
               copy,
-              runif(1, 1 / (1 + 0.25), 1 + 0.25)
+              runif(1, 1 / (1 + 0.1), 1 + 0.1)
             )
 
             # Random bias

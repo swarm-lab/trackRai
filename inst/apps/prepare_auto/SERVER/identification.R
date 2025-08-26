@@ -124,10 +124,10 @@ shiny::observeEvent(refresh_display(), {
           dt[j, ]$width,
           dt[j, ]$height,
           dt[j, ]$angle,
-          color = if (good) c(0L, 224L, 0L) else c(5L, 80L, 255L),
-          contrast = c(255L, 255L, 255),
-          thickness = as.integer(max(1, round(sc))),
-          outline = as.integer(max(1, round(sc)))
+          color = if (good) c(0, 224, 0) else c(5, 80, 255),
+          contrast = c(255, 255, 255),
+          thickness = max(1, round(sc)),
+          outline = max(1, round(sc))
         )
       }
 
@@ -202,10 +202,10 @@ shiny::observeEvent(refresh_display(), {
             ell[[2]][[1]],
             ell[[2]][[2]],
             ell[[3]],
-            color = c(5L, 80L, 255L),
-            contrast = c(255L, 255L, 255),
-            thickness = as.integer(max(1, round(sc))),
-            outline = as.integer(max(1, round(sc)))
+            color = c(5, 80, 255),
+            contrast = c(255, 255, 255),
+            thickness = max(1, round(sc)),
+            outline = max(1, round(sc))
           )
         }
       }
