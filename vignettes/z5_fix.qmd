@@ -44,26 +44,26 @@ Repeat the process with “Select tracks” button to load the tracking data. On
 
 You can navigate through the video by sliding the green tab along the timeline displayed below the video. You can also use the arrow keys on your keyboard to navigate through the video: the left and right arrows allow you to navigate frame by frame; the up and down arrows allow you to navigate one second at a time.
 
-Below the navigation controls, you will find a dropdown menu that lists a series of suspected issues with your tracking data. These are simply positions in the video where an existing track suddenly disappears, or a new track suddenly appears. While these do not necessarily indicate an actual error, they are often indicative of a problem with the tracking. You can navigate to each of these suspected issues by selecting them from the dropdown menu.
+Below the navigation controls, you will find a drop-down menu that lists a series of suspected issues with your tracking data. These are simply positions in the video where an existing track suddenly disappears, or a new track suddenly appears. While these do not necessarily indicate an actual error, they are often indicative of a problem with the tracking. You can navigate to each of these suspected issues by selecting them from the drop-down menu.
 
 Below again are 6 buttons that allow you to perform a number of correcting operations if you find that `trackR` made a mistake during tracking:
 
--   The “Reassign” button (or the “q” key of your keyboard) will open the reassignment menu. When the menu has opened, you can use the first dropdown selector to select which track to assign a new number to or to reassign to a previously existing track. You can then type in the input box below the number you would like to assign to the track.
--   The “Remove” button (or the “w” key of your keyboard) will open the removal menu. When the menu has opened, you can use the dropdown selector to select which track to remove.
--   The “Swap IDs” button (or the “e” key of your keyboard) will open the ID swapping menu. When the menu has opened, you can use the two dropdown selectors to select which tracks to swap. Note that swapping will occur from that frame on. Previous frames will not be affected and tracks will retain their original ID.
--   The “Merge IDs” button (or the “r” key of your keyboard) will open the ID merging menu. When the menu has opened, you can use the two dropdown selectors to select which tracks to merge together. Note that the resulting track will retain the ID of the first selected track.
+-   The “Reassign” button (or the “q” key of your keyboard) will open the reassignment menu. When the menu has opened, you can use the first drop-down selector to select which track to assign a new number to or to reassign to a previously existing track. You can then type in the input box below the number you would like to assign to the track.
+-   The “Remove” button (or the “w” key of your keyboard) will open the removal menu. When the menu has opened, you can use the drop-down selector to select which track to remove.
+-   The “Swap IDs” button (or the “e” key of your keyboard) will open the ID swapping menu. When the menu has opened, you can use the two drop-down selectors to select which tracks to swap. Note that swapping will occur from that frame on. Previous frames will not be affected and tracks will retain their original ID.
+-   The “Merge IDs” button (or the “r” key of your keyboard) will open the ID merging menu. When the menu has opened, you can use the two drop-down selectors to select which tracks to merge together. Note that the resulting track will retain the ID of the first selected track.
 -   The “Undo” button (or the “a” key of your keyboard) will undo any change made during the fixing session in the reverse order that they have been made.
 -   The “Save” button (or the “s” key of your keyboard) will save the modifications that you have made during the fixing session. These modifications are saved in a different file than the one containing the original tracking results to prevent accidental modifications to permanently damage the original results. The modified file will have the same name and be saved at the same location as the original file but with “\_fixed” appended to its name. Note that if you interrupt your fixing session before the end of the video, you can resume it by loading the “\[original_file_name\]\_fixed.csv” file instead of the original one. In this case, any new correction will also be saved to the “\[original_file_name\]\_fixed.csv” file.
 
 Under these buttons, some basic statistics about the tracks are displayed below the fixing controls. These can be useful to track your progress during a fixing session. For instance, if the statistics table shows that your file contains 10 tracks but you know you only had 8 individuals in your experiment, this is a good indication that some errors remain to be fixed.
 
-Finally, at the very bottom of control panel, you can modify the “Tag scale” and “Tag line width” parameters to make the track tags more visible on the video.
+Finally, at the very bottom of control panel, you can modify the “Tag scale” and “Tag line width” parameters to make the track tags more visible on the video. You can also toggle the “Show IDs” and “Show boxes” buttons to show/hide the tags and boxes overlaid on top of the image. This can be useful when trying to tell apart objects that are very close to each other.
 
 ------------------------------------------------------------------------
 
-## 2. Output data {#output}
+## 2. Output data
 
-Once you click the “Save” button in the app, the data that is saved in the “\[original_file_name\]\_fixed.csv” file has the same columns has those saved originally by `trackR` (see [here for more details](z2_tracking_objects.html#output)).
+Once you click the “Save” button in the app, the data that is saved in the “\[original_file_name\]\_fixed.csv” file has the same columns has those saved originally by the tracking app (see [here for more details](z4_track.html#output)).
 
 The file will also contain 2 additional columns:
 

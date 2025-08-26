@@ -105,17 +105,19 @@ output$scale_status <- shiny::renderUI({
 })
 
 shinyjs::onevent("click", "display_img", function(props) {
+  px <- trackRcv::n_col(to_display) *
+    ((props$offsetX -
+      (input$display_img_uiwidth - input$display_img_imgwidth) / 2) /
+      input$display_img_imgwidth)
+  py <- trackRcv::n_row(to_display) *
+    (props$offsetY / input$display_img_imgheight)
+
   if (collect_origin() > 0) {
-    x <- n_col(to_display) * (props$offsetX / input$display_img_width)
-    y <- n_row(to_display) * (props$offsetY / input$display_img_height)
-    origin(c(x, y))
+    origin(c(px, py))
     stop_origin_collection(stop_origin_collection() + 1)
     refresh_display(refresh_display() + 1)
   } else if (collect_scale() > 0) {
-    x <- n_col(to_display) * (props$offsetX / input$display_img_width)
-    y <- n_row(to_display) *
-      (props$offsetY / input$display_img_height)
-    scale_coords <<- rbind(scale_coords, c(x, y))
+    scale_coords <<- rbind(scale_coords, c(px, py))
 
     if (nrow(scale_coords) >= 2) {
       stop_scale_collection(stop_scale_collection() + 1)

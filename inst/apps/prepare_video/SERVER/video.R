@@ -67,14 +67,13 @@ shiny::observeEvent(refresh_display(), {
         closed = TRUE,
         color = .shades[3:1, ix],
         contrast = c(255, 255, 255),
-        thickness = 2,
-        outline = as.integer(max(1, round(sc)))
+        thickness = max(1, round(sc)),
+        outline = max(1, round(sc))
       )
     } else {
       to_display <<- black_screen$copy()
     }
 
-    js$uishape("display_img")
     print_display(print_display() + 1)
   }
 })
@@ -113,12 +112,17 @@ output$display <- shiny::renderUI({
   }
 })
 
-session$onFlushed(function() {
-  js$uishape("display_img")
-})
+session$onFlushed(
+  function() {
+    js$uishape("display_img")
+    js$imgshape("display_img")
+  },
+  once = FALSE
+)
 
 shiny::observeEvent(input$win_resize, {
   js$uishape("display_img")
+  js$imgshape("display_img")
 })
 
 
@@ -348,27 +352,31 @@ shiny::observeEvent(input$roi_bottom, {
 })
 
 shinyjs::onevent("click", "display_img", function(props) {
-  x <- trackRcv::n_col(to_display) * (props$offsetX / input$display_img_width)
-  y <- trackRcv::n_row(to_display) * (props$offsetY / input$display_img_height)
+  px <- trackRcv::n_col(to_display) *
+    ((props$offsetX -
+      (input$display_img_uiwidth - input$display_img_imgwidth) / 2) /
+      input$display_img_imgwidth)
+  py <- trackRcv::n_row(to_display) *
+    (props$offsetY / input$display_img_imgheight)
 
   if (collect_roi() > 0) {
     tmp <- roi()
 
     if (collect_roi() == 1) {
-      if (round(x) < tmp[2]) {
-        tmp[1] <- round(x)
+      if (round(px) < tmp[2]) {
+        tmp[1] <- round(px)
       }
     } else if (collect_roi() == 2) {
-      if (round(x) > tmp[1]) {
-        tmp[2] <- round(x)
+      if (round(px) > tmp[1]) {
+        tmp[2] <- round(px)
       }
     } else if (collect_roi() == 3) {
-      if (round(y) < tmp[4]) {
-        tmp[3] <- round(y)
+      if (round(py) < tmp[4]) {
+        tmp[3] <- round(py)
       }
     } else if (collect_roi() == 4) {
-      if (round(y) > tmp[3]) {
-        tmp[4] <- round(y)
+      if (round(py) > tmp[3]) {
+        tmp[4] <- round(py)
       }
     }
 

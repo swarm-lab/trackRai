@@ -2,7 +2,13 @@
 yolo_installed <- yolo_installed()
 n_gpus <- reticulate::py_to_r(torch$cuda$device_count())
 mps <- reticulate::py_to_r(torch$backends$mps$is_available())
-device <- if (n_gpus > 0) "cuda:0" else if (mps) "mps" else "cpu"
+device <- if (n_gpus > 0) {
+  "cuda:0"
+} else if (mps) {
+  "mps"
+} else {
+  "cpu"
+}
 the_model <- NULL
 volumes <- c(Home = fs::path_home(), getVolumes()())
 black_screen <- reticulate::r_to_py(array(0L, c(1080, 1920, 3)))
@@ -231,16 +237,14 @@ output$display <- shiny::renderUI({
 session$onFlushed(
   function() {
     js$uishape("display_img")
+    js$imgshape("display_img")
   },
-  once = TRUE
+  once = FALSE
 )
 
 shiny::observeEvent(input$win_resize, {
   js$uishape("display_img")
-})
-
-shiny::observeEvent(input$main, {
-  refresh_display(refresh_display() + 1)
+  js$imgshape("display_img")
 })
 
 

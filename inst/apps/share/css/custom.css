@@ -146,14 +146,14 @@ hr.hr-text:after {
   float: left;
   margin-top: 20px;
   text-align: center;
-  /* width: min(calc(100vh - 90px), calc(100% - 410px));  */
-  /* margin-left: calc((calc(100% - 410px) - min(calc(100vh - 90px), calc(100% - 410px))) / 2) */
 }
 
 #display_img {
-  width: auto;
+  width: 100%;
+  height: auto;
   max-height: calc(100vh - 150px);
-  max-width: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
 }
 
 #displayPlt {
@@ -202,7 +202,7 @@ hr.hr-text:after {
   background-color: #c8c8c8 !important;
 }
 
-#id_controls > div.noUi-base > div.noUi-origin > div {
+#id_controls>div.noUi-base>div.noUi-origin>div {
   background-color: #66A61E !important;
 }
 

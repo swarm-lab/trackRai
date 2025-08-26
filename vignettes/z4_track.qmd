@@ -30,7 +30,7 @@ trackRai(launch.browser = shiny::paneViewer())
 
 will launch the app in the RStudio viewer pane.
 
-Once the launcher is running, click on the “Track” button to launch the tracking app. The launcher will close and the app will start shortly after. This app will help you track objects in a video using a trained YOLO11 model, as explained in the [previous tutorial](https://swarm-lab.github.io/trackRai/articles/z3_train.html). While it is recommended to train the model on a machine with an NVIDIA graphics card and the CUDA framework installed, tracking can be done with reasonable performance on machines without these specifications.
+Once the launcher is running, click on the “Track” button to launch the tracking app. The launcher will close and the app will start shortly after. This app will help you track objects in a video using a trained YOLO11 model, as explained in the previous tutorial. While it is recommended to train the model on a machine with an NVIDIA graphics card and the CUDA framework installed, tracking can be done with reasonable performance on machines without these specifications.
 
 ------------------------------------------------------------------------
 
@@ -40,7 +40,7 @@ Once the app opens, you will be presented with the “Data” module. First, you
 
 ![](images/z4_1.jpg){style="border-radius: 5px; border-style: groove;" fig-align="center"}
 
-Finally, you will need to select a trained YOLO dataset by clicking the “Select trained dataset” button and navigate to a folder containing a trained YOLO dataset (it should a folder named ”YOLO”). Select this folder. If the folder contains multiple trained models, you can select the one of your choice using the dropdown menu at the bottom of the sidebar.
+Finally, you will need to select a trained YOLO dataset by clicking the “Select trained dataset” button and navigate to a folder containing a trained YOLO dataset (it should a folder named ”YOLO”). Select this folder. If the folder contains multiple trained models, you can select the one of your choice using the drop-down menu at the bottom of the sidebar.
 
 Once the video and trained dataset are loaded in the app, the second tab of the app will become available and you can click on it to navigate there.
 
@@ -85,19 +85,20 @@ Once you are satisfied with the selected parameters, you can start the tracking 
 
 ------------------------------------------------------------------------
 
-## 4. Output data
+## 4. Output data {#output}
 
-Once the app is done processing the video, the resulting CSV file will contain between 7 and 11 columns depending on whether you have set a real-world scale and origin in the “Scale module”. These columns will be the following:
+Once the app is done processing the video, the resulting CSV file will contain between 8 and 12 columns depending on whether you have set a real-world scale and origin in the “Scale module”. These columns will be the following:
 
 -   “frame” is the video frame number at which the measurements along the corresponding row have been made.
 -   “track” is the identity of the tracked object as estimated by the app.
+-   “class” is the class of the tracked object.
 -   “x” is the x coordinate of the object location in pixels in the context of the video frame. The origin is set at the top-left corner of the frame.
 -   “y” is the y coordinate of the object location in pixels in the context of the video frame. The origin is set at the top-left corner of the frame.
 -   “width” is the width in pixels of the object.
 -   “height” is the height in pixels of the object.
 -   “angle” is the angle in degrees between the main axis of the object and the y axis.
 
-If you have set a real-world scale and origin in the “Tracking module”, the following extra columns will be saved:
+If you have set a real-world scale and origin in the “Scaling module”, the following extra columns will be saved:
 
 -   “x\_\[unit\]” is the x coordinate of the object location in real-world \[unit\]. The origin is set to the real-world equivalent to that you have defined in the “Scale module”.
 -   “y\_\[unit\]” is the y coordinate of the object location in real-world \[unit\]. The origin is set to the real-world equivalent to that you have defined in the “Tracking module”.

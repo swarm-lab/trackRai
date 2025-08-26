@@ -25,6 +25,14 @@ toggled_tabs <- data.frame(
 
 
 # Display
+shiny::observeEvent(input$show_class, {
+  refresh_display(refresh_display() + 1)
+})
+
+shiny::observeEvent(input$show_box, {
+  refresh_display(refresh_display() + 1)
+})
+
 output$display_frame <- shiny::renderUI({
   if (refresh_frame() > 0) {
     if (trackRcv::is_image(the_frame)) {
@@ -52,48 +60,41 @@ output$display_frame <- shiny::renderUI({
       )
 
       for (i in seq_along(classes)) {
-        .drawContour(
-          to_display,
-          list(obb[i - 1]),
-          color = if (tolower(class_names[classes[i] + 1]) %in% colors()) {
-            col2rgb(tolower(class_names[classes[i] + 1]))[3:1, ]
-          } else {
-            .shades[
-              3:1,
-              (which(class_names == class_names[classes[i] + 1]) -
-                1 %%
-                  ncol(.shades)) +
-                1
-            ]
-          },
-          contrast = c(255, 255, 255),
-          thickness = 2L,
-          outline = as.integer(max(1, round(sc)))
-        )
+        if (input$show_box) {
+          .drawContour(
+            to_display,
+            list(obb[i - 1]),
+            color = if (tolower(class_names[classes[i] + 1]) %in% colors()) {
+              col2rgb(tolower(class_names[classes[i] + 1]))[3:1, ]
+            } else {
+              .shades[
+                3:1,
+                (which(class_names == class_names[classes[i] + 1]) -
+                  1 %%
+                    ncol(.shades)) +
+                  1
+              ]
+            },
+            contrast = c(255, 255, 255),
+            thickness = max(1, floor(sc)),
+            outline = max(1, ceiling(sc))
+          )
+        }
 
-        com <- apply(reticulate::py_to_r(obb[i - 1]), 2, mean)
-
-        .drawTag(
-          to_display,
-          class_names[classes[i] + 1],
-          com[1],
-          com[2],
-          scale = 0.75,
-          color = if (tolower(class_names[classes[i] + 1]) %in% colors()) {
-            col2rgb(tolower(class_names[classes[i] + 1]))[3:1, ]
-          } else {
-            .shades[
-              3:1,
-              (which(class_names == class_names[classes[i] + 1]) -
-                1 %%
-                  ncol(.shades)) +
-                1
-            ]
-          },
-          contrast = c(255, 255, 255),
-          thickness = 1L,
-          outline = as.integer(max(1, round(sc)))
-        )
+        if (input$show_class) {
+          com <- apply(reticulate::py_to_r(obb[i - 1]), 2, mean)
+          .drawTag(
+            to_display,
+            class_names[classes[i] + 1],
+            com[1],
+            com[2],
+            scale = sc / 2,
+            color = c(255, 255, 255),
+            contrast = c(0, 0, 0),
+            thickness = max(1, floor(sc)),
+            outline = max(1, ceiling(sc))
+          )
+        }
       }
 
       shiny::tags$img(

@@ -34,19 +34,22 @@ ui <- function(request) {
     shiny::tags$head(
       shiny::includeCSS(path = "../share/css/custom.css")
     ),
-    tags$head(
-      tags$style(
-        HTML(
-          "#tag_list table th, #tag_list table td { 
+    tags$style(
+      HTML(
+        "#tag_list table th, #tag_list table td { 
             border-top: none; 
           }"
-        )
       )
     ),
+    tags$style(HTML(
+      ".noUi-handle-upper, .noUi-handle-lower {
+        background-color: #66A61E !important;
+      }"
+    )),
     shinyjs::useShinyjs(),
     shinyjs::extendShinyjs(
       script = "share/js/window.js",
-      functions = c("uishape")
+      functions = c("uishape", "imgshape")
     ),
     shinyjs::extendShinyjs(
       script = "share/js/keyboard.js",

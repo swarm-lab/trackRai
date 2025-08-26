@@ -40,7 +40,7 @@ ui <- function(request) {
     shinyjs::useShinyjs(),
     shinyjs::extendShinyjs(
       script = "share/js/window.js",
-      functions = c("uishape")
+      functions = c("uishape", "imgshape")
     ),
     shinyjs::extendShinyjs(
       script = "share/js/keyboard.js",
