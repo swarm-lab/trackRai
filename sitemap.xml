@@ -3,11 +3,13 @@
 <url><loc>https://swarm-lab.github.io/trackRai/LICENSE.html</loc></url>
 <url><loc>https://swarm-lab.github.io/trackRai/articles/index.html</loc></url>
 <url><loc>https://swarm-lab.github.io/trackRai/articles/z1_install.html</loc></url>
-<url><loc>https://swarm-lab.github.io/trackRai/articles/z2_prepare.html</loc></url>
+<url><loc>https://swarm-lab.github.io/trackRai/articles/z2_1_prepare_video.html</loc></url>
+<url><loc>https://swarm-lab.github.io/trackRai/articles/z2_prepare_auto.html</loc></url>
+<url><loc>https://swarm-lab.github.io/trackRai/articles/z2_prepare_manual.html</loc></url>
 <url><loc>https://swarm-lab.github.io/trackRai/articles/z3_train.html</loc></url>
 <url><loc>https://swarm-lab.github.io/trackRai/articles/z4_track.html</loc></url>
-<url><loc>https://swarm-lab.github.io/trackRai/articles/z5_fixing_tracks.html</loc></url>
-<url><loc>https://swarm-lab.github.io/trackRai/articles/z6_visualizing_tracks.html</loc></url>
+<url><loc>https://swarm-lab.github.io/trackRai/articles/z5_fix.html</loc></url>
+<url><loc>https://swarm-lab.github.io/trackRai/articles/z6_visualize.html</loc></url>
 <url><loc>https://swarm-lab.github.io/trackRai/authors.html</loc></url>
 <url><loc>https://swarm-lab.github.io/trackRai/index.html</loc></url>
 <url><loc>https://swarm-lab.github.io/trackRai/reference/index.html</loc></url>

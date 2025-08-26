@@ -42,11 +42,13 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/z1_install.html">1. Installing trackRai</a></li>
-    <li><a class="dropdown-item" href="../articles/z2_prepare.html">2. Preparing a training dataset</a></li>
+    <li><a class="dropdown-item" href="../articles/z2_1_prepare_video.html">2.1. Optimizing a video for YOLO</a></li>
+    <li><a class="dropdown-item" href="../articles/z2_prepare_auto.html">2.2. Preparing a training dataset (automatic annotation)</a></li>
+    <li><a class="dropdown-item" href="../articles/z2_prepare_manual.html">2.3. Preparing a training dataset (manual annotation)</a></li>
     <li><a class="dropdown-item" href="../articles/z3_train.html">3. Training a YOLO model</a></li>
     <li><a class="dropdown-item" href="../articles/z4_track.html">4. Tracking objects</a></li>
-    <li><a class="dropdown-item" href="../articles/z5_fixing_tracks.html">5. Fixing tracks</a></li>
-    <li><a class="dropdown-item" href="../articles/z6_visualizing_tracks.html">6. Visualizing tracks</a></li>
+    <li><a class="dropdown-item" href="../articles/z5_fix.html">5. Fixing tracks</a></li>
+    <li><a class="dropdown-item" href="../articles/z6_visualize.html">6. Visualizing tracks</a></li>
   </ul>
 </li>
       </ul>
@@ -95,7 +97,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/trackRai.html">trackRai</a></span><span class="op">(</span>launch.browser <span class="op">=</span> <span class="fu">shiny</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/shiny/man/viewer.html" class="external-link">paneViewer</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <p>will launch the app in the RStudio viewer pane.</p>
-<p>Once the launcher is running, click on the “Track” button to launch the tracking app. The launcher will close and the app will start shortly after. This app will help you track objects in a video using a trained YOLO11 model, as explained in the <a href="https://swarm-lab.github.io/trackRai/articles/z3_train.html">previous tutorial</a>. While it is recommended to train the model on a machine with an NVIDIA graphics card and the CUDA framework installed, tracking can be done with reasonable performance on machines without these specifications.</p>
+<p>Once the launcher is running, click on the “Track” button to launch the tracking app. The launcher will close and the app will start shortly after. This app will help you track objects in a video using a trained YOLO11 model, as explained in the previous tutorial. While it is recommended to train the model on a machine with an NVIDIA graphics card and the CUDA framework installed, tracking can be done with reasonable performance on machines without these specifications.</p>
 <hr></section><section class="level2"><h2 id="data-module">1. Data module<a class="anchor" aria-label="anchor" href="#data-module"></a>
 </h2>
 <p>Once the app opens, you will be presented with the “Data” module. First, you need to select a video by clicking the “Select video” button. You can also select an optional mask by clicking the “Select mask (optional)” button. This will load the video in the app. You can navigate through the video by sliding the green tab along the timeline displayed below the video. The gray tabs can be used to restrict the analysis to a specific time interval of the video. You can also use the arrow keys on your keyboard to navigate through the video: the left and right arrows allow you to navigate frame by frame; the up and down arrows allow you to navigate one second at a time.</p>
@@ -103,7 +105,7 @@
 <figure><p><img src="images/z4_1.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
 </figure>
 </div>
-<p>Finally, you will need to select a trained YOLO dataset by clicking the “Select trained dataset” button and navigate to a folder containing a trained YOLO dataset (it should a folder named ”YOLO”). Select this folder. If the folder contains multiple trained models, you can select the one of your choice using the dropdown menu at the bottom of the sidebar.</p>
+<p>Finally, you will need to select a trained YOLO dataset by clicking the “Select trained dataset” button and navigate to a folder containing a trained YOLO dataset (it should a folder named ”YOLO”). Select this folder. If the folder contains multiple trained models, you can select the one of your choice using the drop-down menu at the bottom of the sidebar.</p>
 <p>Once the video and trained dataset are loaded in the app, the second tab of the app will become available and you can click on it to navigate there.</p>
 <hr></section><section class="level2"><h2 id="scaling-module">2. Scaling module<a class="anchor" aria-label="anchor" href="#scaling-module"></a>
 </h2>
@@ -140,19 +142,20 @@
 <figure><p><img src="images/z4_4.jpg" class="quarto-figure quarto-figure-center" style="border-radius: 5px; border-style: groove;"></p>
 </figure>
 </div>
-<hr></section><section class="level2"><h2 id="output-data">4. Output data<a class="anchor" aria-label="anchor" href="#output-data"></a>
+<hr></section><section class="level2"><h2 id="output">4. Output data<a class="anchor" aria-label="anchor" href="#output"></a>
 </h2>
-<p>Once the app is done processing the video, the resulting CSV file will contain between 7 and 11 columns depending on whether you have set a real-world scale and origin in the “Scale module”. These columns will be the following:</p>
+<p>Once the app is done processing the video, the resulting CSV file will contain between 8 and 12 columns depending on whether you have set a real-world scale and origin in the “Scale module”. These columns will be the following:</p>
 <ul>
 <li>“frame” is the video frame number at which the measurements along the corresponding row have been made.</li>
 <li>“track” is the identity of the tracked object as estimated by the app.</li>
+<li>“class” is the class of the tracked object.</li>
 <li>“x” is the x coordinate of the object location in pixels in the context of the video frame. The origin is set at the top-left corner of the frame.</li>
 <li>“y” is the y coordinate of the object location in pixels in the context of the video frame. The origin is set at the top-left corner of the frame.</li>
 <li>“width” is the width in pixels of the object.</li>
 <li>“height” is the height in pixels of the object.</li>
 <li>“angle” is the angle in degrees between the main axis of the object and the y axis.</li>
 </ul>
-<p>If you have set a real-world scale and origin in the “Tracking module”, the following extra columns will be saved:</p>
+<p>If you have set a real-world scale and origin in the “Scaling module”, the following extra columns will be saved:</p>
 <ul>
 <li>“x_[unit]” is the x coordinate of the object location in real-world [unit]. The origin is set to the real-world equivalent to that you have defined in the “Scale module”.</li>
 <li>“y_[unit]” is the y coordinate of the object location in real-world [unit]. The origin is set to the real-world equivalent to that you have defined in the “Tracking module”.</li>
