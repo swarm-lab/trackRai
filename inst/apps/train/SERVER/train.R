@@ -362,8 +362,8 @@ shiny::observeEvent(monitor_tick(), {
 
       if (length(stop) > 0) {
         model_folder <- paste0(
-          yolo_path(),
-          "/",
+          # yolo_path(),
+          # "/",
           gsub(
             "Results saved to ",
             "",
