@@ -62,9 +62,9 @@ shiny::onBookmark(function(state) {
 })
 
 shiny::onBookmarked(function(url) {
-  state <- sub(".*(\\?_inputs_)", "", url)
+  state_bookmark <- sub(".*(\\?_inputs_)", "", url)
   state_path <- shinyFiles::parseSavePath(volumes, input$save_state)
-  saveRDS(state, state_path$datapath)
+  save(state_bookmark, file = state_path$datapath)
 })
 
 
@@ -81,15 +81,15 @@ shinyFiles::shinyFileChoose(
 shiny::observeEvent(input$load_state, {
   settings_path <- shinyFiles::parseFilePaths(volumes, input$load_state)
   if (nrow(settings_path) > 0) {
-    state <- tryCatch(readRDS(settings_path$datapath), error = function(e) NA)
-    if (!is.na(state)) {
+    load(settings_path$datapath)
+    if (!is.null(state_bookmark)) {
       url <- paste0(
         "http://",
         session$clientData$url_hostname,
         ":",
         session$clientData$url_port,
         "/?_inputs_",
-        state
+        state_bookmark
       )
       js$replace(url)
     }

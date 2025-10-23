@@ -49,18 +49,16 @@ shiny::onBookmark(function(state) {
   if (!is.null(video_path())) {
     state$values$video_path <- video_path()
   }
-  if (!is.null(obb)) {
-    state$values$obb <- obb
-  }
   if (length(tags()) > 0) {
     state$values$tags <- tags()
   }
 })
 
 shiny::onBookmarked(function(url) {
-  state <- sub(".*(\\?_inputs_)", "", url)
+  state_bookmark <- sub(".*(\\?_inputs_)", "", url)
   state_path <- shinyFiles::parseSavePath(volumes, input$save_state)
-  saveRDS(state, state_path$datapath)
+  obb_bookmark <- obb
+  save(state_bookmark, obb_bookmark, file = state_path$datapath)
 })
 
 
@@ -77,15 +75,22 @@ shinyFiles::shinyFileChoose(
 shiny::observeEvent(input$load_state, {
   settings_path <- shinyFiles::parseFilePaths(volumes, input$load_state)
   if (nrow(settings_path) > 0) {
-    state <- tryCatch(readRDS(settings_path$datapath), error = function(e) NA)
-    if (!is.na(state)) {
+    load(settings_path$datapath)
+    if (!is.null(state_bookmark)) {
+      state_bookmark <- paste0(
+        state_bookmark,
+        "&obb_path=",
+        "%22",
+        URLencode(settings_path$datapath, TRUE),
+        "%22"
+      )
       url <- paste0(
         "http://",
         session$clientData$url_hostname,
         ":",
         session$clientData$url_port,
         "/?_inputs_",
-        state
+        state_bookmark
       )
       js$replace(url)
     }
@@ -103,8 +108,9 @@ shiny::onRestore(function(state) {
     video_path(state$values$video_path)
     refresh_video(refresh_video() + 1)
   }
-  if (!is.null(state$values$obb)) {
-    obb <<- data.table::as.data.table(state$values$obb)
+  if (!is.null(state$values$obb_path)) {
+    load(state$values$obb_path)
+    obb <<- data.table::as.data.table(obb_bookmark)
   }
   if (!is.null(state$values$tags)) {
     tags(as.data.frame(state$values$tags))
