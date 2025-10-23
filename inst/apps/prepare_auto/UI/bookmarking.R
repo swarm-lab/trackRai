@@ -14,7 +14,7 @@ shinyWidgets::verticalTabsetPanel(
             "save_state",
             "Save state",
             "Save state as...",
-            filetype = list(R = c("Rds", "rds")),
+            filetype = list(R = c("Rdata", "rda")),
             class = "fullWidth"
           ),
           style = "width: 49%;"
