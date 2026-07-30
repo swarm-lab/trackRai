@@ -252,7 +252,7 @@ shiny::observeEvent(input$start_train_x, {
       )
       imgsz <- trackRcv::n_col(test_image)
       the_temp_file <<- tempfile(fileext = ".txt")
-      model <- paste0("yolo11", input$yolo_x, "-obb.pt")
+      model <- paste0("yolo26", input$yolo_x, "-obb.pt")
       epochs <- input$epochs_x
       patience <- input$patience_x
       yaml <- yaml::read_yaml(paste0(yolo_path(), "/dataset.yaml"))

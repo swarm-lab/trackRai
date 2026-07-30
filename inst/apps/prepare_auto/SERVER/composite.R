@@ -242,7 +242,7 @@ shiny::observeEvent(yolo_path(), {
       dir.create(paste0(yolo_path(), "/YOLO"))
       
       nz <- cv2$findNonZero(cv2$cvtColor(the_mask, cv2$COLOR_BGR2GRAY))
-      roi <- cbind(reticulate::py_to_r(nz[,, 0]), reticulate::py_to_r(nz[,, 1]))
+      roi <- cbind(reticulate::py_to_r(nz[, 0]), reticulate::py_to_r(nz[, 1]))
       x <- min(roi[, 1])
       y <- min(roi[, 2])
       w <- diff(range(roi[, 1])) + 1
