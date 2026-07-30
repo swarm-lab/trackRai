@@ -10,3 +10,5 @@
 ^test$
 ^codecov\.yml$
 ^graveyard$
+dataset.R
+EFFICIENCY_REPORT.md

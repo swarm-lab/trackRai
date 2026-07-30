@@ -9,3 +9,7 @@ test
 docs
 inst/doc
 graveyard
+dataset.R
+/.quarto/
+**/*.quarto_ipynb
+EFFICIENCY_REPORT.md
