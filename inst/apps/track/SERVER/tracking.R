@@ -291,7 +291,7 @@ shiny::observeEvent(the_debounce(), {
                   to_display,
                   cbind(.SD$x, .SD$y),
                   closed = FALSE,
-                  color = .shades[3:1, , (.BY$track[1] %% ncol(.shades)) + 1],
+                  color = .shades[3:1, (.BY$track[1] %% ncol(.shades)) + 1],
                   contrast = c(255, 255, 255),
                   thickness = 2L,
                   outline = as.integer(max(1, round(sc)))
