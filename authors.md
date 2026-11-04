@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/swarm-lab/trackRai/blob/master/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/swarm-lab/trackRai/blob/main/DESCRIPTION)
 
 Garnier S (2026). *trackRai: Multi-Object Tracking With YOLO11*. R
 package version 0.1.0, <https://github.com/swarm-lab/trackRai>.
