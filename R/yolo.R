@@ -39,9 +39,11 @@
 #'  indicating the location of the YOLO installation and its version number.
 #'
 #' @note
-#' If the requested version of Python is not activated on your system, this
-#'  function will attempt to install it first before creating the dedicated
-#'  Python virtual environment.
+#' If no Python of the requested version is found when the dedicated Python
+#'  virtual environment is created, this function installs it first. This
+#'  function does not start Python before the virtual environment exists. If
+#'  Python is already running in the current R session, restart R to use the
+#'  new virtual environment.
 #'
 #' @author Simon Garnier, \email{garnier@@njit.edu}
 #'
@@ -51,43 +53,6 @@
 install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
   if (reticulate::virtualenv_exists("trackR")) {
     reticulate::use_virtualenv("trackR", required = TRUE)
-  } else if (reticulate::virtualenv_exists("r-reticulate")) {
-    reticulate::use_virtualenv("r-reticulate", required = TRUE)
-  }
-
-  reticulate::py_available(TRUE)
-
-  if (is.null(reticulate::py_discover_config())) {
-    py_installed <- FALSE
-  } else if (!grepl(python_version, reticulate::py_discover_config()$version_string)) {
-    py_installed <- FALSE
-  } else {
-    py_installed <- TRUE
-  }
-
-  if (!py_installed) {
-    answer <- utils::askYesNo(
-      paste0(
-        "\n------------------------------------------------------------",
-        "\n",
-        "\nThe Python version found on this system is not the requested one.",
-        "\nPython ", python_version, " will be installed.",
-        "\nWould you like to continue?",
-        "\n",
-        "\n------------------------------------------------------------",
-        "\n"
-      )
-    )
-
-    if (is.na(answer)) {
-      answer <- FALSE
-    }
-
-    if (answer) {
-      reticulate::install_python(version = python_version)
-    } else {
-      warning("\nContinuing installation of YOLO with a non-requested version of Python.\n")
-    }
   }
 
   if (Sys.info()[["sysname"]] == "Windows") {
@@ -119,7 +84,8 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
         "\n------------------------------------------------------------",
         "\n",
         "\nNo trackR environment was found on this system.",
-        "\nIt will be created with all the necessary packages.",
+        "\nIt will be created with Python ", python_version,
+        " (installed first if it is missing) and all the necessary packages.",
         "\nWould you like to continue?",
         "\n",
         "\n------------------------------------------------------------",
@@ -132,10 +98,23 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
     }
 
     if (answer) {
-      reticulate::virtualenv_create(
-        envname = "trackR",
-        version = python_version,
-      )
+      starter <- reticulate::virtualenv_starter(python_version)
+
+      if (is.null(starter)) {
+        reticulate::install_python(version = python_version)
+        starter <- reticulate::virtualenv_starter(python_version)
+
+        if (is.null(starter)) {
+          stop(
+            "\nPython ", python_version, " was installed but was not found.",
+            "\nCheck the installation log, or set the path to the Python ",
+            "executable with options(reticulate.virtualenv.starter = ",
+            "\"<path>\").\n"
+          )
+        }
+      }
+
+      reticulate::virtualenv_create(envname = "trackR", python = starter)
       reticulate::virtualenv_install(
         envname = "trackR",
         packages = c(
@@ -149,6 +128,12 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
           "opencv-python", "ultralytics", "lap"
         )
       )
+
+      if (!reticulate::py_available()) {
+        reticulate::use_virtualenv("trackR", required = TRUE)
+      } else {
+        message("\nThe trackR environment was created. Restart R to use it.\n")
+      }
     } else {
       stop("\nYOLO was not installed on this system.\n")
     }
