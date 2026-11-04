@@ -29,9 +29,11 @@ all its Python dependencies in a dedicated Python virtual environment for
 use with the \link{trackRai} apps.
 }
 \note{
-If the requested version of Python is not activated on your system, this
-function will attempt to install it first before creating the dedicated
-Python virtual environment.
+If no Python of the requested version is found when the dedicated Python
+virtual environment is created, this function installs it first. This
+function does not start Python before the virtual environment exists. If
+Python is already running in the current R session, restart R to use the
+new virtual environment.
 }
 \seealso{
 \code{\link[=remove_yolo]{remove_yolo()}}
