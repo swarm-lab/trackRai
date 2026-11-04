@@ -38,7 +38,7 @@ shinyWidgets::verticalTabPanel(
     "Association thresholds:",
     0,
     1,
-    c(0.2, 0.8),
+    c(0.1, 0.25),
     0.01,
     width = "100%"
   ),
@@ -47,7 +47,7 @@ shinyWidgets::verticalTabPanel(
     "New track threshold:",
     0,
     1,
-    0.95,
+    0.25,
     0.01,
     width = "100%"
   ),
@@ -65,7 +65,7 @@ shinyWidgets::verticalTabPanel(
     "Track matching threshold:",
     0,
     1,
-    0.95,
+    0.8,
     0.01,
     width = "100%"
   ),
