@@ -69,9 +69,8 @@ output$display_frame <- shiny::renderUI({
             } else {
               .shades[
                 3:1,
-                (which(class_names == class_names[classes[i] + 1]) -
-                  1 %%
-                    ncol(.shades)) +
+                ((which(class_names == class_names[classes[i] + 1]) - 1) %%
+                  ncol(.shades)) +
                   1
               ]
             },

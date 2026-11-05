@@ -54,8 +54,8 @@ shiny::observeEvent(refresh_display(), {
             } else {
               .shades[
                 3:1,
-                (which(tags()$label == input$object_tag_x) -
-                  1 %% ncol(.shades)) +
+                ((which(tags()$label == input$object_tag_x) - 1) %%
+                  ncol(.shades)) +
                   1
               ]
             },
@@ -97,9 +97,8 @@ shiny::observeEvent(refresh_display(), {
                 } else {
                   .shades[
                     3:1,
-                    (which(tags()$label == .SD$tag) -
-                      1 %%
-                        ncol(.shades)) +
+                    ((which(tags()$label == .SD$tag) - 1) %%
+                      ncol(.shades)) +
                       1
                   ]
                 },
@@ -121,9 +120,8 @@ shiny::observeEvent(refresh_display(), {
                 } else {
                   .shades[
                     3:1,
-                    (which(tags()$label == .SD$tag) -
-                      1 %%
-                        ncol(.shades)) +
+                    ((which(tags()$label == .SD$tag) - 1) %%
+                      ncol(.shades)) +
                       1
                   ]
                 },
@@ -147,9 +145,8 @@ shiny::observeEvent(refresh_display(), {
                 } else {
                   .shades[
                     3:1,
-                    (which(tags()$label == .SD$tag) -
-                      1 %%
-                        ncol(.shades)) +
+                    ((which(tags()$label == .SD$tag) - 1) %%
+                      ncol(.shades)) +
                       1
                   ]
                 },
