@@ -214,9 +214,11 @@ install_yolo <- function(python_version = "3.12.5", cuda_win_version = "auto") {
     }
   }
 
+  out <- system(paste0(.yolo_path(), " version"), intern = TRUE)
+
   data.frame(
     install_path = .yolo_path(),
-    version = system(paste0(.yolo_path(), " version"), intern = TRUE)
+    version = out[length(out)]
   )
 }
 
